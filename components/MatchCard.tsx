@@ -5,7 +5,7 @@ import { Clock, TrendingUp, Star, ExternalLink } from 'lucide-react';
 import { Match, BestOdds } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { openBookmakerInFrame, getBookmakerInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
+import { getBookmakerInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
 
 interface MatchCardProps {
   match: Match;
@@ -22,23 +22,23 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
   const handleQuickBookmakerClick = (bookmakerName: string, betType: 'home' | 'away' | 'draw' = 'home') => {
     console.log(`Quick click su ${bookmakerName}:`, match.homeTeam, 'vs', match.awayTeam);
     
-    if (onOpenBookmaker) {
-      // Usa il sistema iframe
-      const matchInfo = {
-        homeTeam: match.homeTeam,
-        awayTeam: match.awayTeam,
-        sport: match.sport
-      };
-      openBookmakerInFrame(bookmakerName, onOpenBookmaker, matchInfo);
-    } else {
-      // Fallback: apri in nuova finestra
+    try {
+      // Apri sempre in nuova scheda invece di iframe
       const bookmakerInfo: BookmakerInfo = getBookmakerInfo(bookmakerName);
-      try {
-        window.open(bookmakerInfo.baseUrl, '_blank', 'noopener,noreferrer');
-      } catch (error) {
-        console.error('Errore apertura fallback:', error);
-        alert(`Errore nell'aprire ${bookmakerName}: ${error}`);
+      const url = bookmakerInfo.baseUrl;
+      
+      console.log(`Aprendo ${bookmakerName} in nuova scheda:`, url);
+      
+      const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+      
+      if (!newWindow) {
+        // Popup bloccato, prova con location.href
+        console.warn('Popup bloccato, reindirizzo nella stessa finestra');
+        window.location.href = url;
       }
+    } catch (error) {
+      console.error('Errore apertura finestra:', error);
+      alert(`Errore nell'aprire ${bookmakerName}: ${error}`);
     }
   };
 

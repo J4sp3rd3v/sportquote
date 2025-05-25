@@ -7,7 +7,7 @@ import FilterPanel from '@/components/FilterPanel';
 import MatchDetails from '@/components/MatchDetails';
 import DataSourceToggle from '@/components/DataSourceToggle';
 import SportCategoryStats from '@/components/SportCategoryStats';
-import BookmakerFrame from '@/components/BookmakerFrame';
+
 import { matches as mockMatches, bookmakers } from '@/data/mockData';
 import { useRealOdds } from '@/hooks/useRealOdds';
 import { FilterOptions, BestOdds, Match } from '@/types';
@@ -19,18 +19,7 @@ export default function HomePage() {
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   
-  // Stati per il sistema iframe bookmaker
-  const [bookmakerFrame, setBookmakerFrame] = useState<{
-    isOpen: boolean;
-    url: string;
-    bookmakerName: string;
-    matchInfo?: any;
-  }>({
-    isOpen: false,
-    url: '',
-    bookmakerName: '',
-    matchInfo: null
-  });
+  // Rimosso sistema iframe - ora si apre direttamente in nuova scheda
   
   // Hook per gestire le quote reali
   const {
@@ -172,23 +161,7 @@ export default function HomePage() {
     }
   };
 
-  const handleOpenBookmaker = (url: string, bookmakerName: string, matchInfo: any) => {
-    setBookmakerFrame({
-      isOpen: true,
-      url,
-      bookmakerName,
-      matchInfo
-    });
-  };
-
-  const handleCloseBookmaker = () => {
-    setBookmakerFrame({
-      isOpen: false,
-      url: '',
-      bookmakerName: '',
-      matchInfo: null
-    });
-  };
+  // Rimosso sistema iframe - ora i bookmaker si aprono direttamente in nuova scheda
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -334,13 +307,12 @@ export default function HomePage() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                     {categoryMatches.map((match) => (
-                      <MatchCard
-                        key={match.id}
-                        match={match}
-                        bestOdds={calculateBestOdds(match)}
-                        onViewDetails={handleViewDetails}
-                        onOpenBookmaker={handleOpenBookmaker}
-                      />
+                                        <MatchCard
+                    key={match.id}
+                    match={match}
+                    bestOdds={calculateBestOdds(match)}
+                    onViewDetails={handleViewDetails}
+                  />
                     ))}
                   </div>
                 </div>
@@ -384,18 +356,11 @@ export default function HomePage() {
           bookmakers={bookmakers}
           isOpen={!!selectedMatch}
           onClose={() => setSelectedMatch(null)}
-          onOpenBookmaker={handleOpenBookmaker}
+  
         />
       )}
 
-      {/* Bookmaker Frame */}
-      <BookmakerFrame
-        url={bookmakerFrame.url}
-        bookmakerName={bookmakerFrame.bookmakerName}
-        matchInfo={bookmakerFrame.matchInfo}
-        isOpen={bookmakerFrame.isOpen}
-        onClose={handleCloseBookmaker}
-      />
+              {/* Rimosso BookmakerFrame - ora i siti si aprono direttamente in nuova scheda */}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 mt-16">

@@ -5,7 +5,7 @@ import { X, Star, ExternalLink, Clock, TrendingUp } from 'lucide-react';
 import { Match, Bookmaker } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { openBookmakerInFrame, getBookmakerInfo as getBookmakerLinkInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
+import { getBookmakerInfo as getBookmakerLinkInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
 
 interface MatchDetailsProps {
   match: Match;
@@ -36,29 +36,25 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpe
     }
     
     try {
-      if (onOpenBookmaker) {
-        // Usa il sistema iframe
-        const matchInfo = {
-          homeTeam: match.homeTeam,
-          awayTeam: match.awayTeam,
-          sport: match.sport
-        };
-        openBookmakerInFrame(bookmaker.name, onOpenBookmaker, matchInfo);
-      } else {
-        // Fallback: apri in nuova finestra
-        const bookmakerLinkInfo = getBookmakerLinkInfo(bookmaker.name);
-        const fallbackUrl = bookmaker.website || bookmakerLinkInfo.baseUrl;
-        const url = fallbackUrl?.startsWith('http') 
-          ? fallbackUrl 
-          : `https://${fallbackUrl}`;
-          
-        console.log('Aprendo URL fallback:', url);
+      // Apri sempre in nuova scheda invece di iframe
+      const bookmakerLinkInfo = getBookmakerLinkInfo(bookmaker.name);
+      const targetUrl = bookmaker.website || bookmakerLinkInfo.baseUrl;
+      const url = targetUrl?.startsWith('http') 
+        ? targetUrl 
+        : `https://${targetUrl}`;
         
-        if (url && url !== 'https://undefined') {
-          window.open(url, '_blank', 'noopener,noreferrer');
-        } else {
-          alert(`Sito web non disponibile per ${bookmaker.name}`);
+      console.log(`Aprendo ${bookmaker.name} in nuova scheda:`, url);
+      
+      if (url && url !== 'https://undefined') {
+        const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+        
+        if (!newWindow) {
+          // Popup bloccato, prova con location.href
+          console.warn('Popup bloccato, reindirizzo nella stessa finestra');
+          window.location.href = url;
         }
+      } else {
+        alert(`Sito web non disponibile per ${bookmaker.name}`);
       }
     } catch (error) {
       console.error('Errore apertura finestra:', error);

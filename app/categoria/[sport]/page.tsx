@@ -149,23 +149,7 @@ export default function CategoryPage() {
     }
   };
 
-  const handleOpenBookmaker = (url: string, bookmakerName: string, matchInfo: any) => {
-    setBookmakerFrame({
-      isOpen: true,
-      url,
-      bookmakerName,
-      matchInfo
-    });
-  };
-
-  const handleCloseBookmaker = () => {
-    setBookmakerFrame({
-      isOpen: false,
-      url: '',
-      bookmakerName: '',
-      matchInfo: null
-    });
-  };
+  // Rimosso sistema iframe - ora i bookmaker si aprono direttamente in nuova scheda
 
   const getSportIcon = (sport: string) => {
     switch (sport) {
@@ -318,7 +302,7 @@ export default function CategoryPage() {
                         match={match}
                         bestOdds={calculateBestOdds(match)}
                         onViewDetails={handleViewDetails}
-                        onOpenBookmaker={handleOpenBookmaker}
+        
                       />
                     ))}
                 </div>
@@ -370,18 +354,12 @@ export default function CategoryPage() {
           bookmakers={bookmakers}
           isOpen={!!selectedMatch}
           onClose={() => setSelectedMatch(null)}
-          onOpenBookmaker={handleOpenBookmaker}
+
         />
       )}
 
       {/* Bookmaker Frame */}
-      <BookmakerFrame
-        url={bookmakerFrame.url}
-        bookmakerName={bookmakerFrame.bookmakerName}
-        matchInfo={bookmakerFrame.matchInfo}
-        isOpen={bookmakerFrame.isOpen}
-        onClose={handleCloseBookmaker}
-      />
+              {/* Rimosso BookmakerFrame - ora i siti si aprono direttamente in nuova scheda */}
     </div>
   );
 } 
