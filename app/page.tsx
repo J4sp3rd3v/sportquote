@@ -7,6 +7,8 @@ import FilterPanel from '@/components/FilterPanel';
 import MatchDetails from '@/components/MatchDetails';
 import DataSourceToggle from '@/components/DataSourceToggle';
 import SportCategoryStats from '@/components/SportCategoryStats';
+import NavigationOverlay from '@/components/NavigationOverlay';
+import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 
 import { matches as mockMatches, bookmakers } from '@/data/mockData';
 import { useRealOdds } from '@/hooks/useRealOdds';
@@ -19,7 +21,8 @@ export default function HomePage() {
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   
-  // Rimosso sistema iframe - ora si apre direttamente in nuova scheda
+  // Hook per gestire la barra di navigazione quando si torna da un bookmaker
+  const { navigationData, showOverlay, closeOverlay } = useNavigationOverlay();
   
   // Hook per gestire le quote reali
   const {
@@ -360,7 +363,14 @@ export default function HomePage() {
         />
       )}
 
-              {/* Rimosso BookmakerFrame - ora i siti si aprono direttamente in nuova scheda */}
+      {/* Navigation Overlay */}
+      {showOverlay && navigationData && (
+        <NavigationOverlay
+          bookmakerName={navigationData.bookmakerName}
+          originalUrl={navigationData.originalUrl}
+          onClose={closeOverlay}
+        />
+      )}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 mt-16">

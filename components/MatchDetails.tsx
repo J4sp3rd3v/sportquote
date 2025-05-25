@@ -49,9 +49,23 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpe
         const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
         
         if (!newWindow) {
-          // Popup bloccato, prova con location.href
-          console.warn('Popup bloccato, reindirizzo nella stessa finestra');
-          window.location.href = url;
+          // Popup bloccato, mostra conferma prima del redirect
+          const userConfirm = confirm(
+            `Il popup è stato bloccato dal browser.\n\n` +
+            `Vuoi essere reindirizzato a ${bookmaker.name}?\n\n` +
+            `Nota: Verrà mostrata una barra di navigazione per tornare facilmente a SitoSport.`
+          );
+          
+          if (userConfirm) {
+            // Salva info per la barra di navigazione
+            sessionStorage.setItem('sitosport_navigation', JSON.stringify({
+              bookmakerName: bookmaker.name,
+              originalUrl: window.location.origin,
+              timestamp: Date.now()
+            }));
+            
+            window.location.href = url;
+          }
         }
       } else {
         alert(`Sito web non disponibile per ${bookmaker.name}`);
