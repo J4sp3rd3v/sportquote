@@ -251,7 +251,7 @@ export const matches: Match[] = [
       date: new Date(Date.now() + (i + 1) * 86400000), // Prossimi giorni
       status: 'upcoming' as const,
       odds: bookmakers.slice(0, 15 + Math.floor(Math.random() * 10)).map(b => 
-        generateRealisticOdds(homeTeam, awayTeam, 'serie-a', b.id)
+        generateRealisticOdds(homeTeam, awayTeam, 'serie-a', b.name)
       )
     };
   }),
@@ -268,7 +268,7 @@ export const matches: Match[] = [
       date: new Date(Date.now() + (i + 1) * 86400000),
       status: 'upcoming' as const,
       odds: bookmakers.slice(0, 20 + Math.floor(Math.random() * 10)).map(b => 
-        generateRealisticOdds(homeTeam, awayTeam, 'premier-league', b.id)
+        generateRealisticOdds(homeTeam, awayTeam, 'premier-league', b.name)
       )
     };
   }),
@@ -285,7 +285,7 @@ export const matches: Match[] = [
       date: new Date(Date.now() + (i + 1) * 86400000),
       status: 'upcoming' as const,
       odds: bookmakers.slice(0, 18 + Math.floor(Math.random() * 10)).map(b => 
-        generateRealisticOdds(homeTeam, awayTeam, 'la-liga', b.id)
+        generateRealisticOdds(homeTeam, awayTeam, 'la-liga', b.name)
       )
     };
   }),
@@ -302,7 +302,7 @@ export const matches: Match[] = [
       date: new Date(Date.now() + (i + 1) * 86400000),
       status: 'upcoming' as const,
       odds: bookmakers.slice(0, 16 + Math.floor(Math.random() * 8)).map(b => 
-        generateRealisticOdds(homeTeam, awayTeam, 'bundesliga', b.id)
+        generateRealisticOdds(homeTeam, awayTeam, 'bundesliga', b.name)
       )
     };
   }),
@@ -319,7 +319,7 @@ export const matches: Match[] = [
       date: new Date(Date.now() + (i + 2) * 86400000),
       status: 'upcoming' as const,
       odds: bookmakers.slice(0, 25 + Math.floor(Math.random() * 15)).map(b => 
-        generateRealisticOdds(homeTeam, awayTeam, 'champions-league', b.id)
+        generateRealisticOdds(homeTeam, awayTeam, 'champions-league', b.name)
       )
     };
   }),
@@ -336,7 +336,7 @@ export const matches: Match[] = [
       date: new Date(Date.now() + (i + 1) * 86400000),
       status: 'upcoming' as const,
       odds: bookmakers.slice(0, 20 + Math.floor(Math.random() * 10)).map(b => 
-        generateTennisOdds(players[0], players[1], b.id)
+        generateTennisOdds(players[0], players[1], b.name)
       )
     };
   }),
@@ -353,7 +353,7 @@ export const matches: Match[] = [
       date: new Date(Date.now() + (i + 1) * 86400000),
       status: 'upcoming' as const,
       odds: bookmakers.slice(0, 18 + Math.floor(Math.random() * 8)).map(b => 
-        generateBasketOdds(teams[0], teams[1], b.id)
+        generateBasketOdds(teams[0], teams[1], b.name)
       )
     };
   }),
@@ -370,7 +370,7 @@ export const matches: Match[] = [
       date: new Date(Date.now() + (i + 1) * 86400000),
       status: 'upcoming' as const,
       odds: bookmakers.slice(0, 15 + Math.floor(Math.random() * 8)).map(b => 
-        generateBasketOdds(teams[0], teams[1], b.id)
+        generateBasketOdds(teams[0], teams[1], b.name)
       )
     };
   })

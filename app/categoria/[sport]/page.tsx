@@ -127,9 +127,9 @@ export default function CategoryPage() {
 
   // Funzione per calcolare le migliori quote
   const calculateBestOdds = (match: Match): BestOdds => {
-    const homeOdds = match.odds.map(odd => ({ odds: odd.home, bookmaker: bookmakers.find(b => b.id === odd.bookmaker)?.name || odd.bookmaker }));
-    const awayOdds = match.odds.map(odd => ({ odds: odd.away, bookmaker: bookmakers.find(b => b.id === odd.bookmaker)?.name || odd.bookmaker }));
-    const drawOdds = match.odds.filter(odd => odd.draw).map(odd => ({ odds: odd.draw!, bookmaker: bookmakers.find(b => b.id === odd.bookmaker)?.name || odd.bookmaker }));
+    const homeOdds = match.odds.map(odd => ({ odds: odd.home, bookmaker: odd.bookmaker }));
+    const awayOdds = match.odds.map(odd => ({ odds: odd.away, bookmaker: odd.bookmaker }));
+    const drawOdds = match.odds.filter(odd => odd.draw).map(odd => ({ odds: odd.draw!, bookmaker: odd.bookmaker }));
 
     const bestHome = homeOdds.reduce((best, current) => current.odds > best.odds ? current : best);
     const bestAway = awayOdds.reduce((best, current) => current.odds > best.odds ? current : best);

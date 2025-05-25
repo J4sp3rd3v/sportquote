@@ -33,8 +33,18 @@ export default function BookmakerFrame({
       setIsLoading(true);
       setHasError(false);
       setCurrentUrl(url);
+      
+      // Timeout per gestire siti che non si caricano
+      const timeout = setTimeout(() => {
+        if (isLoading) {
+          setIsLoading(false);
+          setHasError(true);
+        }
+      }, 15000); // 15 secondi timeout
+      
+      return () => clearTimeout(timeout);
     }
-  }, [url, isOpen]);
+  }, [url, isOpen, isLoading]);
 
   const handleIframeLoad = () => {
     setIsLoading(false);
