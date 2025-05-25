@@ -8,6 +8,7 @@ import { getBookmakerInfo } from '@/lib/bookmakerLinks';
 interface BestOddsHighlightProps {
   matches: Match[];
   onBookmakerClick?: (bookmakerName: string, matchInfo: any) => void;
+  onMatchClick?: (match: Match) => void;
 }
 
 interface TopOddsItem {
@@ -18,7 +19,7 @@ interface TopOddsItem {
   profit: number; // Potenziale profitto su 100€
 }
 
-export default function BestOddsHighlight({ matches, onBookmakerClick }: BestOddsHighlightProps) {
+export default function BestOddsHighlight({ matches, onBookmakerClick, onMatchClick }: BestOddsHighlightProps) {
   // Calcola le migliori quote di tutti i match
   const calculateTopOdds = (): TopOddsItem[] => {
     const allOdds: TopOddsItem[] = [];
@@ -98,7 +99,8 @@ export default function BestOddsHighlight({ matches, onBookmakerClick }: BestOdd
     }
   };
 
-  const handleBookmakerClick = (item: TopOddsItem) => {
+  const handleBookmakerClick = (item: TopOddsItem, event: React.MouseEvent) => {
+    event.stopPropagation(); // Previene l'apertura del modal
     if (onBookmakerClick) {
       onBookmakerClick(item.bookmaker, {
         homeTeam: item.match.homeTeam,
@@ -106,6 +108,12 @@ export default function BestOddsHighlight({ matches, onBookmakerClick }: BestOdd
         sport: item.match.sport,
         league: item.match.league
       });
+    }
+  };
+
+  const handleMatchClick = (match: Match) => {
+    if (onMatchClick) {
+      onMatchClick(match);
     }
   };
 
@@ -118,12 +126,18 @@ export default function BestOddsHighlight({ matches, onBookmakerClick }: BestOdd
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900">🔥 Migliori Quote del Momento</h2>
-            <p className="text-sm text-gray-600">Le quote più vantaggiose disponibili ora</p>
+            <p className="text-sm text-gray-600">Le quote più vantaggiose disponibili ora • Clicca per vedere tutte le quote</p>
           </div>
         </div>
-        <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
-          <TrendingUp className="h-4 w-4" />
-          <span>Aggiornate in tempo reale</span>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="hidden sm:inline">LIVE</span>
+          </div>
+          <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
+            <TrendingUp className="h-4 w-4" />
+            <span>Aggiornate in tempo reale</span>
+          </div>
         </div>
       </div>
 
@@ -131,7 +145,8 @@ export default function BestOddsHighlight({ matches, onBookmakerClick }: BestOdd
         {topOdds.map((item, index) => (
           <div
             key={`${item.match.id}-${item.oddType}-${item.bookmaker}`}
-            className="bg-white rounded-lg border border-yellow-300 p-4 hover:shadow-lg transition-all duration-200 hover:border-yellow-400 relative overflow-hidden"
+            className="bg-white rounded-lg border border-yellow-300 p-4 hover:shadow-lg transition-all duration-200 hover:border-yellow-400 relative overflow-hidden cursor-pointer"
+            onClick={() => handleMatchClick(item.match)}
           >
             {/* Badge posizione */}
             <div className="absolute top-2 right-2">
@@ -180,7 +195,7 @@ export default function BestOddsHighlight({ matches, onBookmakerClick }: BestOdd
                       {item.bookmaker}
                     </div>
                     <button
-                      onClick={() => handleBookmakerClick(item)}
+                      onClick={(e) => handleBookmakerClick(item, e)}
                       className="inline-flex items-center text-xs text-blue-600 hover:text-blue-800 font-medium"
                     >
                       Scommetti

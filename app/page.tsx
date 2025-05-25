@@ -297,6 +297,9 @@ export default function HomePage() {
               const url = bookmakerInfo.baseUrl;
               window.open(url, '_blank');
             }}
+            onMatchClick={(match) => {
+              handleViewDetails(match.id);
+            }}
           />
         )}
 

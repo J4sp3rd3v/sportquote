@@ -8,6 +8,7 @@ import FilterPanel from '@/components/FilterPanel';
 import MatchDetails from '@/components/MatchDetails';
 import DataSourceToggle from '@/components/DataSourceToggle';
 import ApiStatusBanner from '@/components/ApiStatusBanner';
+import BestOddsHighlight from '@/components/BestOddsHighlight';
 import BookmakerFrame from '@/components/BookmakerFrame';
 import { matches as mockMatches, bookmakers } from '@/data/mockData';
 import { useRealOdds } from '@/hooks/useRealOdds';
@@ -261,6 +262,31 @@ export default function CategoryPage() {
           loading={loading}
           onToggle={toggleDataSource}
         />
+
+        {/* Best Odds Highlight */}
+        {filteredMatches.length > 0 && (
+          <BestOddsHighlight 
+            matches={filteredMatches}
+            onBookmakerClick={(bookmakerName: string, matchInfo: any) => {
+              // Salva i dati per la navigazione
+              const navigationData = {
+                bookmakerName,
+                originalUrl: window.location.href,
+                timestamp: Date.now(),
+                matchInfo
+              };
+              sessionStorage.setItem('navigationData', JSON.stringify(navigationData));
+              
+              // Apri il bookmaker
+              const bookmakerInfo = require('@/lib/bookmakerLinks').getBookmakerInfo(bookmakerName);
+              const url = bookmakerInfo.baseUrl;
+              window.open(url, '_blank');
+            }}
+            onMatchClick={(match: any) => {
+              handleViewDetails(match.id);
+            }}
+          />
+        )}
 
         {/* Results Header */}
         <div className="flex justify-between items-center mb-6">
