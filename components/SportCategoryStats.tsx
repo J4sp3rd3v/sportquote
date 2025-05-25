@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Trophy, Users, Target, TrendingUp } from 'lucide-react';
 
 interface SportCategoryStatsProps {
@@ -28,8 +29,15 @@ const SPORT_COLORS = {
 };
 
 export default function SportCategoryStats({ stats, isRealData }: SportCategoryStatsProps) {
+  const router = useRouter();
   const totalMatches = Object.values(stats).reduce((sum, category) => sum + category.count, 0);
   const totalLeagues = new Set(Object.values(stats).flatMap(category => category.leagues)).size;
+
+  const handleCategoryClick = (sport: string) => {
+    if (stats[sport as keyof typeof stats].count > 0) {
+      router.push(`/categoria/${sport}`);
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
@@ -57,7 +65,12 @@ export default function SportCategoryStats({ stats, isRealData }: SportCategoryS
         {Object.entries(stats).map(([sport, data]) => (
           <div
             key={sport}
-            className={`rounded-lg border p-4 ${SPORT_COLORS[sport as keyof typeof SPORT_COLORS]}`}
+            onClick={() => handleCategoryClick(sport)}
+            className={`rounded-lg border p-4 transition-all duration-200 ${
+              data.count > 0 
+                ? `cursor-pointer hover:scale-105 hover:shadow-md ${SPORT_COLORS[sport as keyof typeof SPORT_COLORS]}` 
+                : `opacity-50 ${SPORT_COLORS[sport as keyof typeof SPORT_COLORS]}`
+            }`}
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center">

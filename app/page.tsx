@@ -244,40 +244,32 @@ export default function HomePage() {
           onRefresh={refreshData}
         />
 
-        {/* Test Link Bookmaker */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-          <h3 className="text-sm font-medium text-yellow-800 mb-2">🧪 Test Link Bookmaker</h3>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => {
-                console.log('Test Bet365');
-                window.open('https://www.bet365.it', '_blank', 'noopener,noreferrer');
-              }}
-              className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-sm hover:bg-yellow-200"
-            >
-              Test Bet365
-            </button>
-            <button
-              onClick={() => {
-                console.log('Test Sisal');
-                window.open('https://www.sisal.it', '_blank', 'noopener,noreferrer');
-              }}
-              className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-sm hover:bg-yellow-200"
-            >
-              Test Sisal
-            </button>
-            <button
-              onClick={() => {
-                console.log('Test Google (controllo)');
-                window.open('https://www.google.it', '_blank', 'noopener,noreferrer');
-              }}
-              className="px-3 py-1 bg-green-100 text-green-800 rounded text-sm hover:bg-green-200"
-            >
-              Test Google (controllo)
-            </button>
+        {/* Test Link Bookmaker Avanzato */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h3 className="text-sm font-medium text-blue-800 mb-2">🚀 Sistema Link Diretti Attivo</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 className="text-xs font-semibold text-blue-700 mb-2">✅ Bookmaker con Link Diretti:</h4>
+              <div className="flex flex-wrap gap-1">
+                {['Bet365', 'Sisal', 'Snai', 'Bwin', 'Betfair', 'Unibet'].map(name => (
+                  <span key={name} className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h4 className="text-xs font-semibold text-blue-700 mb-2">🔗 Funzionalità:</h4>
+              <ul className="text-xs text-blue-600 space-y-1">
+                <li>• Link diretti alle partite specifiche</li>
+                <li>• Parametri UTM per tracking</li>
+                <li>• Fallback automatico per altri bookmaker</li>
+                <li>• Gestione errori avanzata</li>
+              </ul>
+            </div>
           </div>
-          <p className="text-xs text-yellow-700 mt-2">
-            Usa questi pulsanti per testare se i link si aprono correttamente. Se Google si apre ma i bookmaker no, potrebbe essere un problema di popup blocker.
+          <p className="text-xs text-blue-700 mt-3">
+            💡 <strong>Novità:</strong> Clicca sulle quote nelle card per andare direttamente alla pagina della partita sul sito del bookmaker!
           </p>
         </div>
 

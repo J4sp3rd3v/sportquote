@@ -5,6 +5,7 @@ import { X, Star, ExternalLink, Clock, TrendingUp } from 'lucide-react';
 import { Match, Bookmaker } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { openMatchUrl, getBookmakerInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
 
 interface MatchDetailsProps {
   match: Match;
@@ -24,8 +25,8 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose }: Mat
     return bookmakers.find(b => b.id === bookmakerId);
   };
 
-  const handleBookmakerClick = (bookmaker: Bookmaker | undefined) => {
-    console.log('Bookmaker clicked:', bookmaker);
+  const handleBookmakerClick = (bookmaker: Bookmaker | undefined, betType: 'home' | 'away' | 'draw' = 'home') => {
+    console.log('Bookmaker clicked:', bookmaker, 'betType:', betType);
     
     if (!bookmaker) {
       console.log('Nessun bookmaker trovato');
@@ -33,20 +34,27 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose }: Mat
       return;
     }
     
-    if (!bookmaker.website) {
-      console.log('Nessun website per:', bookmaker.name);
-      alert(`Sito web non disponibile per ${bookmaker.name}`);
-      return;
-    }
-    
-    const url = bookmaker.website.startsWith('http') 
-      ? bookmaker.website 
-      : `https://${bookmaker.website}`;
-      
-    console.log('Aprendo URL:', url);
-    
     try {
-      window.open(url, '_blank', 'noopener,noreferrer');
+      const bookmakerInfo = getBookmakerInfo(bookmaker.name);
+      
+      if (bookmakerInfo.hasDirectLink) {
+        // Usa il sistema di link diretti alla partita
+        openMatchUrl(match, bookmaker.name, betType);
+      } else {
+        // Fallback al sito principale del bookmaker
+        const fallbackUrl = bookmaker.website || bookmakerInfo.baseUrl;
+        const url = fallbackUrl?.startsWith('http') 
+          ? fallbackUrl 
+          : `https://${fallbackUrl}`;
+          
+        console.log('Aprendo URL fallback:', url);
+        
+        if (url && url !== 'https://undefined') {
+          window.open(url, '_blank', 'noopener,noreferrer');
+        } else {
+          alert(`Sito web non disponibile per ${bookmaker.name}`);
+        }
+      }
     } catch (error) {
       console.error('Errore apertura finestra:', error);
       alert(`Errore nell'aprire il sito: ${error}`);
@@ -183,15 +191,33 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose }: Mat
                             </span>
                           </td>
                           <td className="py-3 sm:py-4 px-2 sm:px-4 text-center">
-                            <button 
-                              onClick={() => handleBookmakerClick(bookmaker)}
-                              className="inline-flex items-center px-2 sm:px-3 py-1 text-xs font-medium text-primary-600 bg-primary-50 rounded-full hover:bg-primary-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                              disabled={!bookmaker?.website}
-                            >
-                              <ExternalLink className="h-3 w-3 mr-1" />
-                              <span className="hidden sm:inline">Vai al sito</span>
-                              <span className="sm:hidden">Vai</span>
-                            </button>
+                            <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
+                              <button 
+                                onClick={() => handleBookmakerClick(bookmaker, 'home')}
+                                className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-600 bg-green-50 rounded hover:bg-green-100 transition-colors duration-200"
+                                title={`Scommetti su vittoria ${match.homeTeam}`}
+                              >
+                                <span className="hidden sm:inline">1</span>
+                                <span className="sm:hidden">1</span>
+                              </button>
+                              {match.odds[0]?.draw && (
+                                <button 
+                                  onClick={() => handleBookmakerClick(bookmaker, 'draw')}
+                                  className="inline-flex items-center px-2 py-1 text-xs font-medium text-yellow-600 bg-yellow-50 rounded hover:bg-yellow-100 transition-colors duration-200"
+                                  title="Scommetti su pareggio"
+                                >
+                                  <span>X</span>
+                                </button>
+                              )}
+                              <button 
+                                onClick={() => handleBookmakerClick(bookmaker, 'away')}
+                                className="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors duration-200"
+                                title={`Scommetti su vittoria ${match.awayTeam}`}
+                              >
+                                <span className="hidden sm:inline">2</span>
+                                <span className="sm:hidden">2</span>
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
