@@ -12,10 +12,11 @@ import ApiStatusBanner from '@/components/ApiStatusBanner';
 import BestOddsHighlight from '@/components/BestOddsHighlight';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import BookmakerTestPanel from '@/components/BookmakerTestPanel';
+import OptimizedApiStats from '@/components/OptimizedApiStats';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 
 import { matches as mockMatches, bookmakers } from '@/data/mockData';
-import { useRealOdds } from '@/hooks/useRealOdds';
+import { useOptimizedOdds } from '@/hooks/useOptimizedOdds';
 import { FilterOptions, BestOdds, Match } from '@/types';
 import { TrendingUp, Users, Award, Clock, Filter } from 'lucide-react';
 
@@ -28,18 +29,17 @@ export default function HomePage() {
   // Hook per gestire la barra di navigazione quando si torna da un bookmaker
   const { navigationData, showOverlay, closeOverlay } = useNavigationOverlay();
   
-  // Hook per gestire le quote reali
+  // Hook per gestire le quote ottimizzate
   const {
     matches: realMatches,
     loading,
     error,
-    lastUpdate,
-    apiStatus,
-    categoryStats,
-    refreshData,
     useRealData,
-    toggleDataSource
-  } = useRealOdds();
+    apiStats,
+    toggleDataSource,
+    forceRefresh,
+    refreshSport
+  } = useOptimizedOdds();
 
   // Usa i dati reali se disponibili, altrimenti quelli simulati
   const matches = useRealData ? realMatches : mockMatches;
@@ -71,7 +71,7 @@ export default function HomePage() {
     };
   }, [useRealData]);
 
-  const currentStats = useRealData ? categoryStats : mockCategoryStats;
+  const currentStats = mockCategoryStats;
 
   // Funzione per calcolare le migliori quote
   const calculateBestOdds = (match: Match): BestOdds => {

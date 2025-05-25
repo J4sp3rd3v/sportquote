@@ -1,5 +1,5 @@
 // Servizio per integrare The Odds API
-const ODDS_API_KEY = '9640f946c5bb763f61fd8105717aad6b';
+const ODDS_API_KEY = 'f9fddbc4c5be58bd8e9e13ad9c91a3cc';
 const BASE_URL = 'https://api.the-odds-api.com/v4';
 
 export interface OddsApiSport {
