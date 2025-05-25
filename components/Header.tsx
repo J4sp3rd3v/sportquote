@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Menu, X, TrendingUp, Star, Filter, Bug } from 'lucide-react';
+import { Search, Menu, X, TrendingUp, Star, Filter, Bug, TestTube } from 'lucide-react';
 import BookmakerDebugPanel from './BookmakerDebugPanel';
+import BookmakerTestPanel from './BookmakerTestPanel';
 
 interface HeaderProps {
   onSearchChange: (query: string) => void;
@@ -13,6 +14,7 @@ export default function Header({ onSearchChange, onFilterToggle }: HeaderProps) 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [showTestPanel, setShowTestPanel] = useState(false);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -74,14 +76,24 @@ export default function Header({ onSearchChange, onFilterToggle }: HeaderProps) 
                 Filtri
               </button>
               {showDebugButton && (
-                <button
-                  onClick={() => setShowDebugPanel(true)}
-                  className="flex items-center text-orange-600 hover:text-orange-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                  title="Debug Bookmaker"
-                >
-                  <Bug className="h-4 w-4 mr-1" />
-                  Debug
-                </button>
+                <>
+                  <button
+                    onClick={() => setShowDebugPanel(true)}
+                    className="flex items-center text-orange-600 hover:text-orange-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                    title="Debug Bookmaker"
+                  >
+                    <Bug className="h-4 w-4 mr-1" />
+                    Debug
+                  </button>
+                  <button
+                    onClick={() => setShowTestPanel(true)}
+                    className="flex items-center text-green-600 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                    title="Test Bookmaker"
+                  >
+                    <TestTube className="h-4 w-4 mr-1" />
+                    Test
+                  </button>
+                </>
               )}
             </nav>
 
@@ -138,13 +150,22 @@ export default function Header({ onSearchChange, onFilterToggle }: HeaderProps) 
                 Filtri
               </button>
               {showDebugButton && (
-                <button
-                  onClick={() => setShowDebugPanel(true)}
-                  className="flex items-center text-orange-600 hover:text-orange-700 w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
-                >
-                  <Bug className="h-4 w-4 mr-2" />
-                  Debug Bookmaker
-                </button>
+                <>
+                  <button
+                    onClick={() => setShowDebugPanel(true)}
+                    className="flex items-center text-orange-600 hover:text-orange-700 w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                  >
+                    <Bug className="h-4 w-4 mr-2" />
+                    Debug Bookmaker
+                  </button>
+                  <button
+                    onClick={() => setShowTestPanel(true)}
+                    className="flex items-center text-green-600 hover:text-green-700 w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                  >
+                    <TestTube className="h-4 w-4 mr-2" />
+                    Test Bookmaker
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -155,6 +176,12 @@ export default function Header({ onSearchChange, onFilterToggle }: HeaderProps) 
       <BookmakerDebugPanel 
         isOpen={showDebugPanel} 
         onClose={() => setShowDebugPanel(false)} 
+      />
+      
+      {/* Test Panel */}
+      <BookmakerTestPanel 
+        isOpen={showTestPanel} 
+        onClose={() => setShowTestPanel(false)} 
       />
     </>
   );
