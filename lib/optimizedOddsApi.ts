@@ -432,5 +432,21 @@ export class OptimizedOddsApiService {
   }
 }
 
-// Istanza singleton
-export const optimizedOddsApi = new OptimizedOddsApiService(); 
+// Istanza globale del servizio API ottimizzato
+let optimizedApiInstance: OptimizedOddsApiService | null = null;
+
+export function getOptimizedOddsApi(): OptimizedOddsApiService {
+  if (!optimizedApiInstance) {
+    optimizedApiInstance = new OptimizedOddsApiService();
+  }
+  return optimizedApiInstance;
+}
+
+// Esporta l'istanza per compatibilità
+export const optimizedOddsApi = {
+  getApiStatus: () => getOptimizedOddsApi().getApiStatus(),
+  getMultipleSportsOptimized: () => getOptimizedOddsApi().getMultipleSportsOptimized(),
+  forceUpdateSport: (sport: string) => getOptimizedOddsApi().forceUpdateSport(sport),
+  cleanExpiredCache: () => getOptimizedOddsApi().cleanExpiredCache(),
+  getDetailedStats: () => getOptimizedOddsApi().getDetailedStats()
+}; 

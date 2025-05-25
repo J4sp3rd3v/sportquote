@@ -13,6 +13,7 @@ import BestOddsHighlight from '@/components/BestOddsHighlight';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import BookmakerTestPanel from '@/components/BookmakerTestPanel';
 import OptimizedApiStats from '@/components/OptimizedApiStats';
+import DebugPanel from '@/components/DebugPanel';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 
 import { matches as mockMatches, bookmakers } from '@/data/mockData';
@@ -25,6 +26,7 @@ export default function HomePage() {
   const [filters, setFilters] = useState<FilterOptions>({});
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [isDebugPanelOpen, setIsDebugPanelOpen] = useState(false);
   
   // Hook per gestire la barra di navigazione quando si torna da un bookmaker
   const { navigationData, showOverlay, closeOverlay } = useNavigationOverlay();
@@ -234,7 +236,7 @@ export default function HomePage() {
                   <span className="text-red-600 font-medium">LIVE</span>
                   <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
                   <span className="text-center sm:text-left">
-                    {lastUpdate ? lastUpdate.toLocaleTimeString('it-IT') : 'Caricando...'}
+                    {new Date().toLocaleTimeString('it-IT')}
                   </span>
                 </div>
               ) : (
@@ -383,7 +385,7 @@ export default function HomePage() {
             <button
               onClick={() => {
                 if (useRealData && matches.length === 0) {
-                  refreshData();
+                  forceRefresh();
                 } else {
                   setSearchQuery('');
                   setFilters({});
@@ -422,6 +424,14 @@ export default function HomePage() {
           bookmakerName={navigationData.bookmakerName}
           originalUrl={navigationData.originalUrl}
           onClose={closeOverlay}
+        />
+      )}
+
+      {/* Debug Panel - Solo in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <DebugPanel
+          isVisible={isDebugPanelOpen}
+          onToggle={() => setIsDebugPanelOpen(!isDebugPanelOpen)}
         />
       )}
 

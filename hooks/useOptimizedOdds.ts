@@ -54,22 +54,28 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
     try {
       setError(null);
       
-      // Ottieni statistiche API
-      const stats = await optimizedOddsApi.getApiStatus();
-      setApiStats(stats);
+      // Ottieni statistiche API con controllo di sicurezza
+      let stats = null;
+      try {
+        stats = await optimizedOddsApi.getApiStatus();
+        setApiStats(stats);
+      } catch (statsError) {
+        console.warn('Errore nel recupero statistiche API:', statsError);
+        // Continua comunque con il caricamento dati
+      }
       
-             if (!stats?.isActive) {
-         throw new Error('API non disponibile');
-       }
+      if (stats && typeof stats === 'object' && 'isActive' in stats && !stats.isActive) {
+        throw new Error('API non disponibile');
+      }
 
       // Ottieni eventi da API ottimizzata
       const apiEvents = await optimizedOddsApi.getMultipleSportsOptimized();
       
-      if (apiEvents.length === 0) {
+      if (!apiEvents || apiEvents.length === 0) {
         throw new Error('Nessun dato disponibile dall\'API');
       }
 
-      // Converti nel formato dell'app
+      // Converti nel formato dell'app con controllo di sicurezza
       const oddsService = new OddsApiService();
       const convertedMatches = oddsService.convertToAppFormat(apiEvents);
       
@@ -78,7 +84,8 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
       
     } catch (error) {
       console.error('Errore API ottimizzata:', error);
-      setError((error as Error).message);
+      const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto API';
+      setError(errorMessage);
       
       // Fallback automatico ai dati mock
       console.log('🔄 Fallback automatico ai dati simulati');

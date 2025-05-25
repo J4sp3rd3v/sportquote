@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import React from 'react'
 import './globals.css'
 
@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   description: 'Confronta le quote dei migliori siti di scommesse sportive in tempo reale. Trova le migliori quote per calcio, tennis, basket e molto altro.',
   keywords: 'scommesse, quote, confronto, calcio, tennis, basket, sport',
   authors: [{ name: 'SitoSport Team' }],
-  viewport: 'width=device-width, initial-scale=1',
   robots: 'index, follow',
   openGraph: {
     title: 'SitoSport - Confronta Quote Scommesse',
@@ -15,6 +14,11 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'it_IT',
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({
