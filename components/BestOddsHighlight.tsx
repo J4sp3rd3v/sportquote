@@ -101,14 +101,15 @@ export default function BestOddsHighlight({ matches, onBookmakerClick, onMatchCl
 
   const handleBookmakerClick = (item: TopOddsItem, event: React.MouseEvent) => {
     event.stopPropagation(); // Previene l'apertura del modal
-    if (onBookmakerClick) {
-      onBookmakerClick(item.bookmaker, {
-        homeTeam: item.match.homeTeam,
-        awayTeam: item.match.awayTeam,
-        sport: item.match.sport,
-        league: item.match.league
-      });
-    }
+    
+    // Usa la nuova funzione openBookmaker direttamente
+    const { openBookmaker } = require('@/lib/bookmakerLinks');
+    openBookmaker(item.bookmaker, {
+      homeTeam: item.match.homeTeam,
+      awayTeam: item.match.awayTeam,
+      sport: item.match.sport,
+      league: item.match.league
+    });
   };
 
   const handleMatchClick = (match: Match) => {

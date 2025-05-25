@@ -49,10 +49,10 @@ export const bookmakers: Bookmaker[] = [
   { id: '35', name: 'Interwetten', logo: '/logos/interwetten.png', rating: 3.3, bonus: 'Fino a €100', website: 'interwetten.it', country: 'Austria' },
   
   // Exchange e bookmaker specializzati
-  { id: '36', name: 'Betfair Exchange', logo: '/logos/betfair-exchange.png', rating: 4.3, bonus: 'Commissioni ridotte', website: 'betfair.it', country: 'UK' },
-  { id: '37', name: 'Smarkets', logo: '/logos/smarkets.png', rating: 4.0, bonus: 'Commissioni ridotte', website: 'smarkets.it', country: 'UK' },
-  { id: '38', name: 'Betdaq', logo: '/logos/betdaq.png', rating: 3.7, bonus: 'Commissioni ridotte', website: 'betdaq.it', country: 'Malta' },
-  { id: '39', name: 'Matchbook', logo: '/logos/matchbook.png', rating: 3.6, bonus: 'Commissioni ridotte', website: 'matchbook.it', country: 'Malta' },
+  { id: '36', name: 'Betfair Exchange', logo: '/logos/betfair-exchange.png', rating: 4.3, bonus: 'Commissioni ridotte', website: 'betfair.it/exchange', country: 'UK' },
+  { id: '37', name: 'Smarkets', logo: '/logos/smarkets.png', rating: 4.0, bonus: 'Commissioni ridotte', website: 'smarkets.com', country: 'UK' },
+  { id: '38', name: 'Betdaq', logo: '/logos/betdaq.png', rating: 3.7, bonus: 'Commissioni ridotte', website: 'betdaq.com', country: 'Malta' },
+  { id: '39', name: 'Matchbook', logo: '/logos/matchbook.png', rating: 3.6, bonus: 'Commissioni ridotte', website: 'matchbook.com', country: 'Malta' },
   { id: '40', name: '10Bet', logo: '/logos/10bet.png', rating: 3.4, bonus: 'Fino a €100', website: '10bet.it', country: 'Malta' },
   
   // Bookmaker con licenza italiana aggiuntivi
@@ -64,10 +64,10 @@ export const bookmakers: Bookmaker[] = [
   
   // Bookmaker internazionali con buona reputazione
   { id: '46', name: 'Parimatch', logo: '/logos/parimatch.png', rating: 3.7, bonus: 'Fino a €100', website: 'parimatch.it', country: 'Malta' },
-  { id: '47', name: 'Librabet', logo: '/logos/librabet.png', rating: 3.4, bonus: 'Fino a €100', website: 'librabet.it', country: 'Malta' },
-  { id: '48', name: 'Rabona', logo: '/logos/rabona.png', rating: 3.3, bonus: 'Fino a €500', website: 'rabona.it', country: 'Malta' },
-  { id: '49', name: 'Campobet', logo: '/logos/campobet.png', rating: 3.2, bonus: 'Fino a €100', website: 'campobet.it', country: 'Malta' },
-  { id: '50', name: '32Red', logo: '/logos/32red.png', rating: 3.5, bonus: 'Fino a €100', website: '32red.it', country: 'Malta' }
+  { id: '47', name: 'Librabet', logo: '/logos/librabet.png', rating: 3.4, bonus: 'Fino a €100', website: 'librabet.com', country: 'Malta' },
+  { id: '48', name: 'Rabona', logo: '/logos/rabona.png', rating: 3.3, bonus: 'Fino a €500', website: 'rabona.com', country: 'Malta' },
+  { id: '49', name: 'Campobet', logo: '/logos/campobet.png', rating: 3.2, bonus: 'Fino a €100', website: 'campobet.com', country: 'Malta' },
+  { id: '50', name: '32Red', logo: '/logos/32red.png', rating: 3.5, bonus: 'Fino a €100', website: '32red.com', country: 'Malta' }
 ];
 
 export const sports: Sport[] = [

@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Menu, X, TrendingUp, Star, Filter, Bug, TestTube, Database } from 'lucide-react';
+import { Search, Menu, X, TrendingUp, Star, Filter, Bug, Database } from 'lucide-react';
 import BookmakerDebugPanel from './BookmakerDebugPanel';
-import BookmakerTestPanel from './BookmakerTestPanel';
 import ApiTestPanel from './ApiTestPanel';
 
 interface HeaderProps {
@@ -15,7 +14,7 @@ export default function Header({ onSearchChange, onFilterToggle }: HeaderProps) 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showDebugPanel, setShowDebugPanel] = useState(false);
-  const [showTestPanel, setShowTestPanel] = useState(false);
+  // const [showTestPanel, setShowTestPanel] = useState(false); // Rimosso
   const [showApiPanel, setShowApiPanel] = useState(false);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,14 +86,7 @@ export default function Header({ onSearchChange, onFilterToggle }: HeaderProps) 
                     <Bug className="h-4 w-4 mr-1" />
                     Debug
                   </button>
-                  <button
-                    onClick={() => setShowTestPanel(true)}
-                    className="flex items-center text-green-600 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                    title="Test Bookmaker"
-                  >
-                    <TestTube className="h-4 w-4 mr-1" />
-                    Test
-                  </button>
+                  {/* Test button rimosso - ora disponibile nella homepage */}
                   <button
                     onClick={() => setShowApiPanel(true)}
                     className="flex items-center text-purple-600 hover:text-purple-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
@@ -168,13 +160,7 @@ export default function Header({ onSearchChange, onFilterToggle }: HeaderProps) 
                     <Bug className="h-4 w-4 mr-2" />
                     Debug Bookmaker
                   </button>
-                  <button
-                    onClick={() => setShowTestPanel(true)}
-                    className="flex items-center text-green-600 hover:text-green-700 w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
-                  >
-                    <TestTube className="h-4 w-4 mr-2" />
-                    Test Bookmaker
-                  </button>
+                  {/* Test button mobile rimosso - ora disponibile nella homepage */}
                   <button
                     onClick={() => setShowApiPanel(true)}
                     className="flex items-center text-purple-600 hover:text-purple-700 w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
@@ -195,11 +181,7 @@ export default function Header({ onSearchChange, onFilterToggle }: HeaderProps) 
         onClose={() => setShowDebugPanel(false)} 
       />
       
-      {/* Test Panel */}
-      <BookmakerTestPanel 
-        isOpen={showTestPanel} 
-        onClose={() => setShowTestPanel(false)} 
-      />
+      {/* Test Panel rimosso - ora disponibile nella homepage */}
       
       {/* API Test Panel */}
       <ApiTestPanel 

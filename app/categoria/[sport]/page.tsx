@@ -267,21 +267,6 @@ export default function CategoryPage() {
         {filteredMatches.length > 0 && (
           <BestOddsHighlight 
             matches={filteredMatches}
-            onBookmakerClick={(bookmakerName: string, matchInfo: any) => {
-              // Salva i dati per la navigazione
-              const navigationData = {
-                bookmakerName,
-                originalUrl: window.location.href,
-                timestamp: Date.now(),
-                matchInfo
-              };
-              sessionStorage.setItem('navigationData', JSON.stringify(navigationData));
-              
-              // Apri il bookmaker
-              const bookmakerInfo = require('@/lib/bookmakerLinks').getBookmakerInfo(bookmakerName);
-              const url = bookmakerInfo.baseUrl;
-              window.open(url, '_blank');
-            }}
             onMatchClick={(match: any) => {
               handleViewDetails(match.id);
             }}

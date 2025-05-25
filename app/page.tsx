@@ -11,6 +11,7 @@ import NavigationOverlay from '@/components/NavigationOverlay';
 import ApiStatusBanner from '@/components/ApiStatusBanner';
 import BestOddsHighlight from '@/components/BestOddsHighlight';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import BookmakerTestPanel from '@/components/BookmakerTestPanel';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 
 import { matches as mockMatches, bookmakers } from '@/data/mockData';
@@ -276,27 +277,15 @@ export default function HomePage() {
           onToggle={toggleDataSource}
         />
 
-
+        {/* Bookmaker Test Panel - Solo in development */}
+        {process.env.NODE_ENV === 'development' && (
+          <BookmakerTestPanel />
+        )}
 
         {/* Best Odds Highlight */}
         {filteredMatches.length > 0 && (
           <BestOddsHighlight 
             matches={filteredMatches}
-            onBookmakerClick={(bookmakerName, matchInfo) => {
-              // Salva i dati per la navigazione
-              const navigationData = {
-                bookmakerName,
-                originalUrl: window.location.href,
-                timestamp: Date.now(),
-                matchInfo
-              };
-              sessionStorage.setItem('navigationData', JSON.stringify(navigationData));
-              
-              // Apri il bookmaker
-              const bookmakerInfo = require('@/lib/bookmakerLinks').getBookmakerInfo(bookmakerName);
-              const url = bookmakerInfo.baseUrl;
-              window.open(url, '_blank');
-            }}
             onMatchClick={(match) => {
               handleViewDetails(match.id);
             }}
