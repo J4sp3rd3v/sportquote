@@ -5,16 +5,17 @@ import { X, Star, ExternalLink, Clock, TrendingUp } from 'lucide-react';
 import { Match, Bookmaker } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { openMatchUrl, getBookmakerInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
+import { openMatchInFrame, getBookmakerInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
 
 interface MatchDetailsProps {
   match: Match;
   bookmakers: Bookmaker[];
   isOpen: boolean;
   onClose: () => void;
+  onOpenBookmaker?: (url: string, bookmakerName: string, matchInfo: any) => void;
 }
 
-export default function MatchDetails({ match, bookmakers, isOpen, onClose }: MatchDetailsProps) {
+export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpenBookmaker }: MatchDetailsProps) {
   if (!isOpen) return null;
 
   const formatDate = (date: Date) => {
@@ -35,13 +36,12 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose }: Mat
     }
     
     try {
-      const bookmakerInfo = getBookmakerInfo(bookmaker.name);
-      
-      if (bookmakerInfo.hasDirectLink) {
-        // Usa il sistema di link diretti alla partita
-        openMatchUrl(match, bookmaker.name, betType);
+      if (onOpenBookmaker) {
+        // Usa il sistema iframe
+        openMatchInFrame(match, bookmaker.name, betType, onOpenBookmaker);
       } else {
-        // Fallback al sito principale del bookmaker
+        // Fallback: apri in nuova finestra
+        const bookmakerInfo = getBookmakerInfo(bookmaker.name);
         const fallbackUrl = bookmaker.website || bookmakerInfo.baseUrl;
         const url = fallbackUrl?.startsWith('http') 
           ? fallbackUrl 

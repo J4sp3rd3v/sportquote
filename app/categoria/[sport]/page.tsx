@@ -7,6 +7,7 @@ import MatchCard from '@/components/MatchCard';
 import FilterPanel from '@/components/FilterPanel';
 import MatchDetails from '@/components/MatchDetails';
 import DataSourceToggle from '@/components/DataSourceToggle';
+import BookmakerFrame from '@/components/BookmakerFrame';
 import { matches as mockMatches, bookmakers } from '@/data/mockData';
 import { useRealOdds } from '@/hooks/useRealOdds';
 import { FilterOptions, BestOdds, Match } from '@/types';
@@ -21,6 +22,19 @@ export default function CategoryPage() {
   const [filters, setFilters] = useState<FilterOptions>({ sport });
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  
+  // Stati per il sistema iframe bookmaker
+  const [bookmakerFrame, setBookmakerFrame] = useState<{
+    isOpen: boolean;
+    url: string;
+    bookmakerName: string;
+    matchInfo?: any;
+  }>({
+    isOpen: false,
+    url: '',
+    bookmakerName: '',
+    matchInfo: null
+  });
   
   // Hook per gestire le quote reali
   const {
@@ -133,6 +147,24 @@ export default function CategoryPage() {
     if (match) {
       setSelectedMatch(match);
     }
+  };
+
+  const handleOpenBookmaker = (url: string, bookmakerName: string, matchInfo: any) => {
+    setBookmakerFrame({
+      isOpen: true,
+      url,
+      bookmakerName,
+      matchInfo
+    });
+  };
+
+  const handleCloseBookmaker = () => {
+    setBookmakerFrame({
+      isOpen: false,
+      url: '',
+      bookmakerName: '',
+      matchInfo: null
+    });
   };
 
   const getSportIcon = (sport: string) => {
@@ -280,14 +312,15 @@ export default function CategoryPage() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                  {leagueMatches.map((match) => (
-                    <MatchCard
-                      key={match.id}
-                      match={match}
-                      bestOdds={calculateBestOdds(match)}
-                      onViewDetails={handleViewDetails}
-                    />
-                  ))}
+                                      {leagueMatches.map((match) => (
+                      <MatchCard
+                        key={match.id}
+                        match={match}
+                        bestOdds={calculateBestOdds(match)}
+                        onViewDetails={handleViewDetails}
+                        onOpenBookmaker={handleOpenBookmaker}
+                      />
+                    ))}
                 </div>
               </div>
             ))}
@@ -337,8 +370,18 @@ export default function CategoryPage() {
           bookmakers={bookmakers}
           isOpen={!!selectedMatch}
           onClose={() => setSelectedMatch(null)}
+          onOpenBookmaker={handleOpenBookmaker}
         />
       )}
+
+      {/* Bookmaker Frame */}
+      <BookmakerFrame
+        url={bookmakerFrame.url}
+        bookmakerName={bookmakerFrame.bookmakerName}
+        matchInfo={bookmakerFrame.matchInfo}
+        isOpen={bookmakerFrame.isOpen}
+        onClose={handleCloseBookmaker}
+      />
     </div>
   );
 } 

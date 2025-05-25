@@ -144,7 +144,7 @@ function generateFallbackUrl(bookmakerName: string): string {
   return fallbackUrls[bookmakerName] || `https://www.google.com/search?q=${encodeURIComponent(`${bookmakerName} scommesse sportive`)}`;
 }
 
-// Funzione per aprire il link con gestione errori
+// Funzione per aprire il link con gestione errori (deprecata - usa openMatchInFrame)
 export function openMatchUrl(
   match: Match, 
   bookmakerName: string, 
@@ -164,6 +164,30 @@ export function openMatchUrl(
     }
   } catch (error) {
     console.error('Errore apertura URL:', error);
+    alert(`Errore nell'aprire ${bookmakerName}: ${error}`);
+  }
+}
+
+// Nuova funzione per aprire in iframe
+export function openMatchInFrame(
+  match: Match, 
+  bookmakerName: string, 
+  betType: 'home' | 'away' | 'draw' = 'home',
+  onOpenFrame: (url: string, bookmakerName: string, matchInfo: any) => void
+): void {
+  try {
+    const url = generateMatchUrl(match, bookmakerName, betType);
+    console.log(`Aprendo ${bookmakerName} in iframe per ${match.homeTeam} vs ${match.awayTeam} (${betType}):`, url);
+    
+    const matchInfo = {
+      homeTeam: match.homeTeam,
+      awayTeam: match.awayTeam,
+      sport: match.sport
+    };
+    
+    onOpenFrame(url, bookmakerName, matchInfo);
+  } catch (error) {
+    console.error('Errore apertura iframe:', error);
     alert(`Errore nell'aprire ${bookmakerName}: ${error}`);
   }
 }

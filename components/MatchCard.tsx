@@ -5,15 +5,16 @@ import { Clock, TrendingUp, Star, ExternalLink } from 'lucide-react';
 import { Match, BestOdds } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { openMatchUrl, getBookmakerInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
+import { openMatchInFrame, getBookmakerInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
 
 interface MatchCardProps {
   match: Match;
   bestOdds: BestOdds;
   onViewDetails: (matchId: string) => void;
+  onOpenBookmaker?: (url: string, bookmakerName: string, matchInfo: any) => void;
 }
 
-export default function MatchCard({ match, bestOdds, onViewDetails }: MatchCardProps) {
+export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookmaker }: MatchCardProps) {
   const formatDate = (date: Date) => {
     return format(date, 'dd MMM yyyy - HH:mm', { locale: it });
   };
@@ -23,9 +24,13 @@ export default function MatchCard({ match, bestOdds, onViewDetails }: MatchCardP
     
     const bookmakerInfo: BookmakerInfo = getBookmakerInfo(bookmakerName);
     
-    if (bookmakerInfo.hasDirectLink) {
-      // Usa il sistema di link diretti
-      openMatchUrl(match, bookmakerName, betType);
+    if (onOpenBookmaker) {
+      // Usa il sistema iframe
+      openMatchInFrame(match, bookmakerName, betType, onOpenBookmaker);
+    } else if (bookmakerInfo.hasDirectLink) {
+      // Fallback: apri in nuova finestra
+      const url = `https://${bookmakerInfo.baseUrl}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
     } else {
       // Fallback al sito principale
       try {

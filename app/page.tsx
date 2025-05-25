@@ -7,6 +7,7 @@ import FilterPanel from '@/components/FilterPanel';
 import MatchDetails from '@/components/MatchDetails';
 import DataSourceToggle from '@/components/DataSourceToggle';
 import SportCategoryStats from '@/components/SportCategoryStats';
+import BookmakerFrame from '@/components/BookmakerFrame';
 import { matches as mockMatches, bookmakers } from '@/data/mockData';
 import { useRealOdds } from '@/hooks/useRealOdds';
 import { FilterOptions, BestOdds, Match } from '@/types';
@@ -17,6 +18,19 @@ export default function HomePage() {
   const [filters, setFilters] = useState<FilterOptions>({});
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  
+  // Stati per il sistema iframe bookmaker
+  const [bookmakerFrame, setBookmakerFrame] = useState<{
+    isOpen: boolean;
+    url: string;
+    bookmakerName: string;
+    matchInfo?: any;
+  }>({
+    isOpen: false,
+    url: '',
+    bookmakerName: '',
+    matchInfo: null
+  });
   
   // Hook per gestire le quote reali
   const {
@@ -156,6 +170,24 @@ export default function HomePage() {
     if (match) {
       setSelectedMatch(match);
     }
+  };
+
+  const handleOpenBookmaker = (url: string, bookmakerName: string, matchInfo: any) => {
+    setBookmakerFrame({
+      isOpen: true,
+      url,
+      bookmakerName,
+      matchInfo
+    });
+  };
+
+  const handleCloseBookmaker = () => {
+    setBookmakerFrame({
+      isOpen: false,
+      url: '',
+      bookmakerName: '',
+      matchInfo: null
+    });
   };
 
   return (
@@ -307,6 +339,7 @@ export default function HomePage() {
                         match={match}
                         bestOdds={calculateBestOdds(match)}
                         onViewDetails={handleViewDetails}
+                        onOpenBookmaker={handleOpenBookmaker}
                       />
                     ))}
                   </div>
@@ -351,8 +384,18 @@ export default function HomePage() {
           bookmakers={bookmakers}
           isOpen={!!selectedMatch}
           onClose={() => setSelectedMatch(null)}
+          onOpenBookmaker={handleOpenBookmaker}
         />
       )}
+
+      {/* Bookmaker Frame */}
+      <BookmakerFrame
+        url={bookmakerFrame.url}
+        bookmakerName={bookmakerFrame.bookmakerName}
+        matchInfo={bookmakerFrame.matchInfo}
+        isOpen={bookmakerFrame.isOpen}
+        onClose={handleCloseBookmaker}
+      />
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 mt-16">
