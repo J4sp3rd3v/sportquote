@@ -166,44 +166,50 @@ export default function HomePage() {
       />
 
       {/* Hero Section */}
-      <div className="gradient-bg text-white py-16">
+      <div className="gradient-bg text-white py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-shadow">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 md:mb-6 text-shadow leading-tight">
             Confronta le Migliori Quote
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-blue-100">
+          <p className="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 text-blue-100 px-2">
             {useRealData 
               ? 'Quote reali aggiornate in tempo reale da The Odds API'
               : 'Trova le quote più vantaggiose tra oltre 100 siti di scommesse'
             }
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            <div className="glass-effect rounded-xl p-6">
-              <TrendingUp className="h-12 w-12 mx-auto mb-4 text-blue-200" />
-              <h3 className="text-lg font-semibold mb-2">Quote in Tempo Reale</h3>
-              <p className="text-blue-100">Aggiornamenti costanti dalle migliori piattaforme</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-12 max-w-5xl mx-auto">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 md:p-8 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-2xl group">
+              <div className="bg-gradient-to-br from-blue-400 to-blue-600 rounded-full p-3 md:p-4 w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 group-hover:from-blue-300 group-hover:to-blue-500 transition-all duration-300">
+                <TrendingUp className="h-6 w-6 md:h-8 md:w-8 text-white" />
+              </div>
+              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3 text-white">Quote in Tempo Reale</h3>
+              <p className="text-blue-100 leading-relaxed text-sm md:text-base">Aggiornamenti costanti dalle migliori piattaforme di scommesse</p>
             </div>
-            <div className="glass-effect rounded-xl p-6">
-              <Users className="h-12 w-12 mx-auto mb-4 text-blue-200" />
-              <h3 className="text-lg font-semibold mb-2">100+ Bookmakers</h3>
-              <p className="text-blue-100">Confronta quote da tutti i principali operatori</p>
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 md:p-8 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-2xl group">
+              <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-full p-3 md:p-4 w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 group-hover:from-green-300 group-hover:to-green-500 transition-all duration-300">
+                <Users className="h-6 w-6 md:h-8 md:w-8 text-white" />
+              </div>
+              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3 text-white">100+ Bookmakers</h3>
+              <p className="text-blue-100 leading-relaxed text-sm md:text-base">Confronta quote da tutti i principali operatori del mercato</p>
             </div>
-            <div className="glass-effect rounded-xl p-6">
-              <Award className="h-12 w-12 mx-auto mb-4 text-blue-200" />
-              <h3 className="text-lg font-semibold mb-2">Migliori Opportunità</h3>
-              <p className="text-blue-100">Identifica le quote più vantaggiose automaticamente</p>
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 md:p-8 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-2xl group">
+              <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full p-3 md:p-4 w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 group-hover:from-yellow-300 group-hover:to-orange-400 transition-all duration-300">
+                <Award className="h-6 w-6 md:h-8 md:w-8 text-white" />
+              </div>
+              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3 text-white">Migliori Opportunità</h3>
+              <p className="text-blue-100 leading-relaxed text-sm md:text-base">Identifica automaticamente le quote più vantaggiose</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Stats Bar */}
-      <div className="bg-white border-b border-gray-200 py-4">
+      <div className="bg-white border-b border-gray-200 py-3 md:py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap justify-center md:justify-between items-center text-sm text-gray-600">
-            <div className="flex items-center mr-6 mb-2 md:mb-0">
-              <Clock className="h-4 w-4 mr-2 text-primary-600" />
-              <span>
+          <div className="flex flex-col sm:flex-row flex-wrap justify-center md:justify-between items-center text-xs sm:text-sm text-gray-600 space-y-2 sm:space-y-0">
+            <div className="flex items-center mr-0 sm:mr-6">
+              <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-primary-600" />
+              <span className="text-center sm:text-left">
                 Ultimo aggiornamento: {
                   useRealData && lastUpdate 
                     ? lastUpdate.toLocaleTimeString('it-IT')
@@ -211,13 +217,15 @@ export default function HomePage() {
                 }
               </span>
             </div>
-            <div className="flex items-center mr-6 mb-2 md:mb-0">
-              <span className="font-medium">{filteredMatches.length}</span>
-              <span className="ml-1">partite disponibili</span>
-            </div>
-            <div className="flex items-center">
-              <span className="font-medium">{bookmakers.length}</span>
-              <span className="ml-1">bookmakers monitorati</span>
+            <div className="flex items-center space-x-4 sm:space-x-6">
+              <div className="flex items-center">
+                <span className="font-medium">{filteredMatches.length}</span>
+                <span className="ml-1">partite</span>
+              </div>
+              <div className="flex items-center">
+                <span className="font-medium">{bookmakers.length}</span>
+                <span className="ml-1">bookmakers</span>
+              </div>
             </div>
           </div>
         </div>
@@ -290,7 +298,7 @@ export default function HomePage() {
                     </span>
                   </div>
                   
-                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                     {categoryMatches.map((match) => (
                       <MatchCard
                         key={match.id}
