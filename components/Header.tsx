@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Menu, X, TrendingUp, Star, Filter, Bug, TestTube } from 'lucide-react';
+import { Search, Menu, X, TrendingUp, Star, Filter, Bug, TestTube, Database } from 'lucide-react';
 import BookmakerDebugPanel from './BookmakerDebugPanel';
 import BookmakerTestPanel from './BookmakerTestPanel';
+import ApiTestPanel from './ApiTestPanel';
 
 interface HeaderProps {
   onSearchChange: (query: string) => void;
@@ -15,6 +16,7 @@ export default function Header({ onSearchChange, onFilterToggle }: HeaderProps) 
   const [searchQuery, setSearchQuery] = useState('');
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [showTestPanel, setShowTestPanel] = useState(false);
+  const [showApiPanel, setShowApiPanel] = useState(false);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -93,6 +95,14 @@ export default function Header({ onSearchChange, onFilterToggle }: HeaderProps) 
                     <TestTube className="h-4 w-4 mr-1" />
                     Test
                   </button>
+                  <button
+                    onClick={() => setShowApiPanel(true)}
+                    className="flex items-center text-purple-600 hover:text-purple-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                    title="Test API Reale"
+                  >
+                    <Database className="h-4 w-4 mr-1" />
+                    API
+                  </button>
                 </>
               )}
             </nav>
@@ -165,6 +175,13 @@ export default function Header({ onSearchChange, onFilterToggle }: HeaderProps) 
                     <TestTube className="h-4 w-4 mr-2" />
                     Test Bookmaker
                   </button>
+                  <button
+                    onClick={() => setShowApiPanel(true)}
+                    className="flex items-center text-purple-600 hover:text-purple-700 w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                  >
+                    <Database className="h-4 w-4 mr-2" />
+                    Test API Reale
+                  </button>
                 </>
               )}
             </div>
@@ -182,6 +199,12 @@ export default function Header({ onSearchChange, onFilterToggle }: HeaderProps) 
       <BookmakerTestPanel 
         isOpen={showTestPanel} 
         onClose={() => setShowTestPanel(false)} 
+      />
+      
+      {/* API Test Panel */}
+      <ApiTestPanel 
+        isOpen={showApiPanel} 
+        onClose={() => setShowApiPanel(false)} 
       />
     </>
   );

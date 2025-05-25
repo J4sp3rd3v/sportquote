@@ -64,6 +64,109 @@ const SPORT_MAPPING = {
   'baseball_mlb': { sport: 'baseball', league: 'mlb', name: 'MLB' }
 };
 
+// Mappatura nomi bookmaker dall'API ai nostri nomi standardizzati
+const BOOKMAKER_NAME_MAPPING: { [key: string]: string } = {
+  // Mappatura key API -> nome standardizzato
+  'bet365': 'Bet365',
+  'williamhill': 'William Hill',
+  'betfair': 'Betfair',
+  'unibet': 'Unibet',
+  'bwin': 'Bwin',
+  'sisal': 'Sisal',
+  'snai': 'Snai',
+  'eurobet': 'Eurobet',
+  'lottomatica': 'Lottomatica',
+  'betclic': 'Betclic',
+  'netbet': 'NetBet',
+  'leovegas': 'LeoVegas',
+  'pokerstars': 'Pokerstars',
+  'better': 'Better',
+  'goldbet': 'Goldbet',
+  'planetwin365': 'Planetwin365',
+  'betaland': 'Betaland',
+  'betway': 'Betway',
+  'stanleybet': 'Stanleybet',
+  'betflag': 'Betflag',
+  'admiral': 'Admiral',
+  'betathome': 'Bet-at-home',
+  'betsson': 'Betsson',
+  'betsafe': 'Betsafe',
+  'nordicbet': 'Nordicbet',
+  'interwetten': 'Interwetten',
+  'tipico': 'Tipico',
+  'bet3000': 'Bet3000',
+  'mybet': 'Mybet',
+  'sportingbet': 'Sportingbet',
+  'marathonbet': 'Marathonbet',
+  'vincitu': 'Vincitu',
+  'cplay': 'Cplay',
+  'betfair_ex': 'Betfair Exchange',
+  'bet90': 'Bet90',
+  'bethard': 'Bethard',
+  'betrebels': 'Betrebels',
+  'bettilt': 'Bettilt',
+  'betwinner': 'Betwinner',
+  '1xbet': '1xBet',
+  '22bet': '22Bet',
+  'parimatch': 'Parimatch',
+  'melbet': 'Melbet',
+  'rabona': 'Rabona',
+  'librabet': 'Librabet',
+  'betano': 'Betano',
+  'betfinal': 'Betfinal',
+  'betmaster': 'Betmaster',
+  'betpawa': 'Betpawa',
+  'campobet': 'Campobet',
+  'dafabet': 'Dafabet',
+  'pinnacle': 'Pinnacle',
+  'sbobet': 'Sbobet',
+  'bet9ja': 'Bet9ja',
+  'betika': 'Betika',
+  'supabets': 'Supabets',
+  'hollywoodbets': 'Hollywoodbets',
+  'betlion': 'Betlion',
+  'betin': 'Betin',
+  'fortuna': 'Fortuna',
+  'tipsport': 'Tipsport',
+  'synottip': 'Synottip',
+  'chance': 'Chance',
+  'merkur': 'Merkur',
+  'cashpoint': 'Cashpoint',
+  'winamax': 'Winamax',
+  'pmu': 'PMU',
+  'zebet': 'ZEbet',
+  'parionssport': 'ParionsSport',
+  'rizk': 'Rizk',
+  'mrgreen': 'Mr Green',
+  'casumo': 'Casumo',
+  'videoslots': 'Videoslots',
+  'genesis': 'Genesis',
+  'spinit': 'Spinit',
+  'guts': 'Guts',
+  'betspin': 'Betspin',
+  'thrills': 'Thrills',
+  'kaboo': 'Kaboo',
+  'betit': 'Betit',
+  'kindred': 'Kindred',
+  'flutter': 'Flutter',
+  'entain': 'Entain',
+  'betfred': 'Betfred',
+  'coral': 'Coral',
+  'ladbrokes': 'Ladbrokes',
+  'paddypower': 'Paddy Power',
+  'skybet': 'Sky Bet',
+  'boylesports': 'Boylesports',
+  'betvictor': 'Betvictor',
+  '888sport': '888sport',
+  '10bet': '10Bet',
+  '32red': '32Red',
+  'redbet': 'Redbet',
+  'betdaq': 'Betdaq',
+  'matchbook': 'Matchbook',
+  'smarkets': 'Smarkets',
+  'betconnect': 'Betconnect'
+};
+
 // Mappatura nomi squadre per normalizzazione
 const TEAM_NAME_MAPPING: { [key: string]: string } = {
   // Serie A
@@ -132,6 +235,24 @@ export class OddsApiService {
   // Normalizza il nome della squadra
   private normalizeTeamName(teamName: string): string {
     return TEAM_NAME_MAPPING[teamName] || teamName;
+  }
+
+  // Normalizza il nome del bookmaker dall'API
+  private normalizeBookmakerName(bookmakerKey: string, bookmakerTitle: string): string {
+    // Prima prova con la key (più affidabile)
+    const normalizedFromKey = BOOKMAKER_NAME_MAPPING[bookmakerKey.toLowerCase()];
+    if (normalizedFromKey) {
+      return normalizedFromKey;
+    }
+
+    // Poi prova con il title
+    const normalizedFromTitle = BOOKMAKER_NAME_MAPPING[bookmakerTitle.toLowerCase()];
+    if (normalizedFromTitle) {
+      return normalizedFromTitle;
+    }
+
+    // Se non trovato, usa il title pulito
+    return bookmakerTitle.replace(/[^a-zA-Z0-9\s]/g, '').trim();
   }
 
   // Ottieni tutti gli sport disponibili
@@ -252,21 +373,24 @@ export class OddsApiService {
           o.name === 'Draw' || o.name === 'Tie'
         );
 
+        // Normalizza il nome del bookmaker
+        const normalizedBookmakerName = this.normalizeBookmakerName(bookmaker.key, bookmaker.title);
+
         if (homeOutcome) {
-          allHomeOdds.push({ odds: homeOutcome.price, bookmaker: bookmaker.title });
+          allHomeOdds.push({ odds: homeOutcome.price, bookmaker: normalizedBookmakerName });
         }
         if (awayOutcome) {
-          allAwayOdds.push({ odds: awayOutcome.price, bookmaker: bookmaker.title });
+          allAwayOdds.push({ odds: awayOutcome.price, bookmaker: normalizedBookmakerName });
         }
         if (drawOutcome) {
-          allDrawOdds.push({ odds: drawOutcome.price, bookmaker: bookmaker.title });
+          allDrawOdds.push({ odds: drawOutcome.price, bookmaker: normalizedBookmakerName });
         }
 
         return {
           home: homeOutcome?.price || 0,
           away: awayOutcome?.price || 0,
           draw: drawOutcome?.price,
-          bookmaker: bookmaker.key,
+          bookmaker: normalizedBookmakerName,
           lastUpdated: new Date(bookmaker.last_update)
         };
       }).filter(Boolean);
