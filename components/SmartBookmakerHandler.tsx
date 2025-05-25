@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import BookmakerFrame from './BookmakerFrame';
 import BookmakerLinkHandler from './BookmakerLinkHandler';
-import { getBookmakerInfo } from '@/lib/bookmakerLinks';
+import { getBookmakerInfo, isBookmakerSupported } from '@/lib/bookmakerLinks';
 
 interface SmartBookmakerHandlerProps {
   bookmakerName: string;
@@ -27,6 +27,7 @@ export default function SmartBookmakerHandler({
   const [showIframe, setShowIframe] = useState(false);
   const [iframeUrl, setIframeUrl] = useState('');
   const [useRedirect, setUseRedirect] = useState(false);
+  const [bookmakerInfo, setBookmakerInfo] = useState<any>(null);
 
   // Lista di bookmaker che tipicamente bloccano iframe
   const iframeBlockedBookmakers = [
@@ -35,31 +36,48 @@ export default function SmartBookmakerHandler({
     'william hill',
     'ladbrokes',
     'coral',
-    'paddy power'
+    'paddy power',
+    'pokerstars',
+    'bwin'
   ];
 
-  const bookmakerInfo = getBookmakerInfo(bookmakerName);
-  const bookmakerUrl = bookmakerInfo.baseUrl;
-
-  const isIframeBlocked = iframeBlockedBookmakers.some(blocked => 
-    bookmakerName.toLowerCase().includes(blocked.toLowerCase())
-  );
-
   useEffect(() => {
+    // Ottieni informazioni sul bookmaker
+    const info = getBookmakerInfo(bookmakerName);
+    setBookmakerInfo(info);
+    
+    console.log(`SmartBookmakerHandler - Bookmaker: ${bookmakerName}`, {
+      isSupported: info.isSupported,
+      hasDirectLink: info.hasDirectLink,
+      baseUrl: info.baseUrl,
+      normalizedName: info.normalizedName
+    });
+
+    const isIframeBlocked = iframeBlockedBookmakers.some(blocked => 
+      bookmakerName.toLowerCase().includes(blocked.toLowerCase())
+    );
+
     // Determina il metodo migliore basato sulle preferenze e le caratteristiche del bookmaker
-    if (preferredMethod === 'iframe' && !isIframeBlocked) {
+    if (preferredMethod === 'iframe' && !isIframeBlocked && info.isSupported) {
       setUseRedirect(false);
-    } else if (preferredMethod === 'redirect' || isIframeBlocked) {
+    } else if (preferredMethod === 'redirect' || isIframeBlocked || !info.isSupported) {
       setUseRedirect(true);
     } else {
-      // Auto: prova iframe per bookmaker compatibili, altrimenti redirect
-      setUseRedirect(isIframeBlocked);
+      // Auto: prova iframe per bookmaker compatibili e supportati, altrimenti redirect
+      setUseRedirect(isIframeBlocked || !info.isSupported);
     }
-  }, [preferredMethod, isIframeBlocked]);
+  }, [bookmakerName, preferredMethod]);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!bookmakerInfo) {
+      console.error('Informazioni bookmaker non disponibili');
+      return;
+    }
+
+    console.log(`Click su ${bookmakerName} - Metodo: ${useRedirect ? 'redirect' : 'iframe'}`);
 
     if (useRedirect) {
       // Non fare nulla qui, lascia che BookmakerLinkHandler gestisca
@@ -67,7 +85,7 @@ export default function SmartBookmakerHandler({
     }
 
     // Prova prima con iframe
-    setIframeUrl(bookmakerUrl);
+    setIframeUrl(bookmakerInfo.baseUrl);
     setShowIframe(true);
   };
 
@@ -77,16 +95,33 @@ export default function SmartBookmakerHandler({
   };
 
   const handleIframeError = () => {
+    console.warn(`Iframe fallito per ${bookmakerName}, passando a redirect`);
     // Se iframe fallisce, passa al redirect
     setShowIframe(false);
     setUseRedirect(true);
   };
 
+  // Se il bookmaker non è supportato, mostra un avviso
+  if (bookmakerInfo && !bookmakerInfo.isSupported) {
+    return (
+      <div 
+        className={`cursor-pointer ${className}`}
+        onClick={(e) => {
+          e.preventDefault();
+          alert(`${bookmakerName} non è ancora supportato. Stiamo lavorando per aggiungerlo presto!`);
+        }}
+        title={`${bookmakerName} - Non ancora supportato`}
+      >
+        {children}
+      </div>
+    );
+  }
+
   if (useRedirect) {
     return (
       <BookmakerLinkHandler
         bookmakerName={bookmakerName}
-        bookmakerUrl={bookmakerUrl}
+        bookmakerUrl={bookmakerInfo?.baseUrl || ''}
         matchInfo={matchInfo}
         className={className}
       >
