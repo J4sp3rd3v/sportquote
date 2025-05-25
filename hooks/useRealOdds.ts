@@ -32,7 +32,17 @@ export function useRealOdds(): UseRealOddsReturn {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [apiStatus, setApiStatus] = useState<any>(null);
   const [categoryStats, setCategoryStats] = useState<any>(null);
-  const [useRealData, setUseRealData] = useState(false);
+  
+  // Disabilita automaticamente l'API reale in produzione per evitare problemi
+  const [useRealData, setUseRealData] = useState(() => {
+    // Solo in development o con parametro specifico
+    if (typeof window !== 'undefined') {
+      const isDev = process.env.NODE_ENV === 'development';
+      const forceApi = window.location.search.includes('useapi=true');
+      return isDev || forceApi;
+    }
+    return false;
+  });
 
   // Funzione per recuperare i dati dall'API
   const fetchRealOdds = useCallback(async () => {

@@ -8,6 +8,7 @@ import MatchDetails from '@/components/MatchDetails';
 import DataSourceToggle from '@/components/DataSourceToggle';
 import SportCategoryStats from '@/components/SportCategoryStats';
 import NavigationOverlay from '@/components/NavigationOverlay';
+import ApiStatusBanner from '@/components/ApiStatusBanner';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 
 import { matches as mockMatches, bookmakers } from '@/data/mockData';
@@ -246,10 +247,14 @@ export default function HomePage() {
           useRealData={useRealData}
           onToggle={toggleDataSource}
           loading={loading}
+        />
+
+        {/* API Status Banner */}
+        <ApiStatusBanner
+          useRealData={useRealData}
           error={error}
-          lastUpdate={lastUpdate}
-          apiStatus={apiStatus}
-          onRefresh={refreshData}
+          loading={loading}
+          onToggle={toggleDataSource}
         />
 
 
