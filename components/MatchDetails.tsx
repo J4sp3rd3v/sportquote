@@ -22,8 +22,8 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpe
     return format(date, 'EEEE dd MMMM yyyy - HH:mm', { locale: it });
   };
 
-  const getBookmakerInfo = (bookmakerId: string) => {
-    return bookmakers.find(b => b.id === bookmakerId);
+  const getBookmakerInfo = (bookmakerName: string) => {
+    return bookmakers.find(b => b.name === bookmakerName);
   };
 
   const handleBookmakerClick = (bookmaker: Bookmaker | undefined, betType: 'home' | 'away' | 'draw' = 'home') => {

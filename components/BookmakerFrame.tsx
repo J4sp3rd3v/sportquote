@@ -34,17 +34,15 @@ export default function BookmakerFrame({
       setHasError(false);
       setCurrentUrl(url);
       
-      // Timeout per gestire siti che non si caricano
+      // Timeout più breve per gestire siti che non si caricano
       const timeout = setTimeout(() => {
-        if (isLoading) {
-          setIsLoading(false);
-          setHasError(true);
-        }
-      }, 15000); // 15 secondi timeout
+        setIsLoading(false);
+        setHasError(true);
+      }, 8000); // 8 secondi timeout
       
       return () => clearTimeout(timeout);
     }
-  }, [url, isOpen, isLoading]);
+  }, [url, isOpen]);
 
   const handleIframeLoad = () => {
     setIsLoading(false);
@@ -151,7 +149,8 @@ export default function BookmakerFrame({
                 Impossibile caricare {bookmakerName}
               </h3>
               <p className="text-gray-600 mb-6">
-                Il sito potrebbe non consentire la visualizzazione in iframe per motivi di sicurezza.
+                Il sito potrebbe non consentire la visualizzazione in iframe per motivi di sicurezza, 
+                oppure potrebbe essere temporaneamente non disponibile.
               </p>
               <div className="space-y-3">
                 <button
