@@ -76,10 +76,35 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpe
     }
   };
 
+  // Calcola il punteggio per ogni bookmaker basato sulle quote migliori
+  const calculateOddsScore = (odds: any) => {
+    // Trova le quote massime per ogni tipo
+    const maxHome = Math.max(...match.odds.map(o => o.home));
+    const maxAway = Math.max(...match.odds.map(o => o.away));
+    const maxDraw = match.odds.some(o => o.draw) ? Math.max(...match.odds.filter(o => o.draw).map(o => o.draw!)) : 0;
+    
+    // Calcola punti per ogni quota che è la migliore
+    let score = 0;
+    if (odds.home === maxHome) score += 3; // Quota migliore casa
+    if (odds.away === maxAway) score += 3; // Quota migliore trasferta
+    if (odds.draw && odds.draw === maxDraw) score += 3; // Quota migliore pareggio
+    
+    // Aggiungi punti per quote vicine alle migliori (entro 0.05)
+    if (odds.home >= maxHome - 0.05 && odds.home !== maxHome) score += 1;
+    if (odds.away >= maxAway - 0.05 && odds.away !== maxAway) score += 1;
+    if (odds.draw && maxDraw > 0 && odds.draw >= maxDraw - 0.05 && odds.draw !== maxDraw) score += 1;
+    
+    // Bonus per rating del bookmaker (secondario)
+    const bookmaker = getBookmakerInfo(odds.bookmaker);
+    score += (bookmaker?.rating || 0) * 0.1;
+    
+    return score;
+  };
+
   const sortedOdds = match.odds.sort((a, b) => {
-    const bookmakerA = getBookmakerInfo(a.bookmaker);
-    const bookmakerB = getBookmakerInfo(b.bookmaker);
-    return (bookmakerB?.rating || 0) - (bookmakerA?.rating || 0);
+    const scoreA = calculateOddsScore(a);
+    const scoreB = calculateOddsScore(b);
+    return scoreB - scoreA; // Ordine decrescente (migliori prima)
   });
 
   return (
@@ -121,10 +146,15 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpe
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6">
             <div className="mb-4 sm:mb-6">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
-                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary-600" />
-                Confronto Quote ({sortedOdds.length} bookmakers)
-              </h3>
+              <div className="mb-3 sm:mb-4">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 flex items-center">
+                  <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary-600" />
+                  Confronto Quote ({sortedOdds.length} bookmakers)
+                </h3>
+                <p className="text-sm text-gray-600 flex items-center">
+                  📊 Ordinati per migliori quote disponibili • 🏆 = Quota più alta • ⭐ = Consigliato
+                </p>
+              </div>
               
               <div className="overflow-x-auto -mx-4 sm:mx-0">
                 <table className="w-full min-w-[600px] sm:min-w-0">
@@ -146,9 +176,16 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpe
                       const isHighestHome = sortedOdds.every(o => o.home <= odds.home);
                       const isHighestAway = sortedOdds.every(o => o.away <= odds.away);
                       const isHighestDraw = odds.draw && sortedOdds.every(o => !o.draw || o.draw <= odds.draw!);
+                      
+                      // Controlla se questo bookmaker ha almeno una quota migliore
+                      const hasBestOdd = isHighestHome || isHighestAway || isHighestDraw;
+                      const oddsScore = calculateOddsScore(odds);
+                      const isTopBookmaker = index < 3; // I primi 3 sono considerati top
 
                       return (
-                        <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200">
+                        <tr key={index} className={`border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200 ${
+                          hasBestOdd ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' : ''
+                        }`}>
                           <td className="py-3 sm:py-4 px-2 sm:px-4">
                             <div className="flex items-center">
                               <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-200 rounded-full flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
@@ -157,12 +194,29 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpe
                                 </span>
                               </div>
                               <div className="min-w-0">
-                                <div className="font-medium text-gray-900 text-xs sm:text-sm truncate">
-                                  {bookmaker?.name || `Bookmaker ${odds.bookmaker}`}
+                                <div className="flex items-center space-x-2">
+                                  <div className="font-medium text-gray-900 text-xs sm:text-sm truncate">
+                                    {bookmaker?.name || `Bookmaker ${odds.bookmaker}`}
+                                  </div>
+                                  {hasBestOdd && (
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                      🏆 TOP
+                                    </span>
+                                  )}
+                                  {isTopBookmaker && !hasBestOdd && (
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                                      ⭐ CONSIGLIATO
+                                    </span>
+                                  )}
                                 </div>
                                 <div className="flex items-center text-xs text-gray-500">
                                   <Star className="h-3 w-3 mr-1 text-yellow-500" />
                                   {bookmaker?.rating || 'N/A'}
+                                  {hasBestOdd && (
+                                    <span className="ml-2 text-green-600 font-medium">
+                                      • Quota migliore
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
