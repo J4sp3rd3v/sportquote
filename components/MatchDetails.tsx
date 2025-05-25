@@ -5,7 +5,7 @@ import { X, Star, ExternalLink, Clock, TrendingUp } from 'lucide-react';
 import { Match, Bookmaker } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { openMatchInFrame, getBookmakerInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
+import { openMatchInFrame, getBookmakerInfo as getBookmakerLinkInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
 
 interface MatchDetailsProps {
   match: Match;
@@ -41,8 +41,8 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpe
         openMatchInFrame(match, bookmaker.name, betType, onOpenBookmaker);
       } else {
         // Fallback: apri in nuova finestra
-        const bookmakerInfo = getBookmakerInfo(bookmaker.name);
-        const fallbackUrl = bookmaker.website || bookmakerInfo.baseUrl;
+        const bookmakerLinkInfo = getBookmakerLinkInfo(bookmaker.name);
+        const fallbackUrl = bookmaker.website || bookmakerLinkInfo.baseUrl;
         const url = fallbackUrl?.startsWith('http') 
           ? fallbackUrl 
           : `https://${fallbackUrl}`;
