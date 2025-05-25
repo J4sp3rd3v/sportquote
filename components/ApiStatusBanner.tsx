@@ -21,7 +21,7 @@ export default function ApiStatusBanner({
     return null;
   }
 
-  // Banner informativo per dati mock
+  // Banner informativo per dati mock (solo se forzati in produzione)
   if (!useRealData) {
     return (
       <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
@@ -29,7 +29,7 @@ export default function ApiStatusBanner({
           <Info className="h-5 w-5 text-blue-400 mt-0.5 mr-3 flex-shrink-0" />
           <div className="flex-1">
             <h3 className="text-sm font-medium text-blue-800">
-              Modalità Demo Attiva
+              {process.env.NODE_ENV === 'production' ? 'Modalità Demo Forzata' : 'Modalità Demo Attiva'}
             </h3>
             <div className="mt-2 text-sm text-blue-700">
               <p>
@@ -41,12 +41,13 @@ export default function ApiStatusBanner({
                   onClick={onToggle}
                   className="mt-2 text-blue-800 hover:text-blue-900 font-medium underline"
                 >
-                  Attiva API reale (solo development)
+                  Attiva API reale
                 </button>
               )}
               {process.env.NODE_ENV === 'production' && (
                 <p className="mt-2 text-xs">
-                  Per attivare l'API reale, aggiungi <code className="bg-blue-100 px-1 rounded">?useapi=true</code> all'URL
+                  Modalità demo attivata con <code className="bg-blue-100 px-1 rounded">?usemock=true</code>. 
+                  Rimuovi il parametro per le quote reali.
                 </p>
               )}
             </div>

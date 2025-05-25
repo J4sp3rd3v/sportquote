@@ -33,15 +33,24 @@ export function useRealOdds(): UseRealOddsReturn {
   const [apiStatus, setApiStatus] = useState<any>(null);
   const [categoryStats, setCategoryStats] = useState<any>(null);
   
-  // Disabilita automaticamente l'API reale in produzione per evitare problemi
+  // Attiva automaticamente l'API reale in produzione
   const [useRealData, setUseRealData] = useState(() => {
-    // Solo in development o con parametro specifico
     if (typeof window !== 'undefined') {
       const isDev = process.env.NODE_ENV === 'development';
+      const forceMock = window.location.search.includes('usemock=true');
+      
+      // In produzione usa sempre API reale, a meno che non sia forzato mock
+      if (process.env.NODE_ENV === 'production') {
+        return !forceMock;
+      }
+      
+      // In development usa API reale solo se specificato
       const forceApi = window.location.search.includes('useapi=true');
-      return isDev || forceApi;
+      return forceApi;
     }
-    return false;
+    
+    // Default: produzione = API reale, development = mock
+    return process.env.NODE_ENV === 'production';
   });
 
   // Funzione per recuperare i dati dall'API
@@ -116,14 +125,17 @@ export function useRealOdds(): UseRealOddsReturn {
     }
   }, [useRealData, fetchRealOdds]);
 
-  // Auto-refresh ogni 5 minuti quando si usano dati reali
+  // Auto-refresh più frequente in produzione per quote sempre aggiornate
   useEffect(() => {
     if (!useRealData) return;
+
+    // In produzione refresh ogni 2 minuti, in development ogni 5 minuti
+    const refreshInterval = process.env.NODE_ENV === 'production' ? 2 * 60 * 1000 : 5 * 60 * 1000;
 
     const interval = setInterval(() => {
       console.log('🔄 Auto-refresh delle quote...');
       fetchRealOdds();
-    }, 5 * 60 * 1000); // 5 minuti
+    }, refreshInterval);
 
     return () => clearInterval(interval);
   }, [useRealData, fetchRealOdds]);

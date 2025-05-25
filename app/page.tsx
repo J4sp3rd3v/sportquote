@@ -9,6 +9,8 @@ import DataSourceToggle from '@/components/DataSourceToggle';
 import SportCategoryStats from '@/components/SportCategoryStats';
 import NavigationOverlay from '@/components/NavigationOverlay';
 import ApiStatusBanner from '@/components/ApiStatusBanner';
+import BestOddsHighlight from '@/components/BestOddsHighlight';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 
 import { matches as mockMatches, bookmakers } from '@/data/mockData';
@@ -182,10 +184,18 @@ export default function HomePage() {
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 text-blue-100 px-2">
             {useRealData 
-              ? 'Quote reali aggiornate in tempo reale da The Odds API'
+              ? '🔴 LIVE: Quote reali aggiornate in tempo reale da The Odds API'
               : 'Trova le quote più vantaggiose tra oltre 100 siti di scommesse'
             }
           </p>
+          
+          {/* Badge Live per API reale */}
+          {useRealData && (
+            <div className="inline-flex items-center bg-red-500 text-white px-4 py-2 rounded-full text-sm font-medium mb-4 animate-pulse">
+              <div className="w-2 h-2 bg-white rounded-full mr-2 animate-ping"></div>
+              QUOTE LIVE
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-12 max-w-5xl mx-auto">
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 md:p-8 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-2xl group">
               <div className="bg-gradient-to-br from-blue-400 to-blue-600 rounded-full p-3 md:p-4 w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 group-hover:from-blue-300 group-hover:to-blue-500 transition-all duration-300">
@@ -217,14 +227,23 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row flex-wrap justify-center md:justify-between items-center text-xs sm:text-sm text-gray-600 space-y-2 sm:space-y-0">
             <div className="flex items-center mr-0 sm:mr-6">
-              <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-primary-600" />
-              <span className="text-center sm:text-left">
-                Ultimo aggiornamento: {
-                  useRealData && lastUpdate 
-                    ? lastUpdate.toLocaleTimeString('it-IT')
-                    : new Date().toLocaleTimeString('it-IT')
-                }
-              </span>
+              {useRealData ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-red-600 font-medium">LIVE</span>
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
+                  <span className="text-center sm:text-left">
+                    {lastUpdate ? lastUpdate.toLocaleTimeString('it-IT') : 'Caricando...'}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-primary-600" />
+                  <span className="text-center sm:text-left">
+                    Demo: {new Date().toLocaleTimeString('it-IT')}
+                  </span>
+                </div>
+              )}
             </div>
             <div className="flex items-center space-x-4 sm:space-x-6">
               <div className="flex items-center">
@@ -259,6 +278,28 @@ export default function HomePage() {
 
 
 
+        {/* Best Odds Highlight */}
+        {filteredMatches.length > 0 && (
+          <BestOddsHighlight 
+            matches={filteredMatches}
+            onBookmakerClick={(bookmakerName, matchInfo) => {
+              // Salva i dati per la navigazione
+              const navigationData = {
+                bookmakerName,
+                originalUrl: window.location.href,
+                timestamp: Date.now(),
+                matchInfo
+              };
+              sessionStorage.setItem('navigationData', JSON.stringify(navigationData));
+              
+              // Apri il bookmaker
+              const bookmakerInfo = require('@/lib/bookmakerLinks').getBookmakerInfo(bookmakerName);
+              const url = bookmakerInfo.baseUrl;
+              window.open(url, '_blank');
+            }}
+          />
+        )}
+
         {/* Category Statistics */}
         {currentStats && (
           <SportCategoryStats 
@@ -291,8 +332,16 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* Loading State per API */}
+        {useRealData && loading && matches.length === 0 && (
+          <LoadingSpinner 
+            isApiLoading={true}
+            showProgress={true}
+          />
+        )}
+
         {/* Matches by Category */}
-        {filteredMatches.length > 0 ? (
+        {!loading && filteredMatches.length > 0 ? (
           <div className="space-y-8">
             {Object.entries(matchesByCategory).map(([category, categoryMatches]) => {
               if (categoryMatches.length === 0) return null;
@@ -327,26 +376,33 @@ export default function HomePage() {
               );
             })}
           </div>
-        ) : (
+        ) : !loading ? (
           <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Nessuna partita trovata
+              {useRealData && matches.length === 0 ? 'Nessuna partita disponibile dall\'API' : 'Nessuna partita trovata'}
             </h3>
             <p className="text-gray-500 mb-6">
-              Prova a modificare i filtri di ricerca o la query
+              {useRealData && matches.length === 0 
+                ? 'Le quote live potrebbero non essere disponibili al momento. Riprova tra qualche minuto.'
+                : 'Prova a modificare i filtri di ricerca o la query'
+              }
             </p>
             <button
               onClick={() => {
-                setSearchQuery('');
-                setFilters({});
+                if (useRealData && matches.length === 0) {
+                  refreshData();
+                } else {
+                  setSearchQuery('');
+                  setFilters({});
+                }
               }}
               className="btn-primary"
             >
-              Cancella Filtri
+              {useRealData && matches.length === 0 ? 'Ricarica Quote' : 'Cancella Filtri'}
             </button>
           </div>
-        )}
+        ) : null}
       </main>
 
       {/* Filter Panel */}
