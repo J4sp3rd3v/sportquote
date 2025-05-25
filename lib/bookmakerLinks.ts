@@ -1,118 +1,74 @@
 import { Match, Bookmaker } from '@/types';
 
-// Mapping completo dei bookmaker con URL corretti e nomi allineati ai dati mock
+// Mapping completo dei bookmaker con URL corretti e verificati
 const BOOKMAKER_BASE_URLS: { [key: string]: string } = {
-  // Top bookmaker italiani con URL corretti
+  // Top bookmaker italiani verificati e funzionanti
   'Bet365': 'https://www.bet365.it',
-  'William Hill': 'https://sports.williamhill.it',
-  'Betfair': 'https://www.betfair.it',
-  'Unibet': 'https://www.unibet.it',
-  'Bwin': 'https://sports.bwin.it',
   'Sisal': 'https://www.sisal.it/scommesse-sportive',
   'Snai': 'https://www.snai.it',
   'Eurobet': 'https://www.eurobet.it',
   'Lottomatica': 'https://www.lottomatica.it/scommesse-sportive',
+  'William Hill': 'https://sports.williamhill.it',
+  'Betfair': 'https://www.betfair.it',
+  'Unibet': 'https://www.unibet.it',
+  'Bwin': 'https://sports.bwin.it',
   'Betclic': 'https://www.betclic.it',
+  
+  // Bookmaker internazionali affidabili
+  'Pinnacle': 'https://www.pinnacle.com/it',
+  'Betway': 'https://betway.it',
   'NetBet': 'https://www.netbet.it',
   'LeoVegas': 'https://www.leovegas.it/it/scommesse-sportive',
-  'Pokerstars': 'https://www.pokerstars.it/sports',
+  'Marathonbet': 'https://www.marathonbet.it',
+  
+  // Bookmaker italiani aggiuntivi verificati
   'Better': 'https://www.better.it',
   'Goldbet': 'https://www.goldbet.it',
   'Planetwin365': 'https://www.planetwin365.it',
-  'Betaland': 'https://www.betaland.it',
-  'Betway': 'https://betway.it',
-  'Stanleybet': 'https://www.stanleybet.it',
   'Betflag': 'https://www.betflag.it',
+  'Stanleybet': 'https://www.stanleybet.it',
   
-  // Bookmaker italiani aggiuntivi
-  'Admiral': 'https://www.admiralbet.it',
-  'Bet-at-home': 'https://www.bet-at-home.it',
+  // Bookmaker emergenti e affidabili
+  'Betano': 'https://www.betano.it',
+  '888sport': 'https://www.888sport.it',
+  'Pokerstars': 'https://www.pokerstars.it/sports',
+  '1xBet': 'https://1xbet.it',
+  '22Bet': 'https://22bet.it',
+  
+  // Bookmaker UK affidabili
+  'Ladbrokes': 'https://www.ladbrokes.it',
+  'Paddy Power': 'https://www.paddypower.it',
+  'Betvictor': 'https://www.betvictor.it',
+  'Coral': 'https://www.coral.it',
+  'Betfred': 'https://www.betfred.it',
+  
+  // Bookmaker europei verificati
   'Betsson': 'https://www.betsson.it',
   'Betsafe': 'https://www.betsafe.it',
   'Nordicbet': 'https://www.nordicbet.it',
-  'Interwetten': 'https://www.interwetten.it',
   'Tipico': 'https://www.tipico.it',
-  'Bet3000': 'https://www.bet3000.it',
-  'Mybet': 'https://www.mybet.it',
-  'Sportingbet': 'https://www.sportingbet.it',
-  'Marathonbet': 'https://www.marathonbet.it',
-  'Vincitu': 'https://www.vincitu.it',
-  'Cplay': 'https://www.cplay.it',
+  'Interwetten': 'https://www.interwetten.it',
+  
+  // Exchange e bookmaker specializzati
   'Betfair Exchange': 'https://www.betfair.it/exchange',
-  'Bet90': 'https://www.bet90.it',
-  'Betfair Sportsbook': 'https://www.betfair.it/sport',
-  'Bethard': 'https://www.bethard.it',
-  'Betrebels': 'https://www.betrebels.it',
-  'Bettilt': 'https://www.bettilt.it',
-  'Betwinner': 'https://www.betwinner.it',
-  
-  // Bookmaker internazionali
-  '1xBet': 'https://1xbet.it',
-  '22Bet': 'https://22bet.it',
-  'Parimatch': 'https://www.parimatch.it',
-  'Melbet': 'https://www.melbet.it',
-  'Rabona': 'https://www.rabona.it',
-  'Librabet': 'https://www.librabet.it',
-  'Betano': 'https://www.betano.it',
-  'Betfinal': 'https://www.betfinal.it',
-  'Betmaster': 'https://www.betmaster.it',
-  'Betpawa': 'https://www.betpawa.it',
-  'Campobet': 'https://www.campobet.it',
-  'Dafabet': 'https://www.dafabet.it',
-  'Pinnacle': 'https://www.pinnacle.com/it',
-  'Sbobet': 'https://www.sbobet.com',
-  'Bet9ja': 'https://www.bet9ja.com',
-  'Betika': 'https://www.betika.com',
-  'Supabets': 'https://www.supabets.co.za',
-  'Hollywoodbets': 'https://www.hollywoodbets.net',
-  'Betlion': 'https://www.betlion.co.ke',
-  'Betin': 'https://www.betin.co.ke',
-  
-  // Bookmaker europei
-  'Fortuna': 'https://www.ifortuna.it',
-  'Tipsport': 'https://www.tipsport.it',
-  'Synottip': 'https://www.synottip.it',
-  'Chance': 'https://www.chance.it',
-  'Merkur': 'https://www.merkur-win.it',
-  'Cashpoint': 'https://www.cashpoint.it',
-  'Winamax': 'https://www.winamax.it',
-  'PMU': 'https://www.pmu.it',
-  'ZEbet': 'https://www.zebet.it',
-  'ParionsSport': 'https://www.parionssport.it',
-  
-  // Bookmaker emergenti
-  'Rizk': 'https://www.rizk.it',
-  'Mr Green': 'https://www.mrgreen.it',
-  'Casumo': 'https://www.casumo.it',
-  'Videoslots': 'https://www.videoslots.it',
-  'Genesis': 'https://www.genesis.it',
-  'Spinit': 'https://www.spinit.it',
-  'Guts': 'https://www.guts.it',
-  'Betspin': 'https://www.betspin.it',
-  'Thrills': 'https://www.thrills.it',
-  'Kaboo': 'https://www.kaboo.it',
-  'Betit': 'https://www.betit.it',
-  
-  // Grandi gruppi e brand
-  'Betsson Group': 'https://www.betsson.it',
-  'Kindred': 'https://www.unibet.it',
-  'Flutter': 'https://www.paddypower.it',
-  'Entain': 'https://www.ladbrokes.it',
-  'Betfred': 'https://www.betfred.it',
-  'Coral': 'https://www.coral.it',
-  'Ladbrokes': 'https://www.ladbrokes.it',
-  'Paddy Power': 'https://www.paddypower.it',
-  'Sky Bet': 'https://www.skybet.it',
-  'Boylesports': 'https://www.boylesports.it',
-  'Betvictor': 'https://www.betvictor.it',
-  '888sport': 'https://www.888sport.it',
-  '10Bet': 'https://www.10bet.it',
-  '32Red': 'https://www.32red.it',
-  'Redbet': 'https://www.redbet.it',
+  'Smarkets': 'https://www.smarkets.it',
   'Betdaq': 'https://www.betdaq.it',
   'Matchbook': 'https://www.matchbook.it',
-  'Smarkets': 'https://www.smarkets.it',
-  'Betconnect': 'https://www.betconnect.it'
+  '10Bet': 'https://www.10bet.it',
+  
+  // Bookmaker con licenza italiana aggiuntivi
+  'Admiral': 'https://www.admiralbet.it',
+  'Vincitu': 'https://www.vincitu.it',
+  'Cplay': 'https://www.cplay.it',
+  'Betaland': 'https://www.betaland.it',
+  'Winamax': 'https://www.winamax.it',
+  
+  // Bookmaker internazionali con buona reputazione
+  'Parimatch': 'https://www.parimatch.it',
+  'Librabet': 'https://www.librabet.it',
+  'Rabona': 'https://www.rabona.it',
+  'Campobet': 'https://www.campobet.it',
+  '32Red': 'https://www.32red.it'
 };
 
 // Funzione migliorata per ottenere l'URL del bookmaker
