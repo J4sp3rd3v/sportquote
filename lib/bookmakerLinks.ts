@@ -1,160 +1,66 @@
 import { Match, Bookmaker } from '@/types';
 
-// Mapping dei bookmaker con i loro pattern URL per le partite
-const BOOKMAKER_URL_PATTERNS = {
-  'Bet365': {
-    baseUrl: 'https://www.bet365.it',
-    sportPaths: {
-      calcio: '/sport/calcio',
-      tennis: '/sport/tennis',
-      basket: '/sport/basket'
-    },
-    searchPattern: (homeTeam: string, awayTeam: string) => 
-      `?search=${encodeURIComponent(`${homeTeam} vs ${awayTeam}`)}`
-  },
-  'William Hill': {
-    baseUrl: 'https://www.williamhill.it',
-    sportPaths: {
-      calcio: '/scommesse/calcio',
-      tennis: '/scommesse/tennis',
-      basket: '/scommesse/basket'
-    },
-    searchPattern: (homeTeam: string, awayTeam: string) => 
-      `?q=${encodeURIComponent(`${homeTeam} ${awayTeam}`)}`
-  },
-  'Betfair': {
-    baseUrl: 'https://www.betfair.it',
-    sportPaths: {
-      calcio: '/exchange/football',
-      tennis: '/exchange/tennis',
-      basket: '/exchange/basketball'
-    },
-    searchPattern: (homeTeam: string, awayTeam: string) => 
-      `?query=${encodeURIComponent(`${homeTeam} v ${awayTeam}`)}`
-  },
-  'Unibet': {
-    baseUrl: 'https://www.unibet.it',
-    sportPaths: {
-      calcio: '/scommesse/calcio',
-      tennis: '/scommesse/tennis',
-      basket: '/scommesse/basket'
-    },
-    searchPattern: (homeTeam: string, awayTeam: string) => 
-      `?search=${encodeURIComponent(`${homeTeam} ${awayTeam}`)}`
-  },
-  'Bwin': {
-    baseUrl: 'https://www.bwin.it',
-    sportPaths: {
-      calcio: '/it/scommesse/calcio',
-      tennis: '/it/scommesse/tennis',
-      basket: '/it/scommesse/basket'
-    },
-    searchPattern: (homeTeam: string, awayTeam: string) => 
-      `?search=${encodeURIComponent(`${homeTeam} vs ${awayTeam}`)}`
-  },
-  'Sisal': {
-    baseUrl: 'https://www.sisal.it',
-    sportPaths: {
-      calcio: '/scommesse-sportive/calcio',
-      tennis: '/scommesse-sportive/tennis',
-      basket: '/scommesse-sportive/basket'
-    },
-    searchPattern: (homeTeam: string, awayTeam: string) => 
-      `?cerca=${encodeURIComponent(`${homeTeam} ${awayTeam}`)}`
-  },
-  'Snai': {
-    baseUrl: 'https://www.snai.it',
-    sportPaths: {
-      calcio: '/sport/calcio',
-      tennis: '/sport/tennis',
-      basket: '/sport/basket'
-    },
-    searchPattern: (homeTeam: string, awayTeam: string) => 
-      `?search=${encodeURIComponent(`${homeTeam} ${awayTeam}`)}`
-  },
-  'Eurobet': {
-    baseUrl: 'https://www.eurobet.it',
-    sportPaths: {
-      calcio: '/it/scommesse/calcio',
-      tennis: '/it/scommesse/tennis',
-      basket: '/it/scommesse/basket'
-    },
-    searchPattern: (homeTeam: string, awayTeam: string) => 
-      `?q=${encodeURIComponent(`${homeTeam} vs ${awayTeam}`)}`
-  },
-  'Lottomatica': {
-    baseUrl: 'https://www.lottomatica.it',
-    sportPaths: {
-      calcio: '/scommesse/calcio',
-      tennis: '/scommesse/tennis',
-      basket: '/scommesse/basket'
-    },
-    searchPattern: (homeTeam: string, awayTeam: string) => 
-      `?search=${encodeURIComponent(`${homeTeam} ${awayTeam}`)}`
-  },
-  'Betclic': {
-    baseUrl: 'https://www.betclic.it',
-    sportPaths: {
-      calcio: '/calcio-s1',
-      tennis: '/tennis-s2',
-      basket: '/basket-s3'
-    },
-    searchPattern: (homeTeam: string, awayTeam: string) => 
-      `?search=${encodeURIComponent(`${homeTeam} ${awayTeam}`)}`
-  }
+// Mapping semplificato dei bookmaker con solo i loro URL base
+const BOOKMAKER_BASE_URLS: { [key: string]: string } = {
+  'Bet365': 'https://www.bet365.it',
+  'William Hill': 'https://www.williamhill.it',
+  'Betfair': 'https://www.betfair.it',
+  'Unibet': 'https://www.unibet.it',
+  'Bwin': 'https://www.bwin.it',
+  'Sisal': 'https://www.sisal.it',
+  'Snai': 'https://www.snai.it',
+  'Eurobet': 'https://www.eurobet.it',
+  'Lottomatica': 'https://www.lottomatica.it',
+  'Betclic': 'https://www.betclic.it',
+  'NetBet': 'https://www.netbet.it',
+  'LeoVegas': 'https://www.leovegas.it',
+  'Pokerstars': 'https://www.pokerstars.it',
+  'Better': 'https://www.better.it',
+  'Goldbet': 'https://www.goldbet.it',
+  'Planetwin365': 'https://www.planetwin365.it',
+  'Betaland': 'https://www.betaland.it',
+  'Betway': 'https://www.betway.it',
+  'Stanleybet': 'https://www.stanleybet.it',
+  'Betflag': 'https://www.betflag.it'
 };
 
-// Funzione per generare URL diretto alla partita
-export function generateMatchUrl(
-  match: Match, 
-  bookmakerName: string, 
-  betType: 'home' | 'away' | 'draw' = 'home'
-): string {
-  const pattern = BOOKMAKER_URL_PATTERNS[bookmakerName as keyof typeof BOOKMAKER_URL_PATTERNS];
+// Funzione semplificata per ottenere l'URL base del bookmaker
+export function getBookmakerUrl(bookmakerName: string): string {
+  const baseUrl = BOOKMAKER_BASE_URLS[bookmakerName];
   
-  if (!pattern) {
-    // Fallback per bookmaker non configurati
-    return generateFallbackUrl(bookmakerName);
+  if (baseUrl) {
+    // Aggiungi parametri UTM per tracking
+    const utmParams = `?utm_source=sitosport&utm_medium=referral&utm_campaign=quote_comparison`;
+    return `${baseUrl}${utmParams}`;
   }
-
-  const sportPath = pattern.sportPaths[match.sport as keyof typeof pattern.sportPaths] || '';
-  const searchQuery = pattern.searchPattern(match.homeTeam, match.awayTeam);
   
-  // Aggiungi parametri UTM per tracking
-  const utmParams = `&utm_source=sitosport&utm_medium=referral&utm_campaign=quote_comparison&utm_content=${betType}`;
-  
-  return `${pattern.baseUrl}${sportPath}${searchQuery}${utmParams}`;
+  // Fallback per bookmaker non configurati
+  return `https://www.google.com/search?q=${encodeURIComponent(`${bookmakerName} scommesse sportive`)}`;
 }
 
-// URL di fallback per bookmaker non configurati
-function generateFallbackUrl(bookmakerName: string): string {
-  const fallbackUrls: { [key: string]: string } = {
-    'NetBet': 'https://www.netbet.it',
-    'LeoVegas': 'https://www.leovegas.it',
-    'Pokerstars': 'https://www.pokerstars.it',
-    'Better': 'https://www.better.it',
-    'Goldbet': 'https://www.goldbet.it',
-    'Planetwin365': 'https://www.planetwin365.it',
-    'Betaland': 'https://www.betaland.it',
-    'Betway': 'https://www.betway.it',
-    'Stanleybet': 'https://www.stanleybet.it',
-    'Betflag': 'https://www.betflag.it'
-  };
-
-  return fallbackUrls[bookmakerName] || `https://www.google.com/search?q=${encodeURIComponent(`${bookmakerName} scommesse sportive`)}`;
-}
-
-// Funzione per aprire il link con gestione errori (deprecata - usa openMatchInFrame)
-export function openMatchUrl(
-  match: Match, 
-  bookmakerName: string, 
-  betType: 'home' | 'away' | 'draw' = 'home'
+// Funzione per aprire il bookmaker in iframe
+export function openBookmakerInFrame(
+  bookmakerName: string,
+  onOpenFrame: (url: string, bookmakerName: string, matchInfo?: any) => void,
+  matchInfo?: { homeTeam: string; awayTeam: string; sport: string }
 ): void {
   try {
-    const url = generateMatchUrl(match, bookmakerName, betType);
-    console.log(`Aprendo ${bookmakerName} per ${match.homeTeam} vs ${match.awayTeam} (${betType}):`, url);
+    const url = getBookmakerUrl(bookmakerName);
+    console.log(`Aprendo ${bookmakerName} in iframe:`, url);
     
-    // Apri in nuova finestra
+    onOpenFrame(url, bookmakerName, matchInfo);
+  } catch (error) {
+    console.error('Errore apertura iframe:', error);
+    alert(`Errore nell'aprire ${bookmakerName}: ${error}`);
+  }
+}
+
+// Funzione per aprire il bookmaker in nuova finestra
+export function openBookmakerInNewTab(bookmakerName: string): void {
+  try {
+    const url = getBookmakerUrl(bookmakerName);
+    console.log(`Aprendo ${bookmakerName} in nuova finestra:`, url);
+    
     const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
     
     if (!newWindow) {
@@ -168,61 +74,24 @@ export function openMatchUrl(
   }
 }
 
-// Nuova funzione per aprire in iframe
-export function openMatchInFrame(
-  match: Match, 
-  bookmakerName: string, 
-  betType: 'home' | 'away' | 'draw' = 'home',
-  onOpenFrame: (url: string, bookmakerName: string, matchInfo: any) => void
-): void {
-  try {
-    const url = generateMatchUrl(match, bookmakerName, betType);
-    console.log(`Aprendo ${bookmakerName} in iframe per ${match.homeTeam} vs ${match.awayTeam} (${betType}):`, url);
-    
-    const matchInfo = {
-      homeTeam: match.homeTeam,
-      awayTeam: match.awayTeam,
-      sport: match.sport
-    };
-    
-    onOpenFrame(url, bookmakerName, matchInfo);
-  } catch (error) {
-    console.error('Errore apertura iframe:', error);
-    alert(`Errore nell'aprire ${bookmakerName}: ${error}`);
-  }
-}
-
 // Tipo per le informazioni del bookmaker
 export interface BookmakerInfo {
   hasDirectLink: boolean;
   baseUrl: string;
-  supportedSports: string[];
 }
 
 // Funzione per ottenere informazioni sul bookmaker
 export function getBookmakerInfo(bookmakerName: string): BookmakerInfo {
-  const hasDirectLink = bookmakerName in BOOKMAKER_URL_PATTERNS;
-  const pattern = BOOKMAKER_URL_PATTERNS[bookmakerName as keyof typeof BOOKMAKER_URL_PATTERNS];
+  const hasDirectLink = bookmakerName in BOOKMAKER_BASE_URLS;
+  const baseUrl = BOOKMAKER_BASE_URLS[bookmakerName] || `https://www.google.com/search?q=${encodeURIComponent(`${bookmakerName} scommesse sportive`)}`;
   
   return {
     hasDirectLink,
-    baseUrl: pattern?.baseUrl || generateFallbackUrl(bookmakerName),
-    supportedSports: pattern ? Object.keys(pattern.sportPaths) : []
+    baseUrl
   };
 }
 
-// Funzione per generare link di affiliazione (per future implementazioni)
-export function generateAffiliateUrl(
-  match: Match, 
-  bookmakerName: string, 
-  affiliateId?: string
-): string {
-  const baseUrl = generateMatchUrl(match, bookmakerName);
-  
-  if (affiliateId) {
-    const separator = baseUrl.includes('?') ? '&' : '?';
-    return `${baseUrl}${separator}affiliate=${affiliateId}`;
-  }
-  
-  return baseUrl;
+// Funzione per verificare se un bookmaker è supportato
+export function isBookmakerSupported(bookmakerName: string): boolean {
+  return bookmakerName in BOOKMAKER_BASE_URLS;
 } 

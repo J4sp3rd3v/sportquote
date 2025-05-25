@@ -5,7 +5,7 @@ import { Clock, TrendingUp, Star, ExternalLink } from 'lucide-react';
 import { Match, BestOdds } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { openMatchInFrame, getBookmakerInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
+import { openBookmakerInFrame, getBookmakerInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
 
 interface MatchCardProps {
   match: Match;
@@ -20,19 +20,19 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
   };
 
   const handleQuickBookmakerClick = (bookmakerName: string, betType: 'home' | 'away' | 'draw' = 'home') => {
-    console.log(`Quick click su ${bookmakerName} per ${betType}:`, match.homeTeam, 'vs', match.awayTeam);
-    
-    const bookmakerInfo: BookmakerInfo = getBookmakerInfo(bookmakerName);
+    console.log(`Quick click su ${bookmakerName}:`, match.homeTeam, 'vs', match.awayTeam);
     
     if (onOpenBookmaker) {
       // Usa il sistema iframe
-      openMatchInFrame(match, bookmakerName, betType, onOpenBookmaker);
-    } else if (bookmakerInfo.hasDirectLink) {
-      // Fallback: apri in nuova finestra
-      const url = `https://${bookmakerInfo.baseUrl}`;
-      window.open(url, '_blank', 'noopener,noreferrer');
+      const matchInfo = {
+        homeTeam: match.homeTeam,
+        awayTeam: match.awayTeam,
+        sport: match.sport
+      };
+      openBookmakerInFrame(bookmakerName, onOpenBookmaker, matchInfo);
     } else {
-      // Fallback al sito principale
+      // Fallback: apri in nuova finestra
+      const bookmakerInfo: BookmakerInfo = getBookmakerInfo(bookmakerName);
       try {
         window.open(bookmakerInfo.baseUrl, '_blank', 'noopener,noreferrer');
       } catch (error) {

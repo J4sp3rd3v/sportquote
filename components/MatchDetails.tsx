@@ -5,7 +5,7 @@ import { X, Star, ExternalLink, Clock, TrendingUp } from 'lucide-react';
 import { Match, Bookmaker } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { openMatchInFrame, getBookmakerInfo as getBookmakerLinkInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
+import { openBookmakerInFrame, getBookmakerInfo as getBookmakerLinkInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
 
 interface MatchDetailsProps {
   match: Match;
@@ -38,7 +38,12 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpe
     try {
       if (onOpenBookmaker) {
         // Usa il sistema iframe
-        openMatchInFrame(match, bookmaker.name, betType, onOpenBookmaker);
+        const matchInfo = {
+          homeTeam: match.homeTeam,
+          awayTeam: match.awayTeam,
+          sport: match.sport
+        };
+        openBookmakerInFrame(bookmaker.name, onOpenBookmaker, matchInfo);
       } else {
         // Fallback: apri in nuova finestra
         const bookmakerLinkInfo = getBookmakerLinkInfo(bookmaker.name);
