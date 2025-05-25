@@ -7,6 +7,7 @@ import MatchCard from '@/components/MatchCard';
 import FilterPanel from '@/components/FilterPanel';
 import MatchDetails from '@/components/MatchDetails';
 import DataSourceToggle from '@/components/DataSourceToggle';
+import ApiStatusBanner from '@/components/ApiStatusBanner';
 import BookmakerFrame from '@/components/BookmakerFrame';
 import { matches as mockMatches, bookmakers } from '@/data/mockData';
 import { useRealOdds } from '@/hooks/useRealOdds';
@@ -251,10 +252,14 @@ export default function CategoryPage() {
           useRealData={useRealData}
           onToggle={toggleDataSource}
           loading={loading}
+        />
+
+        {/* API Status Banner */}
+        <ApiStatusBanner
+          useRealData={useRealData}
           error={error}
-          lastUpdate={lastUpdate}
-          apiStatus={apiStatus}
-          onRefresh={refreshData}
+          loading={loading}
+          onToggle={toggleDataSource}
         />
 
         {/* Results Header */}

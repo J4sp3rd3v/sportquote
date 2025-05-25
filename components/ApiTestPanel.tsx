@@ -86,7 +86,7 @@ export default function ApiTestPanel({ isOpen, onClose }: ApiTestPanelProps) {
 
     } catch (error) {
       console.error('❌ Errore test API:', error);
-      setTestResults({ error: error.message });
+      setTestResults({ error: error instanceof Error ? error.message : 'Errore sconosciuto' });
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +94,7 @@ export default function ApiTestPanel({ isOpen, onClose }: ApiTestPanelProps) {
 
   // Funzione di test per la normalizzazione (copia della logica)
   const normalizeBookmakerNameTest = (key: string, title: string): string => {
-    const BOOKMAKER_MAPPING = {
+    const BOOKMAKER_MAPPING: { [key: string]: string } = {
       'bet365': 'Bet365',
       'williamhill': 'William Hill',
       'betfair': 'Betfair',
