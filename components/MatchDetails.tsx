@@ -196,33 +196,14 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpe
                             </span>
                           </td>
                           <td className="py-3 sm:py-4 px-2 sm:px-4 text-center">
-                            <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
-                              <button 
-                                onClick={() => handleBookmakerClick(bookmaker, 'home')}
-                                className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-600 bg-green-50 rounded hover:bg-green-100 transition-colors duration-200"
-                                title={`Scommetti su vittoria ${match.homeTeam}`}
-                              >
-                                <span className="hidden sm:inline">1</span>
-                                <span className="sm:hidden">1</span>
-                              </button>
-                              {match.odds[0]?.draw && (
-                                <button 
-                                  onClick={() => handleBookmakerClick(bookmaker, 'draw')}
-                                  className="inline-flex items-center px-2 py-1 text-xs font-medium text-yellow-600 bg-yellow-50 rounded hover:bg-yellow-100 transition-colors duration-200"
-                                  title="Scommetti su pareggio"
-                                >
-                                  <span>X</span>
-                                </button>
-                              )}
-                              <button 
-                                onClick={() => handleBookmakerClick(bookmaker, 'away')}
-                                className="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors duration-200"
-                                title={`Scommetti su vittoria ${match.awayTeam}`}
-                              >
-                                <span className="hidden sm:inline">2</span>
-                                <span className="sm:hidden">2</span>
-                              </button>
-                            </div>
+                            <button 
+                              onClick={() => handleBookmakerClick(bookmaker, 'home')}
+                              className="inline-flex items-center px-3 py-2 text-xs font-medium text-white bg-primary-600 rounded hover:bg-primary-700 transition-colors duration-200 w-full justify-center"
+                              title={`Vai su ${bookmaker?.name || odds.bookmaker}`}
+                            >
+                              <ExternalLink className="h-3 w-3 mr-1" />
+                              <span className="truncate">{bookmaker?.name || odds.bookmaker}</span>
+                            </button>
                           </td>
                         </tr>
                       );
