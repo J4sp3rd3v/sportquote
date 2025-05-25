@@ -1,12 +1,3 @@
 {
-  "name": "sitosport",
-  "version": 2,
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "functions": {
-    "app/**/*.{js,ts,tsx}": {
-      "maxDuration": 30
-    }
-  }
+  "name": "sitosport"
 } 
