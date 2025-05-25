@@ -244,6 +244,43 @@ export default function HomePage() {
           onRefresh={refreshData}
         />
 
+        {/* Test Link Bookmaker */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+          <h3 className="text-sm font-medium text-yellow-800 mb-2">🧪 Test Link Bookmaker</h3>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => {
+                console.log('Test Bet365');
+                window.open('https://www.bet365.it', '_blank', 'noopener,noreferrer');
+              }}
+              className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-sm hover:bg-yellow-200"
+            >
+              Test Bet365
+            </button>
+            <button
+              onClick={() => {
+                console.log('Test Sisal');
+                window.open('https://www.sisal.it', '_blank', 'noopener,noreferrer');
+              }}
+              className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-sm hover:bg-yellow-200"
+            >
+              Test Sisal
+            </button>
+            <button
+              onClick={() => {
+                console.log('Test Google (controllo)');
+                window.open('https://www.google.it', '_blank', 'noopener,noreferrer');
+              }}
+              className="px-3 py-1 bg-green-100 text-green-800 rounded text-sm hover:bg-green-200"
+            >
+              Test Google (controllo)
+            </button>
+          </div>
+          <p className="text-xs text-yellow-700 mt-2">
+            Usa questi pulsanti per testare se i link si aprono correttamente. Se Google si apre ma i bookmaker no, potrebbe essere un problema di popup blocker.
+          </p>
+        </div>
+
         {/* Category Statistics */}
         {currentStats && (
           <SportCategoryStats 

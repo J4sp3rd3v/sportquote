@@ -25,11 +25,31 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose }: Mat
   };
 
   const handleBookmakerClick = (bookmaker: Bookmaker | undefined) => {
-    if (bookmaker?.website) {
-      const url = bookmaker.website.startsWith('http') 
-        ? bookmaker.website 
-        : `https://${bookmaker.website}`;
+    console.log('Bookmaker clicked:', bookmaker);
+    
+    if (!bookmaker) {
+      console.log('Nessun bookmaker trovato');
+      alert('Bookmaker non trovato');
+      return;
+    }
+    
+    if (!bookmaker.website) {
+      console.log('Nessun website per:', bookmaker.name);
+      alert(`Sito web non disponibile per ${bookmaker.name}`);
+      return;
+    }
+    
+    const url = bookmaker.website.startsWith('http') 
+      ? bookmaker.website 
+      : `https://${bookmaker.website}`;
+      
+    console.log('Aprendo URL:', url);
+    
+    try {
       window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      console.error('Errore apertura finestra:', error);
+      alert(`Errore nell'aprire il sito: ${error}`);
     }
   };
 

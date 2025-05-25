@@ -17,6 +17,37 @@ export default function MatchCard({ match, bestOdds, onViewDetails }: MatchCardP
     return format(date, 'dd MMM yyyy - HH:mm', { locale: it });
   };
 
+  const handleQuickBookmakerClick = (bookmakerName: string) => {
+    console.log('Quick click su bookmaker:', bookmakerName);
+    
+    // Trova il bookmaker per nome (semplificato per test)
+    const commonBookmakers: { [key: string]: string } = {
+      'Bet365': 'https://www.bet365.it',
+      'William Hill': 'https://www.williamhill.it',
+      'Betfair': 'https://www.betfair.it',
+      'Unibet': 'https://www.unibet.it',
+      'Bwin': 'https://www.bwin.it',
+      'Sisal': 'https://www.sisal.it',
+      'Snai': 'https://www.snai.it',
+      'Eurobet': 'https://www.eurobet.it',
+      'Lottomatica': 'https://www.lottomatica.it',
+      'Betclic': 'https://www.betclic.it'
+    };
+    
+    const url = commonBookmakers[bookmakerName];
+    if (url) {
+      console.log('Aprendo URL rapido:', url);
+      try {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      } catch (error) {
+        console.error('Errore apertura rapida:', error);
+        alert(`Errore nell'aprire ${bookmakerName}: ${error}`);
+      }
+    } else {
+      alert(`Sito non configurato per ${bookmakerName}. Usa "Confronta Tutte" per accedere.`);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'live':
@@ -86,7 +117,10 @@ export default function MatchCard({ match, bestOdds, onViewDetails }: MatchCardP
         </h4>
         <div className={`grid gap-2 sm:gap-3 ${bestOdds.draw ? 'grid-cols-3' : 'grid-cols-2'}`}>
           {/* Home Win */}
-          <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center">
+          <div 
+            className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+            onClick={() => handleQuickBookmakerClick(bestOdds.home.bookmaker)}
+          >
             <div className="text-xs text-gray-500 mb-1">1</div>
             <div className="font-bold text-base sm:text-lg text-gray-900">{bestOdds.home.odds}</div>
             <div className="text-xs text-primary-600 font-medium truncate">{bestOdds.home.bookmaker}</div>
@@ -94,7 +128,10 @@ export default function MatchCard({ match, bestOdds, onViewDetails }: MatchCardP
 
           {/* Draw (if available) */}
           {bestOdds.draw && (
-            <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center">
+            <div 
+              className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+              onClick={() => handleQuickBookmakerClick(bestOdds.draw!.bookmaker)}
+            >
               <div className="text-xs text-gray-500 mb-1">X</div>
               <div className="font-bold text-base sm:text-lg text-gray-900">{bestOdds.draw.odds}</div>
               <div className="text-xs text-primary-600 font-medium truncate">{bestOdds.draw.bookmaker}</div>
@@ -102,7 +139,10 @@ export default function MatchCard({ match, bestOdds, onViewDetails }: MatchCardP
           )}
 
           {/* Away Win */}
-          <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center">
+          <div 
+            className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+            onClick={() => handleQuickBookmakerClick(bestOdds.away.bookmaker)}
+          >
             <div className="text-xs text-gray-500 mb-1">2</div>
             <div className="font-bold text-base sm:text-lg text-gray-900">{bestOdds.away.odds}</div>
             <div className="text-xs text-primary-600 font-medium truncate">{bestOdds.away.bookmaker}</div>
