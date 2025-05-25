@@ -16,7 +16,43 @@ Una piattaforma moderna e reattiva per confrontare le quote dei migliori siti di
 - 🔀 **Modalità Duale**: Alterna tra quote reali e dati simulati
 - 📊 **Monitoraggio API**: Visualizza stato connessione e utilizzo API
 
-## 🚀 Tecnologie Utilizzate
+## 🚀 **DEPLOYMENT RAPIDO**
+
+### **🌟 Opzione 1: Vercel (Raccomandato)**
+
+1. **Crea account GitHub** su https://github.com
+2. **Crea nuovo repository** chiamato "sitosport"
+3. **Carica il progetto:**
+   ```bash
+   git remote add origin https://github.com/TUOUSERNAME/sitosport.git
+   git branch -M main
+   git push -u origin main
+   ```
+4. **Vai su Vercel** https://vercel.com
+5. **"Continue with GitHub"** → **"New Project"** → Seleziona "sitosport" → **"Deploy"**
+6. **Il tuo sito sarà live in 2-3 minuti!** 🎉
+
+**Link finale:** `https://sitosport-tuousername.vercel.app`
+
+### **🔥 Opzione 2: Netlify**
+
+1. **Carica su GitHub** (come sopra)
+2. **Vai su Netlify** https://netlify.com
+3. **"New site from Git"** → GitHub → Seleziona repository → **"Deploy"**
+
+### **📱 Opzione 3: Script Automatico**
+
+**Windows:**
+```bash
+./deploy.bat
+```
+
+**Linux/Mac:**
+```bash
+./deploy.sh
+```
+
+## 🔧 Tecnologie Utilizzate
 
 - **Frontend**: Next.js 14, React 18, TypeScript
 - **Styling**: Tailwind CSS, CSS Modules
@@ -25,7 +61,7 @@ Una piattaforma moderna e reattiva per confrontare le quote dei migliori siti di
 - **Date Handling**: date-fns
 - **Development**: ESLint, PostCSS, Autoprefixer
 
-## 📦 Installazione
+## 📦 Installazione Locale
 
 ### Prerequisiti
 
@@ -43,26 +79,15 @@ Una piattaforma moderna e reattiva per confrontare le quote dei migliori siti di
 2. **Installa le dipendenze**
    ```bash
    npm install
-   # oppure
-   yarn install
    ```
 
-3. **Configura la chiave API (opzionale)**
-   Per utilizzare quote reali, la chiave API è già configurata nel codice.
-   Per usare la tua chiave, modifica `lib/oddsApi.ts`:
-   ```typescript
-   const ODDS_API_KEY = 'la-tua-chiave-api';
-   ```
-
-4. **Avvia il server di sviluppo**
+3. **Avvia il server di sviluppo**
    ```bash
    npm run dev
-   # oppure
-   yarn dev
    ```
 
-5. **Apri il browser**
-   Vai su [http://localhost:3000](http://localhost:3000) per vedere l'applicazione.
+4. **Apri il browser**
+   Vai su [http://localhost:3000](http://localhost:3000)
 
 ## 🏗️ Struttura del Progetto
 
@@ -75,9 +100,15 @@ sitosport/
 ├── components/            # Componenti React riutilizzabili
 │   ├── Header.tsx         # Header con navigazione e ricerca
 │   ├── MatchCard.tsx      # Card per visualizzare le partite
-│   └── FilterPanel.tsx    # Panel per i filtri di ricerca
+│   ├── FilterPanel.tsx    # Panel per i filtri di ricerca
+│   ├── DataSourceToggle.tsx # Toggle quote reali/simulate
+│   └── SportCategoryStats.tsx # Statistiche per categoria
 ├── data/                  # Dati simulati
 │   └── mockData.ts        # Database simulato con 100 bookmakers
+├── lib/                   # Servizi e utilità
+│   └── oddsApi.ts         # Integrazione The Odds API
+├── hooks/                 # Custom React hooks
+│   └── useRealOdds.ts     # Hook per gestire quote reali
 ├── types/                 # Definizioni TypeScript
 │   └── index.ts           # Interfacce e tipi
 ├── public/                # Asset statici
@@ -116,13 +147,45 @@ sitosport/
 - Quote generate algoritmicamente
 - Nessun limite di utilizzo
 
-### Funzionalità Mobile
+## 📊 Database Simulato
 
-- Design completamente responsivo
-- Menu di navigazione ottimizzato per mobile
-- Touch-friendly per una navigazione fluida
+Il progetto include un database simulato con:
+
+- **100 Bookmakers**: Include i principali operatori italiani e internazionali
+- **Multiple Partite**: Partite di calcio, tennis, basket con quote realistiche
+- **Quote Dinamiche**: Quote generate automaticamente con variazioni realistiche
+- **Aggiornamenti**: Timestamp di ultimo aggiornamento per ogni quota
+
+### Bookmakers Inclusi
+
+- **Italiani**: Sisal, Snai, Eurobet, Lottomatica, Better, Goldbet
+- **Internazionali**: Bet365, William Hill, Betfair, Unibet, Bwin
+- **E molti altri**: Oltre 90 bookmakers aggiuntivi
+
+### Squadre e Campionati Reali
+
+- **Serie A**: Juventus, Inter, Milan, Napoli, Roma, Lazio, Atalanta, ecc.
+- **Premier League**: Manchester City, Arsenal, Liverpool, Chelsea, ecc.
+- **La Liga**: Real Madrid, Barcelona, Atletico Madrid, ecc.
+- **Bundesliga**: Bayern Munich, Borussia Dortmund, RB Leipzig, ecc.
+- **Tennis**: Djokovic, Alcaraz, Sinner, Swiatek, Sabalenka, ecc.
+- **NBA**: Lakers, Celtics, Warriors, Heat, Bucks, ecc.
 
 ## 🔧 Configurazione
+
+### Quote Reali (Opzionale)
+
+Per utilizzare quote reali, aggiungi la variabile d'ambiente:
+
+**Vercel/Netlify:**
+```
+ODDS_API_KEY=9640f946c5bb763f61fd8105717aad6b
+```
+
+**Locale (.env.local):**
+```
+ODDS_API_KEY=9640f946c5bb763f61fd8105717aad6b
+```
 
 ### Personalizzazione Colori
 
@@ -140,49 +203,20 @@ theme: {
 }
 ```
 
-### Aggiunta di Nuovi Sport
+## 🔄 Aggiornamenti Automatici
 
-Aggiungi nuovi sport in `data/mockData.ts`:
+Una volta configurato il deployment:
+1. Modifica il codice localmente
+2. `git add .`
+3. `git commit -m "Aggiornamento"`
+4. `git push`
+5. Il sito si aggiorna automaticamente in 2-3 minuti
 
-```typescript
-export const sports: Sport[] = [
-  { id: 'nuovo-sport', name: 'Nuovo Sport', icon: '🏆', isPopular: true },
-  // ...altri sport
-];
-```
+## 📱 Guide Dettagliate
 
-## 📊 Database Simulato
-
-Il progetto include un database simulato con:
-
-- **100 Bookmakers**: Include i principali operatori italiani e internazionali
-- **Multiple Partite**: Partite di calcio, tennis, basket con quote realistiche
-- **Quote Dinamiche**: Quote generate automaticamente con variazioni realistiche
-- **Aggiornamenti**: Timestamp di ultimo aggiornamento per ogni quota
-
-### Bookmakers Inclusi
-
-- **Italiani**: Sisal, Snai, Eurobet, Lottomatica, Better, Goldbet
-- **Internazionali**: Bet365, William Hill, Betfair, Unibet, Bwin
-- **E molti altri**: Oltre 90 bookmakers aggiuntivi
-
-## 🚀 Deployment
-
-### Vercel (Raccomandato)
-
-1. Fai push del codice su GitHub
-2. Connetti il repository a Vercel
-3. Deploy automatico ad ogni push
-
-### Altri Provider
-
-```bash
-# Build per produzione
-npm run build
-
-# Avvia in modalità produzione
-npm start
-```
+- **[GUIDA_RAPIDA_DEPLOYMENT.md](GUIDA_RAPIDA_DEPLOYMENT.md)** - Deployment in 5 minuti
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Guida completa con tutte le opzioni
+- **Script automatici**: `deploy.bat` (Windows) e `deploy.sh` (Linux/Mac)
 
 ## 🤝 Contribuire
 
@@ -194,7 +228,7 @@ npm start
 
 ## 📝 Roadmap
 
-- [ ] **API Reali**: Integrazione con API di bookmakers reali
+- [ ] **API Reali**: Integrazione con API di bookmakers reali ✅
 - [ ] **Notifiche**: Alert per quote vantaggiose
 - [ ] **Storico Quote**: Grafici di andamento delle quote
 - [ ] **Confronto Avanzato**: Calcolo automatico di arbitraggi
@@ -210,6 +244,7 @@ Questo progetto è sotto licenza MIT. Vedi il file [LICENSE](LICENSE) per i dett
 - [Next.js](https://nextjs.org/) per il framework
 - [Tailwind CSS](https://tailwindcss.com/) per lo styling
 - [Lucide](https://lucide.dev/) per le icone
+- [The Odds API](https://the-odds-api.com/) per le quote reali
 - [Vercel](https://vercel.com/) per l'hosting
 
 ## 📞 Supporto
@@ -218,4 +253,14 @@ Per supporto, email a support@sitosport.com o apri un issue su GitHub.
 
 ---
 
-**⚠️ Disclaimer**: Questo è un progetto dimostrativo. Le quote mostrate sono simulate e non rappresentano quote reali di bookmakers. Per scommesse reali, consulta sempre i siti ufficiali dei bookmakers autorizzati. 
+## 🎯 **LINK UTILI**
+
+- **🚀 Deploy Vercel**: https://vercel.com
+- **🔥 Deploy Netlify**: https://netlify.com  
+- **📚 Documentazione Next.js**: https://nextjs.org/docs
+- **🎨 Tailwind CSS**: https://tailwindcss.com/docs
+- **📊 The Odds API**: https://the-odds-api.com
+
+---
+
+**⚠️ Disclaimer**: Questo è un progetto dimostrativo. Le quote mostrate in modalità simulata non rappresentano quote reali di bookmakers. Per scommesse reali, consulta sempre i siti ufficiali dei bookmakers autorizzati. 
