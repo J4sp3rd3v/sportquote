@@ -14,7 +14,7 @@ export interface AutoUpdateStats {
 
 export class AutoUpdateService {
   private static instance: AutoUpdateService;
-  private updateInterval: number = 30; // 30 minuti
+  private updateInterval: number = 60; // 1 ora
   private intervalId: NodeJS.Timeout | null = null;
   private lastUpdate: Date | null = null;
   private totalUpdates: number = 0;
@@ -181,13 +181,47 @@ export class AutoUpdateService {
       return 'In corso...';
     }
 
-    const minutes = Math.floor(timeRemaining / (1000 * 60));
+    const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+    const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
 
-    if (minutes > 0) {
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${seconds}s`;
+    } else if (minutes > 0) {
       return `${minutes}m ${seconds}s`;
     } else {
       return `${seconds}s`;
+    }
+  }
+
+  // Ottieni l'ultimo aggiornamento formattato
+  public getFormattedLastUpdate(): string {
+    if (!this.lastUpdate) {
+      return 'Mai eseguito';
+    }
+
+    const now = new Date();
+    const diffMs = now.getTime() - this.lastUpdate.getTime();
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMinutes < 1) {
+      return 'Appena aggiornato';
+    } else if (diffMinutes < 60) {
+      return `${diffMinutes} minuti fa`;
+    } else if (diffHours < 24) {
+      return `${diffHours} ore fa`;
+    } else if (diffDays === 1) {
+      return 'Ieri alle ' + this.lastUpdate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    } else {
+      return this.lastUpdate.toLocaleString('it-IT', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric',
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
     }
   }
 
@@ -201,9 +235,9 @@ export class AutoUpdateService {
     const percentage = oddsApi.getUsagePercentage();
     
     if (percentage < 50) {
-      return 'Sistema di aggiornamento attivo. Dati aggiornati automaticamente ogni 30 minuti.';
+      return 'Sistema di aggiornamento attivo. Dati aggiornati automaticamente ogni ora.';
     } else if (percentage < 80) {
-      return 'Utilizzo API moderato. Aggiornamenti automatici ogni 30 minuti per ottimizzare le richieste.';
+      return 'Utilizzo API moderato. Aggiornamenti automatici ogni ora per ottimizzare le richieste.';
     } else if (percentage < 95) {
       return 'Limite API in avvicinamento. Solo aggiornamenti automatici programmati.';
     } else {

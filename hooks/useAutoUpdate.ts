@@ -7,6 +7,7 @@ export interface UseAutoUpdateReturn {
   stats: AutoUpdateStats;
   isRunning: boolean;
   timeToNextUpdate: string;
+  formattedLastUpdate: string;
   canRequestManualUpdate: boolean;
   limitMessage: string;
   startAutoUpdate: () => void;
@@ -76,6 +77,7 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
     stats,
     isRunning: stats.isRunning,
     timeToNextUpdate,
+    formattedLastUpdate: autoUpdateService.getFormattedLastUpdate(),
     canRequestManualUpdate: autoUpdateService.canRequestManualUpdate(),
     limitMessage: autoUpdateService.getUpdateLimitMessage(),
     startAutoUpdate,

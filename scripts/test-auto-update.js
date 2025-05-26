@@ -95,7 +95,7 @@ async function testAutoUpdateSystem() {
     console.log('✅ Monitoraggio utilizzo: OK');
     console.log('\n🎉 Sistema di aggiornamento automatico pronto!');
     console.log('\n💡 Caratteristiche implementate:');
-    console.log('• Aggiornamento automatico ogni 30 minuti');
+    console.log('• Aggiornamento automatico ogni ora');
     console.log('• Conteggio richieste API in tempo reale');
     console.log('• Protezione da superamento limiti');
     console.log('• Aggiornamenti manuali limitati per preservare quota');

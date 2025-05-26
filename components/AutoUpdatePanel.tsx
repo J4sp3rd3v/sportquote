@@ -145,10 +145,7 @@ export default function AutoUpdatePanel({ isOpen, onClose }: AutoUpdatePanelProp
               <div>
                 <p className="text-sm text-gray-600">Ultimo Aggiornamento</p>
                 <p className="font-medium text-gray-900">
-                  {autoUpdate.stats.lastUpdate 
-                    ? autoUpdate.stats.lastUpdate.toLocaleString('it-IT')
-                    : 'Mai eseguito'
-                  }
+                  {autoUpdate.formattedLastUpdate}
                 </p>
               </div>
               <div>
@@ -226,7 +223,7 @@ export default function AutoUpdatePanel({ isOpen, onClose }: AutoUpdatePanelProp
 
           {/* Note */}
           <div className="text-xs text-gray-500 space-y-1">
-            <p>• Il sistema si aggiorna automaticamente ogni 30 minuti per ottimizzare l'uso delle API</p>
+            <p>• Il sistema si aggiorna automaticamente ogni ora per ottimizzare l'uso delle API</p>
             <p>• Gli aggiornamenti manuali sono limitati quando l'utilizzo API supera il 90%</p>
             <p>• Il sistema si ferma automaticamente quando l'utilizzo API raggiunge il 95%</p>
             <p>• Per aggiornamenti più frequenti, considera l'upgrade a un piano premium</p>

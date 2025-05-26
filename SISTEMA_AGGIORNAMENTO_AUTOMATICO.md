@@ -6,7 +6,7 @@ Il sistema di aggiornamento automatico è stato implementato per gestire l'aggio
 ## Caratteristiche Principali
 
 ### 🔄 Aggiornamento Automatico
-- **Intervallo**: Ogni 30 minuti
+- **Intervallo**: Ogni ora
 - **Avvio automatico**: Il sistema si avvia automaticamente al caricamento dell'app
 - **Gestione intelligente**: Ferma automaticamente gli aggiornamenti se il limite API è quasi raggiunto (95%)
 
@@ -80,7 +80,7 @@ Mostra:
 
 1. **Avvio automatico** al caricamento dell'app
 2. **Prima esecuzione** immediata
-3. **Aggiornamenti programmati** ogni 30 minuti
+3. **Aggiornamenti programmati** ogni ora
 4. **Recupero dati** da sport multipli
 5. **Conversione formato** per l'app
 6. **Notifica subscribers** con nuovi dati
@@ -106,10 +106,10 @@ Mostra:
 ## Messaggi Utente
 
 ### Utilizzo < 50%
-"Sistema di aggiornamento attivo. Dati aggiornati automaticamente ogni 30 minuti."
+"Sistema di aggiornamento attivo. Dati aggiornati automaticamente ogni ora."
 
 ### Utilizzo 50-80%
-"Utilizzo API moderato. Aggiornamenti automatici ogni 30 minuti per ottimizzare le richieste."
+"Utilizzo API moderato. Aggiornamenti automatici ogni ora per ottimizzare le richieste."
 
 ### Utilizzo 80-95%
 "Limite API in avvicinamento. Solo aggiornamenti automatici programmati."
@@ -180,9 +180,9 @@ Per aggiornamenti più frequenti o in tempo reale, il sistema è predisposto per
 ## Conclusioni
 
 Il sistema di aggiornamento automatico fornisce:
-- **Dati sempre aggiornati** senza intervento utente
+- **Dati sempre aggiornati** senza intervento utente (ogni ora)
 - **Gestione intelligente** delle risorse API
-- **Esperienza utente ottimale** con informazioni trasparenti
+- **Esperienza utente ottimale** con informazioni trasparenti sull'ultimo aggiornamento
 - **Scalabilità** per futuri upgrade
 - **Protezione** da superamento limiti
 
