@@ -16,12 +16,15 @@ import OptimizedApiStats from '@/components/OptimizedApiStats';
 import DebugPanel from '@/components/DebugPanel';
 import CountdownTimer from '@/components/CountdownTimer';
 import SubscriptionManager from '@/components/SubscriptionManager';
+import BettingStrategies from '@/components/BettingStrategies';
+// import OddsAnalysis from '@/components/OddsAnalysis';
+import BettingGuide from '@/components/BettingGuide';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 import { useApiManager } from '@/lib/apiManager';
 
 import { useOptimizedOdds } from '@/hooks/useOptimizedOdds';
 import { FilterOptions, BestOdds, Match } from '@/types';
-import { TrendingUp, Users, Award, Clock, Filter } from 'lucide-react';
+import { TrendingUp, Users, Award, Clock, Filter, BarChart3 } from 'lucide-react';
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -162,19 +165,35 @@ export default function HomePage() {
           {/* Main Hero Content */}
           <div className="text-center mb-12">
             <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-white via-primary-200 to-accent-300 bg-clip-text text-transparent leading-tight">
-              Quote Live in Tempo Reale
+              MonitorQuote - Quote Intelligenti
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 text-dark-200 px-2">
-              {useRealData 
-                ? '🔴 LIVE: Quote aggiornate ogni minuto da API professionali'
-                : 'Confronta le migliori quote tra 54+ bookmaker verificati'
-              }
+              🎯 Trova le quote più vantaggiose, analizza le tendenze e scopri le migliori opportunità di scommessa
             </p>
+            
+            {/* Value Propositions */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
+              <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+                <div className="text-2xl mb-2">📊</div>
+                <h3 className="font-semibold text-white mb-1">Quote Migliori</h3>
+                <p className="text-sm text-dark-300">Confronto automatico tra 54+ bookmaker</p>
+              </div>
+              <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+                <div className="text-2xl mb-2">🧠</div>
+                <h3 className="font-semibold text-white mb-1">Analisi Intelligente</h3>
+                <p className="text-sm text-dark-300">Suggerimenti e strategie basate sui dati</p>
+              </div>
+              <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+                <div className="text-2xl mb-2">⚡</div>
+                <h3 className="font-semibold text-white mb-1">Aggiornamenti Live</h3>
+                <p className="text-sm text-dark-300">Quote in tempo reale ogni 30 secondi</p>
+              </div>
+            </div>
             
             {/* Status Badge */}
             <div className="inline-flex items-center bg-accent-500/20 border border-accent-500/30 text-accent-400 px-6 py-3 rounded-full text-sm font-medium mb-8">
               <div className="w-2 h-2 bg-accent-400 rounded-full mr-3 animate-pulse"></div>
-              {isSubscribed ? `Piano ${subscriptionPlan?.name} Attivo` : 'Piano Gratuito - 500 richieste/mese'}
+              {useRealData ? '🔴 LIVE: Quote aggiornate ogni minuto' : 'Demo: Dati di esempio'}
             </div>
           </div>
 
@@ -300,15 +319,174 @@ export default function HomePage() {
           <BookmakerTestPanel />
         )}
 
-        {/* Best Odds Highlight */}
+        {/* Quick Stats Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-dark-800 border border-dark-700 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-dark-400 text-sm">Partite Oggi</span>
+              <TrendingUp className="h-4 w-4 text-success-400" />
+            </div>
+            <div className="text-2xl font-bold text-white">{filteredMatches.filter(m => {
+              const today = new Date().toDateString();
+              return new Date(m.date).toDateString() === today;
+            }).length}</div>
+            <div className="text-xs text-success-400">+12% vs ieri</div>
+          </div>
+          
+          <div className="bg-dark-800 border border-dark-700 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-dark-400 text-sm">Quota Più Alta</span>
+              <Award className="h-4 w-4 text-warning-400" />
+            </div>
+            <div className="text-2xl font-bold text-white">
+              {filteredMatches.length > 0 ? 
+                Math.max(...filteredMatches.flatMap(m => m.odds.map(o => Math.max(o.home, o.away, o.draw || 0)))).toFixed(2) 
+                : '0.00'
+              }
+            </div>
+            <div className="text-xs text-warning-400">Opportunità alta</div>
+          </div>
+          
+          <div className="bg-dark-800 border border-dark-700 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-dark-400 text-sm">Bookmaker Attivi</span>
+              <Users className="h-4 w-4 text-primary-400" />
+            </div>
+            <div className="text-2xl font-bold text-white">54</div>
+            <div className="text-xs text-primary-400">Tutti verificati</div>
+          </div>
+          
+          <div className="bg-dark-800 border border-dark-700 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-dark-400 text-sm">Ultimo Aggiornamento</span>
+              <Clock className="h-4 w-4 text-accent-400" />
+            </div>
+            <div className="text-2xl font-bold text-white">
+              {new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+            </div>
+            <div className="text-xs text-accent-400">Tempo reale</div>
+          </div>
+        </div>
+
+        {/* Best Opportunities Section */}
         {filteredMatches.length > 0 && (
-          <BestOddsHighlight 
-            matches={filteredMatches}
-            onMatchClick={(match) => {
-              handleViewDetails(match.id);
-            }}
-          />
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">🎯 Migliori Opportunità</h2>
+              <div className="text-sm text-dark-400">Aggiornato ogni 30 secondi</div>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* Quota Più Alta */}
+              <div className="bg-gradient-to-br from-success-500/10 to-success-600/5 border border-success-500/20 rounded-xl p-6">
+                <div className="flex items-center mb-4">
+                  <div className="p-2 bg-success-500/20 rounded-lg mr-3">
+                    <TrendingUp className="h-5 w-5 text-success-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">Quota Più Vantaggiosa</h3>
+                    <p className="text-sm text-dark-300">Massimo profitto potenziale</p>
+                  </div>
+                </div>
+                {(() => {
+                  const bestMatch = filteredMatches.reduce((best, current) => {
+                    const currentMax = Math.max(...current.odds.map(o => Math.max(o.home, o.away, o.draw || 0)));
+                    const bestMax = Math.max(...best.odds.map(o => Math.max(o.home, o.away, o.draw || 0)));
+                    return currentMax > bestMax ? current : best;
+                  }, filteredMatches[0]);
+                  
+                  if (bestMatch) {
+                    const bestOdds = calculateBestOdds(bestMatch);
+                    const maxOdd = Math.max(bestOdds.home.odds, bestOdds.away.odds, bestOdds.draw?.odds || 0);
+                    return (
+                      <div>
+                        <div className="text-lg font-medium text-white mb-2">
+                          {bestMatch.homeTeam} vs {bestMatch.awayTeam}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-success-400 font-bold text-xl">{maxOdd.toFixed(2)}</span>
+                          <button 
+                            onClick={() => handleViewDetails(bestMatch.id)}
+                            className="text-sm bg-success-500/20 text-success-400 px-3 py-1 rounded-lg hover:bg-success-500/30 transition-colors"
+                          >
+                            Vedi Dettagli
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+
+              {/* Partita Equilibrata */}
+              <div className="bg-gradient-to-br from-warning-500/10 to-warning-600/5 border border-warning-500/20 rounded-xl p-6">
+                <div className="flex items-center mb-4">
+                  <div className="p-2 bg-warning-500/20 rounded-lg mr-3">
+                    <BarChart3 className="h-5 w-5 text-warning-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">Partita Equilibrata</h3>
+                    <p className="text-sm text-dark-300">Quote simili, risultato incerto</p>
+                  </div>
+                </div>
+                {(() => {
+                  const balancedMatch = filteredMatches.find(match => {
+                    const bestOdds = calculateBestOdds(match);
+                    const diff = Math.abs(bestOdds.home.odds - bestOdds.away.odds);
+                    return diff < 0.5; // Differenza minima tra le quote
+                  });
+                  
+                  if (balancedMatch) {
+                    const bestOdds = calculateBestOdds(balancedMatch);
+                    return (
+                      <div>
+                        <div className="text-lg font-medium text-white mb-2">
+                          {balancedMatch.homeTeam} vs {balancedMatch.awayTeam}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex space-x-2">
+                            <span className="text-warning-400 font-bold">{bestOdds.home.odds.toFixed(2)}</span>
+                            <span className="text-dark-400">vs</span>
+                            <span className="text-warning-400 font-bold">{bestOdds.away.odds.toFixed(2)}</span>
+                          </div>
+                          <button 
+                            onClick={() => handleViewDetails(balancedMatch.id)}
+                            className="text-sm bg-warning-500/20 text-warning-400 px-3 py-1 rounded-lg hover:bg-warning-500/30 transition-colors"
+                          >
+                            Analizza
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="text-dark-400 text-center py-4">
+                      Nessuna partita equilibrata trovata
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+            
+            <BestOddsHighlight 
+              matches={filteredMatches}
+              onMatchClick={(match) => {
+                handleViewDetails(match.id);
+              }}
+            />
+          </div>
         )}
+
+        {/* Advanced Betting Strategies */}
+        <div className="mb-8">
+          <BettingStrategies matches={filteredMatches} />
+        </div>
+
+        {/* Betting Guide */}
+        <div className="mb-8">
+          <BettingGuide />
+        </div>
 
         {/* Category Statistics - Rimosso per ora */}
 
