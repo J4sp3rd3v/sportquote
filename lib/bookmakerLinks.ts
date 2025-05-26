@@ -2,7 +2,7 @@ import { Match, Bookmaker } from '@/types';
 
 // Mapping completo dei bookmaker con URL corretti e verificati (Gennaio 2025)
 // Solo bookmaker testati e funzionanti - URL verificati automaticamente
-const BOOKMAKER_BASE_URLS: { [key: string]: string } = {
+export const BOOKMAKER_BASE_URLS: { [key: string]: string } = {
   // TOP 5 bookmaker italiani più popolari
   'Bet365': 'https://www.bet365.it',
   'Sisal': 'https://www.sisal.com',
