@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Crown, 
   Zap, 
@@ -11,57 +11,82 @@ import {
   Shield, 
   Clock,
   BarChart3,
-  Download
+  Download,
+  Users
 } from 'lucide-react';
 import { 
-  useApiManager, 
+  getSubscriptionManager, 
   SUBSCRIPTION_PLANS, 
   SubscriptionPlan,
-  getUsagePercentage,
-  getRemainingRequests
-} from '@/lib/apiManager';
+  UserSubscription
+} from '@/lib/subscriptionManager';
 
 interface SubscriptionManagerProps {
   className?: string;
 }
 
 export default function SubscriptionManager({ className = '' }: SubscriptionManagerProps) {
-  const { 
-    usage, 
-    subscriptionPlan, 
-    isSubscribed, 
-    setSubscription, 
-    cancelSubscription 
-  } = useApiManager();
-  
+  const [subscriptionManager] = useState(() => getSubscriptionManager());
+  const [currentSubscription, setCurrentSubscription] = useState<UserSubscription | null>(null);
+  const [currentPlan, setCurrentPlan] = useState<SubscriptionPlan | null>(null);
+  const [usageStats, setUsageStats] = useState({
+    requestsUsed: 0,
+    requestsLimit: 0,
+    percentageUsed: 0,
+    daysRemaining: 0,
+    updateFrequency: 'Non disponibile'
+  });
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-  const currentUsagePercentage = subscriptionPlan ? getUsagePercentage(usage, subscriptionPlan) : 0;
-  const remainingRequests = subscriptionPlan ? getRemainingRequests(usage, subscriptionPlan) : 0;
+  // Aggiorna i dati dell'abbonamento
+  const updateSubscriptionData = () => {
+    const subscription = subscriptionManager.getCurrentSubscription();
+    const plan = subscriptionManager.getCurrentPlan();
+    const stats = subscriptionManager.getUsageStats();
+    
+    setCurrentSubscription(subscription);
+    setCurrentPlan(plan);
+    setUsageStats(stats);
+  };
+
+  useEffect(() => {
+    updateSubscriptionData();
+    
+    // Aggiorna ogni 30 secondi
+    const interval = setInterval(updateSubscriptionData, 30000);
+    
+    return () => clearInterval(interval);
+  }, [subscriptionManager]);
 
   const handleUpgrade = (plan: SubscriptionPlan) => {
-    if (plan.id === 'free') {
-      cancelSubscription();
+    const success = subscriptionManager.changePlan(plan.id);
+    if (success) {
+      updateSubscriptionData();
+      if (plan.id !== 'free') {
+        alert(`Piano ${plan.name} attivato con successo! 🎉`);
+      }
     } else {
-      setSubscription(plan);
-      // Qui andresti alla pagina di pagamento
-      alert(`Reindirizzamento al pagamento per il piano ${plan.name}...`);
+      alert('Errore nell\'attivazione del piano. Riprova.');
     }
     setSelectedPlan(null);
   };
 
   const handleCancel = () => {
-    cancelSubscription();
+    const success = subscriptionManager.changePlan('free');
+    if (success) {
+      updateSubscriptionData();
+      alert('Piano cancellato. Sei tornato al piano gratuito.');
+    }
     setShowCancelConfirm(false);
   };
 
   const getPlanIcon = (planId: string) => {
     switch (planId) {
-      case 'free': return <Shield className="h-5 w-5" />;
-      case 'pro': return <Zap className="h-5 w-5" />;
-      case 'premium': return <Crown className="h-5 w-5" />;
-      default: return <Star className="h-5 w-5" />;
+      case 'free': return <Users className="h-5 w-5" />;
+      case 'pro': return <Crown className="h-5 w-5" />;
+      case 'premium': return <Star className="h-5 w-5" />;
+      default: return <Shield className="h-5 w-5" />;
     }
   };
 
@@ -74,32 +99,43 @@ export default function SubscriptionManager({ className = '' }: SubscriptionMana
     }
   };
 
+  const getPlanBgColor = (planId: string) => {
+    switch (planId) {
+      case 'free': return 'bg-dark-600 text-dark-400';
+      case 'pro': return 'bg-primary-500/20 text-primary-400';
+      case 'premium': return 'bg-accent-500/20 text-accent-400';
+      default: return 'bg-dark-600 text-dark-400';
+    }
+  };
+
+  if (!currentSubscription || !currentPlan) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Current Plan Status */}
       <div className="bg-dark-800 border border-dark-700 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className={`p-2 rounded-lg ${
-              subscriptionPlan?.id === 'premium' 
-                ? 'bg-accent-500/20 text-accent-400' 
-                : subscriptionPlan?.id === 'pro'
-                  ? 'bg-primary-500/20 text-primary-400'
-                  : 'bg-dark-600 text-dark-400'
-            }`}>
-              {getPlanIcon(subscriptionPlan?.id || 'free')}
+            <div className={`p-2 rounded-lg ${getPlanBgColor(currentPlan.id)}`}>
+              {getPlanIcon(currentPlan.id)}
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white">
-                Piano {subscriptionPlan?.name}
+                Piano {currentPlan.name}
               </h3>
               <p className="text-sm text-dark-400">
-                {isSubscribed ? `€${subscriptionPlan?.price}/mese` : 'Gratuito'}
+                {currentPlan.price > 0 ? `€${currentPlan.price}/${currentPlan.interval === 'month' ? 'mese' : 'anno'}` : 'Gratuito'}
               </p>
             </div>
           </div>
           
-          {isSubscribed && (
+          {currentPlan.id !== 'free' && (
             <button
               onClick={() => setShowCancelConfirm(true)}
               className="px-3 py-1 text-xs text-danger-400 border border-danger-500/30 rounded-lg hover:bg-danger-500/10 transition-colors"
@@ -115,24 +151,24 @@ export default function SubscriptionManager({ className = '' }: SubscriptionMana
             <div className="flex justify-between text-sm mb-2">
               <span className="text-dark-400">Richieste utilizzate</span>
               <span className="text-white">
-                {usage.requests.toLocaleString()} / {subscriptionPlan?.requests.toLocaleString()}
+                {usageStats.requestsUsed.toLocaleString()} / {usageStats.requestsLimit.toLocaleString()}
               </span>
             </div>
             <div className="w-full bg-dark-700 rounded-full h-2">
               <div 
                 className={`h-full rounded-full transition-all duration-300 ${
-                  currentUsagePercentage > 90 
+                  usageStats.percentageUsed > 90 
                     ? 'bg-gradient-to-r from-danger-500 to-danger-400' 
-                    : currentUsagePercentage > 70
+                    : usageStats.percentageUsed > 70
                       ? 'bg-gradient-to-r from-warning-500 to-warning-400'
                       : 'bg-gradient-to-r from-success-500 to-success-400'
                 }`}
-                style={{ width: `${Math.min(100, currentUsagePercentage)}%` }}
+                style={{ width: `${Math.min(100, usageStats.percentageUsed)}%` }}
               />
             </div>
             <div className="flex justify-between text-xs text-dark-400 mt-1">
-              <span>{Math.round(currentUsagePercentage)}% utilizzato</span>
-              <span>{remainingRequests.toLocaleString()} rimanenti</span>
+              <span>{usageStats.percentageUsed}% utilizzato</span>
+              <span>{(usageStats.requestsLimit - usageStats.requestsUsed).toLocaleString()} rimanenti</span>
             </div>
           </div>
 
@@ -144,19 +180,17 @@ export default function SubscriptionManager({ className = '' }: SubscriptionMana
                 <span className="text-xs text-dark-400">Aggiornamenti</span>
               </div>
               <div className="text-sm font-medium text-white">
-                Ogni {subscriptionPlan?.updateInterval === 1 ? '1 min' : 
-                  subscriptionPlan?.updateInterval && subscriptionPlan.updateInterval < 1 ? '30 sec' : 
-                  `${subscriptionPlan?.updateInterval} min`}
+                {usageStats.updateFrequency}
               </div>
             </div>
             
             <div className="bg-dark-700/50 rounded-lg p-3">
               <div className="flex items-center space-x-2 mb-1">
                 <TrendingUp className="h-4 w-4 text-success-400" />
-                <span className="text-xs text-dark-400">Questo mese</span>
+                <span className="text-xs text-dark-400">Giorni rimanenti</span>
               </div>
               <div className="text-sm font-medium text-white">
-                {usage.requests.toLocaleString()} richieste
+                {usageStats.daysRemaining} giorni
               </div>
             </div>
           </div>
@@ -169,8 +203,8 @@ export default function SubscriptionManager({ className = '' }: SubscriptionMana
         
         <div className="grid gap-4 md:grid-cols-3">
           {SUBSCRIPTION_PLANS.map((plan) => {
-            const isCurrent = subscriptionPlan?.id === plan.id;
-            const isPopular = plan.id === 'pro';
+            const isCurrent = currentPlan.id === plan.id;
+            const isPopular = plan.popular;
             
             return (
               <div
@@ -192,27 +226,26 @@ export default function SubscriptionManager({ className = '' }: SubscriptionMana
 
                 {/* Plan Header */}
                 <div className="text-center mb-6">
-                  <div className={`inline-flex p-3 rounded-lg mb-3 ${
-                    plan.id === 'premium' 
-                      ? 'bg-accent-500/20 text-accent-400' 
-                      : plan.id === 'pro'
-                        ? 'bg-primary-500/20 text-primary-400'
-                        : 'bg-dark-600 text-dark-400'
-                  }`}>
+                  <div className={`inline-flex p-3 rounded-lg mb-3 ${getPlanBgColor(plan.id)}`}>
                     {getPlanIcon(plan.id)}
                   </div>
-                  <h4 className="text-xl font-bold text-white mb-2">{plan.name}</h4>
+                  <h4 className="text-lg font-semibold text-white mb-1">{plan.name}</h4>
+                  <p className="text-sm text-dark-400 mb-3">{plan.description}</p>
                   <div className="text-3xl font-bold text-white">
                     {plan.price === 0 ? 'Gratis' : `€${plan.price}`}
-                    {plan.price > 0 && <span className="text-sm text-dark-400">/mese</span>}
+                    {plan.price > 0 && (
+                      <span className="text-sm font-normal text-dark-400">
+                        /{plan.interval === 'month' ? 'mese' : 'anno'}
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 {/* Features */}
                 <div className="space-y-3 mb-6">
                   {plan.features.map((feature, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <Check className="h-4 w-4 text-success-400 flex-shrink-0" />
+                    <div key={index} className="flex items-start space-x-2">
+                      <Check className="h-4 w-4 text-success-400 mt-0.5 flex-shrink-0" />
                       <span className="text-sm text-dark-300">{feature}</span>
                     </div>
                   ))}
@@ -220,19 +253,19 @@ export default function SubscriptionManager({ className = '' }: SubscriptionMana
 
                 {/* Action Button */}
                 <button
-                  onClick={() => isCurrent ? null : setSelectedPlan(plan)}
+                  onClick={() => isCurrent ? null : handleUpgrade(plan)}
                   disabled={isCurrent}
-                  className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
+                  className={`w-full py-2 px-4 rounded-lg font-medium transition-all duration-200 ${
                     isCurrent
                       ? 'bg-dark-600 text-dark-400 cursor-not-allowed'
                       : plan.id === 'premium'
                         ? 'bg-accent-gradient text-white hover:shadow-lg hover:shadow-accent-500/25'
                         : plan.id === 'pro'
                           ? 'bg-primary-gradient text-white hover:shadow-lg hover:shadow-primary-500/25'
-                          : 'bg-dark-700 text-white hover:bg-dark-600'
+                          : 'bg-dark-600 text-white hover:bg-dark-500'
                   }`}
                 >
-                  {isCurrent ? 'Piano attuale' : plan.price === 0 ? 'Downgrade' : 'Upgrade'}
+                  {isCurrent ? 'Piano Attuale' : plan.price === 0 ? 'Downgrade' : 'Upgrade'}
                 </button>
               </div>
             );
@@ -240,68 +273,45 @@ export default function SubscriptionManager({ className = '' }: SubscriptionMana
         </div>
       </div>
 
-      {/* Upgrade Confirmation Modal */}
-      {selectedPlan && (
+      {/* Cancel Confirmation Modal */}
+      {showCancelConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-dark-800 border border-dark-700 rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Conferma {selectedPlan.price === 0 ? 'downgrade' : 'upgrade'}
-            </h3>
+          <div className="bg-dark-900 border border-dark-700 rounded-xl p-6 max-w-md w-full">
+            <h3 className="text-lg font-semibold text-white mb-4">Conferma Cancellazione</h3>
             <p className="text-dark-300 mb-6">
-              {selectedPlan.price === 0 
-                ? 'Sei sicuro di voler tornare al piano gratuito? Perderai l\'accesso alle funzionalità premium.'
-                : `Stai per passare al piano ${selectedPlan.name} per €${selectedPlan.price}/mese.`
-              }
+              Sei sicuro di voler cancellare il tuo abbonamento? Tornerai al piano gratuito con funzionalità limitate.
             </p>
             <div className="flex space-x-3">
               <button
-                onClick={() => setSelectedPlan(null)}
-                className="flex-1 py-2 px-4 bg-dark-700 text-white rounded-lg hover:bg-dark-600 transition-colors"
+                onClick={handleCancel}
+                className="flex-1 bg-danger-500 text-white py-2 px-4 rounded-lg hover:bg-danger-600 transition-colors"
               >
-                Annulla
+                Sì, Cancella
               </button>
               <button
-                onClick={() => handleUpgrade(selectedPlan)}
-                className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
-                  selectedPlan.price === 0
-                    ? 'bg-danger-600 text-white hover:bg-danger-700'
-                    : 'bg-primary-600 text-white hover:bg-primary-700'
-                }`}
+                onClick={() => setShowCancelConfirm(false)}
+                className="flex-1 bg-dark-700 text-white py-2 px-4 rounded-lg hover:bg-dark-600 transition-colors"
               >
-                Conferma
+                Annulla
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Cancel Confirmation Modal */}
-      {showCancelConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-dark-800 border border-dark-700 rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Cancella abbonamento
-            </h3>
-            <p className="text-dark-300 mb-6">
-              Sei sicuro di voler cancellare il tuo abbonamento? Tornerai al piano gratuito alla fine del periodo di fatturazione.
+      {/* Info Footer */}
+      <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+        <div className="flex items-start space-x-3">
+          <Shield className="h-5 w-5 text-primary-400 mt-0.5 flex-shrink-0" />
+          <div>
+            <h4 className="font-medium text-white mb-1">Garanzia di Soddisfazione</h4>
+            <p className="text-sm text-dark-400">
+              Puoi cambiare o cancellare il tuo piano in qualsiasi momento. 
+              I piani a pagamento includono una garanzia di rimborso di 7 giorni.
             </p>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setShowCancelConfirm(false)}
-                className="flex-1 py-2 px-4 bg-dark-700 text-white rounded-lg hover:bg-dark-600 transition-colors"
-              >
-                Mantieni abbonamento
-              </button>
-              <button
-                onClick={handleCancel}
-                className="flex-1 py-2 px-4 bg-danger-600 text-white rounded-lg hover:bg-danger-700 transition-colors"
-              >
-                Cancella
-              </button>
-            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 } 

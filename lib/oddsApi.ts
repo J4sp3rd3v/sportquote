@@ -66,7 +66,7 @@ const SPORT_MAPPING = {
 
 // Mappatura nomi bookmaker dall'API ai nostri nomi standardizzati
 const BOOKMAKER_NAME_MAPPING: { [key: string]: string } = {
-  // Mappatura key API -> nome standardizzato
+  // Mappatura key API -> nome standardizzato (aggiornata Gennaio 2025)
   'bet365': 'Bet365',
   'williamhill': 'William Hill',
   'betfair': 'Betfair',
@@ -79,7 +79,7 @@ const BOOKMAKER_NAME_MAPPING: { [key: string]: string } = {
   'betclic': 'Betclic',
   'netbet': 'NetBet',
   'leovegas': 'LeoVegas',
-  'pokerstars': 'Pokerstars',
+  'pokerstars': 'PokerStars',
   'better': 'Better',
   'goldbet': 'Goldbet',
   'planetwin365': 'Planetwin365',
@@ -88,6 +88,7 @@ const BOOKMAKER_NAME_MAPPING: { [key: string]: string } = {
   'stanleybet': 'Stanleybet',
   'betflag': 'Betflag',
   'admiral': 'Admiral',
+  'admiralbet': 'Admiral',
   'betathome': 'Bet-at-home',
   'betsson': 'Betsson',
   'betsafe': 'Betsafe',
@@ -166,9 +167,10 @@ const BOOKMAKER_NAME_MAPPING: { [key: string]: string } = {
   'smarkets': 'Smarkets',
   'betconnect': 'Betconnect',
   
-  // Mappature aggiuntive per gestire prefissi "Bookmaker"
+  // Mappature aggiuntive per gestire prefissi "Bookmaker" (problema comune API)
   'bookmaker bet365': 'Bet365',
   'bookmaker williamhill': 'William Hill',
+  'bookmaker william hill': 'William Hill',
   'bookmaker betfair': 'Betfair',
   'bookmaker unibet': 'Unibet',
   'bookmaker bwin': 'Bwin',
@@ -188,17 +190,78 @@ const BOOKMAKER_NAME_MAPPING: { [key: string]: string } = {
   'bookmaker coral': 'Coral',
   'bookmaker ladbrokes': 'Ladbrokes',
   'bookmaker 888sport': '888sport',
+  'bookmaker betflag': 'Betflag',
+  'bookmaker goldbet': 'Goldbet',
+  'bookmaker admiral': 'Admiral',
+  'bookmaker better': 'Better',
+  'bookmaker planetwin365': 'Planetwin365',
+  'bookmaker stanleybet': 'Stanleybet',
+  'bookmaker vincitu': 'Vincitu',
   
   // Mappature per bookmaker con suffissi paese
   'parionssport_fr': 'Parions Sport Fr',
   'parions sport (fr)': 'Parions Sport Fr',
+  'parions sport fr': 'Parions Sport Fr',
   'tipico_de': 'Tipico',
+  'tipico de': 'Tipico',
   'winamax_fr': 'Winamax Fr',
   'winamax (fr)': 'Winamax Fr',
+  'winamax fr': 'Winamax Fr',
   'winamax_de': 'Winamax De',
   'winamax (de)': 'Winamax De',
+  'winamax de': 'Winamax De',
   'nordic bet': 'Nordicbet',
-  'marathon bet': 'Marathonbet'
+  'marathon bet': 'Marathonbet',
+  
+  // Variazioni comuni di nomi
+  'william hill': 'William Hill',
+  'bet 365': 'Bet365',
+  'bet-365': 'Bet365',
+  'net bet': 'NetBet',
+  'net-bet': 'NetBet',
+  'leo vegas': 'LeoVegas',
+  'leo-vegas': 'LeoVegas',
+  'planet win 365': 'Planetwin365',
+  'planet-win-365': 'Planetwin365',
+  'stanley bet': 'Stanleybet',
+  'stanley-bet': 'Stanleybet',
+  'bet flag': 'Betflag',
+  'bet-flag': 'Betflag',
+  'gold bet': 'Goldbet',
+  'gold-bet': 'Goldbet',
+  'bet at home': 'Bet-at-home',
+  'bet-at-home': 'Bet-at-home',
+  'paddy power': 'Paddy Power',
+  'sky bet': 'Sky Bet',
+  'bet victor': 'Betvictor',
+  'bet-victor': 'Betvictor',
+  '888 sport': '888sport',
+  '888-sport': '888sport',
+  '10 bet': '10Bet',
+  '10-bet': '10Bet',
+  '32 red': '32Red',
+  '32-red': '32Red',
+  'mr green': 'Mr Green',
+  'mr-green': 'Mr Green',
+  '1x bet': '1xBet',
+  '1x-bet': '1xBet',
+  '22 bet': '22Bet',
+  '22-bet': '22Bet',
+  
+  // Nomi con caratteri speciali o encoding
+  'bet365_it': 'Bet365',
+  'sisal_it': 'Sisal',
+  'snai_it': 'Snai',
+  'eurobet_it': 'Eurobet',
+  'lottomatica_it': 'Lottomatica',
+  'betflag_it': 'Betflag',
+  'goldbet_it': 'Goldbet',
+  'admiral_it': 'Admiral',
+  'better_it': 'Better',
+  'planetwin365_it': 'Planetwin365',
+  'stanleybet_it': 'Stanleybet',
+  'vincitu_it': 'Vincitu',
+  'betaland_it': 'Betaland'
 };
 
 // Mappatura nomi squadre per normalizzazione
@@ -301,42 +364,56 @@ export class OddsApiService {
     return TEAM_NAME_MAPPING[teamName] || teamName;
   }
 
-  // Normalizza il nome del bookmaker dall'API
+  // Normalizza il nome del bookmaker dall'API (migliorata)
   private normalizeBookmakerName(bookmakerKey: string, bookmakerTitle: string): string {
-    // Prima prova con la key (più affidabile)
-    const normalizedFromKey = BOOKMAKER_NAME_MAPPING[bookmakerKey.toLowerCase()];
+    // Pulisci e normalizza entrambi gli input
+    const cleanKey = bookmakerKey.toLowerCase().trim();
+    const cleanTitle = bookmakerTitle.toLowerCase().trim();
+    
+    // 1. Prima prova con la key (più affidabile)
+    const normalizedFromKey = BOOKMAKER_NAME_MAPPING[cleanKey];
     if (normalizedFromKey) {
       return normalizedFromKey;
     }
 
-    // Poi prova con il title
-    const normalizedFromTitle = BOOKMAKER_NAME_MAPPING[bookmakerTitle.toLowerCase()];
+    // 2. Poi prova con il title esatto
+    const normalizedFromTitle = BOOKMAKER_NAME_MAPPING[cleanTitle];
     if (normalizedFromTitle) {
       return normalizedFromTitle;
     }
 
-    // Rimuovi prefissi comuni e pulisci il nome
+    // 3. Rimuovi prefissi comuni e pulisci il nome
     let cleanName = bookmakerTitle
       .replace(/^Bookmaker\s+/i, '') // Rimuove "Bookmaker " all'inizio
       .replace(/^The\s+/i, '') // Rimuove "The " all'inizio
       .replace(/\s+(IT|FR|UK|DE|ES|NL|PT|US|CA|AU)$/i, '') // Rimuove codici paese alla fine
-      .replace(/[^a-zA-Z0-9\s]/g, '') // Rimuove caratteri speciali
+      .replace(/[^\w\s-]/g, '') // Rimuove caratteri speciali tranne trattini
+      .replace(/\s+/g, ' ') // Normalizza spazi multipli
       .trim();
 
-    // Se il nome pulito è nella mappatura, usalo
+    // 4. Prova con il nome pulito
     const cleanMapped = BOOKMAKER_NAME_MAPPING[cleanName.toLowerCase()];
     if (cleanMapped) {
       return cleanMapped;
     }
 
-    // Prova anche con variazioni del nome pulito
+    // 5. Prova con variazioni del nome pulito
     const variations = [
       cleanName,
       cleanName.replace(/\s+/g, ''), // Senza spazi
-      cleanName.toLowerCase(),
+      cleanName.replace(/\s+/g, '-'), // Con trattini
+      cleanName.replace(/-/g, ' '), // Trattini -> spazi
+      cleanName.replace(/-/g, ''), // Senza trattini
       cleanName.replace(/bet/i, 'Bet'), // Capitalizza "Bet"
       cleanName.replace(/win/i, 'Win'), // Capitalizza "Win"
+      cleanName.replace(/sport/i, 'Sport'), // Capitalizza "Sport"
+      cleanName.replace(/365/g, ' 365'), // Spazio prima di 365
+      cleanName.replace(/365/g, '365'), // Senza spazio prima di 365
     ];
+
+    // Aggiungi anche variazioni con prefisso "bookmaker"
+    variations.push(`bookmaker ${cleanName}`);
+    variations.push(`bookmaker ${cleanName.replace(/\s+/g, '')}`);
 
     for (const variation of variations) {
       const mapped = BOOKMAKER_NAME_MAPPING[variation.toLowerCase()];
@@ -345,11 +422,28 @@ export class OddsApiService {
       }
     }
 
-    // Se ancora non trovato, capitalizza la prima lettera di ogni parola
+    // 6. Prova ricerca fuzzy per nomi simili
+    const bookmakerNames = Object.keys(BOOKMAKER_NAME_MAPPING);
+    for (const mappedName of bookmakerNames) {
+      // Controlla se il nome pulito è contenuto nel nome mappato o viceversa
+      if (cleanName.length > 3 && mappedName.includes(cleanName.toLowerCase())) {
+        return BOOKMAKER_NAME_MAPPING[mappedName];
+      }
+      if (mappedName.length > 3 && cleanName.toLowerCase().includes(mappedName)) {
+        return BOOKMAKER_NAME_MAPPING[mappedName];
+      }
+    }
+
+    // 7. Se ancora non trovato, capitalizza la prima lettera di ogni parola
     const capitalizedName = cleanName
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
+
+    // Log per debug in development
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`🔍 Bookmaker non mappato: "${bookmakerKey}" -> "${bookmakerTitle}" -> "${capitalizedName}"`);
+    }
 
     // Altrimenti usa il nome capitalizzato
     return capitalizedName || bookmakerTitle;
