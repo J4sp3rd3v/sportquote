@@ -114,6 +114,11 @@ class SubscriptionManager {
               lastReset: new Date(parsed.usage.lastReset)
             }
           };
+          
+          // Verifica se l'abbonamento è scaduto e torna al Free
+          if (this.currentSubscription && new Date() > this.currentSubscription.endDate && this.currentSubscription.planId !== 'free') {
+            this.setDefaultSubscription();
+          }
         } catch (error) {
           console.error('Errore nel caricamento abbonamento:', error);
           this.setDefaultSubscription();
@@ -121,6 +126,9 @@ class SubscriptionManager {
       } else {
         this.setDefaultSubscription();
       }
+    } else {
+      // Anche lato server, usa sempre il piano Free
+      this.setDefaultSubscription();
     }
   }
 
@@ -168,12 +176,21 @@ class SubscriptionManager {
   // Trigger per aggiornamento quote
   private triggerUpdate(): void {
     if (this.canMakeRequest()) {
+      // Incrementa il contatore delle richieste
+      this.incrementRequestCount();
+      
       // Emetti evento per aggiornare le quote
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('monitorquote:update', {
-          detail: { source: 'subscription_manager' }
+          detail: { 
+            source: 'subscription_manager',
+            planId: this.currentSubscription?.planId,
+            timestamp: new Date().toISOString()
+          }
         }));
       }
+      
+      console.log(`[SubscriptionManager] Aggiornamento automatico - Piano: ${this.currentSubscription?.planId}`);
     }
   }
 

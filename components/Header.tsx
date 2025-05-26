@@ -113,17 +113,14 @@ export default function Header({ onSearch, onSearchChange, searchQuery = '', onF
 
               {/* Navigation Links - Desktop */}
               <nav className="hidden md:flex items-center space-x-6">
-                <Link href="/" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
-                  Quote Live
+                <Link href="/premium" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                  Diventa PRO
                 </Link>
-                <Link href="/categoria/calcio" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
-                  Calcio
+                <Link href="/bookmakers" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                  Bookmakers
                 </Link>
-                <Link href="/categoria/tennis" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
-                  Tennis
-                </Link>
-                <Link href="/categoria/basket" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
-                  Basket
+                <Link href="/sports" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                  Sport
                 </Link>
                 {/* Debug buttons - solo in development */}
                 {(process.env.NODE_ENV === 'development' || 
@@ -212,32 +209,25 @@ export default function Header({ onSearch, onSearchChange, searchQuery = '', onF
           <div className="md:hidden bg-white border-t border-gray-200">
             <div className="px-4 py-2 space-y-1">
               <Link 
-                href="/" 
+                href="/premium" 
                 className="block px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-gray-50 rounded-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Quote Live
+                Diventa PRO
               </Link>
               <Link 
-                href="/categoria/calcio" 
+                href="/bookmakers" 
                 className="block px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-gray-50 rounded-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Calcio
+                Bookmakers
               </Link>
               <Link 
-                href="/categoria/tennis" 
+                href="/sports" 
                 className="block px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-gray-50 rounded-lg font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Tennis
-              </Link>
-              <Link 
-                href="/categoria/basket" 
-                className="block px-3 py-2 text-gray-700 hover:text-primary-600 hover:bg-gray-50 rounded-lg font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Basket
+                Sport
               </Link>
             </div>
           </div>

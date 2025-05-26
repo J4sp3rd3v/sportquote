@@ -1,331 +1,486 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  Search, 
-  ExternalLink, 
   Star, 
   Shield, 
-  Zap, 
-  Globe, 
+  ExternalLink, 
+  Search, 
   Filter,
-  CheckCircle,
-  Clock,
+  Award,
   TrendingUp,
-  MapPin,
-  Award
+  Users,
+  Globe,
+  Clock,
+  CheckCircle,
+  AlertTriangle
 } from 'lucide-react';
-import { getSupportedBookmakers, VERIFIED_BOOKMAKERS } from '@/lib/oddsApiService';
-import { Bookmaker } from '@/types';
+
+interface Bookmaker {
+  id: string;
+  name: string;
+  logo: string;
+  rating: number;
+  url: string;
+  country: string;
+  founded: number;
+  license: string;
+  features: string[];
+  bonusWelcome: string;
+  minDeposit: string;
+  paymentMethods: string[];
+  sports: string[];
+  liveStreaming: boolean;
+  cashOut: boolean;
+  mobileApp: boolean;
+  description: string;
+  pros: string[];
+  cons: string[];
+  verified: boolean;
+  popular: boolean;
+}
+
+const bookmakers: Bookmaker[] = [
+  {
+    id: 'bet365',
+    name: 'Bet365',
+    logo: '🎯',
+    rating: 4.8,
+    url: 'https://www.bet365.it',
+    country: 'Regno Unito',
+    founded: 2000,
+    license: 'AAMS/ADM',
+    features: ['Live Streaming', 'Cash Out', 'Bet Builder'],
+    bonusWelcome: 'Fino a €100',
+    minDeposit: '€5',
+    paymentMethods: ['Carta di Credito', 'PayPal', 'Skrill', 'Neteller'],
+    sports: ['Calcio', 'Tennis', 'Basket', 'Formula 1', 'MMA'],
+    liveStreaming: true,
+    cashOut: true,
+    mobileApp: true,
+    description: 'Uno dei bookmaker più famosi al mondo con un\'ampia gamma di mercati sportivi.',
+    pros: ['Streaming live gratuito', 'Quote competitive', 'Interfaccia user-friendly'],
+    cons: ['Bonus di benvenuto limitato', 'Assistenza clienti non sempre rapida'],
+    verified: true,
+    popular: true
+  },
+  {
+    id: 'sisal',
+    name: 'Sisal',
+    logo: '🇮🇹',
+    rating: 4.6,
+    url: 'https://www.sisal.it',
+    country: 'Italia',
+    founded: 1946,
+    license: 'AAMS/ADM',
+    features: ['SuperEnalotto', 'Casinò Live', 'Virtual Sports'],
+    bonusWelcome: 'Fino a €200',
+    minDeposit: '€10',
+    paymentMethods: ['Carta di Credito', 'PostePay', 'Bonifico'],
+    sports: ['Calcio', 'Tennis', 'Basket', 'Pallavolo'],
+    liveStreaming: false,
+    cashOut: true,
+    mobileApp: true,
+    description: 'Storico operatore italiano con forte presenza nel mercato nazionale.',
+    pros: ['Marchio storico italiano', 'Buoni bonus', 'Assistenza in italiano'],
+    cons: ['Meno mercati internazionali', 'No live streaming'],
+    verified: true,
+    popular: true
+  },
+  {
+    id: 'betfair',
+    name: 'Betfair',
+    logo: '💱',
+    rating: 4.7,
+    url: 'https://www.betfair.it',
+    country: 'Regno Unito',
+    founded: 1999,
+    license: 'AAMS/ADM',
+    features: ['Exchange', 'Trading', 'Lay Betting'],
+    bonusWelcome: 'Fino a €20',
+    minDeposit: '€5',
+    paymentMethods: ['Carta di Credito', 'PayPal', 'Skrill'],
+    sports: ['Calcio', 'Tennis', 'Ippica', 'Cricket'],
+    liveStreaming: true,
+    cashOut: true,
+    mobileApp: true,
+    description: 'Pioniere del betting exchange con possibilità di fare trading sulle quote.',
+    pros: ['Exchange unico', 'Quote migliori', 'Trading avanzato'],
+    cons: ['Commissioni sull\'exchange', 'Interfaccia complessa per principianti'],
+    verified: true,
+    popular: false
+  },
+  {
+    id: 'william-hill',
+    name: 'William Hill',
+    logo: '🏆',
+    rating: 4.5,
+    url: 'https://www.williamhill.it',
+    country: 'Regno Unito',
+    founded: 1934,
+    license: 'AAMS/ADM',
+    features: ['Radio Commentary', 'Enhanced Odds', 'Acca Insurance'],
+    bonusWelcome: 'Fino a €100',
+    minDeposit: '€10',
+    paymentMethods: ['Carta di Credito', 'PayPal', 'Paysafecard'],
+    sports: ['Calcio', 'Tennis', 'Golf', 'Snooker'],
+    liveStreaming: true,
+    cashOut: true,
+    mobileApp: true,
+    description: 'Bookmaker storico con oltre 80 anni di esperienza nel settore.',
+    pros: ['Esperienza consolidata', 'Buone quote', 'Promozioni frequenti'],
+    cons: ['Interfaccia datata', 'Meno innovativo'],
+    verified: true,
+    popular: false
+  },
+  {
+    id: 'pinnacle',
+    name: 'Pinnacle',
+    logo: '📈',
+    rating: 4.9,
+    url: 'https://www.pinnacle.com',
+    country: 'Curaçao',
+    founded: 1998,
+    license: 'Curaçao eGaming',
+    features: ['Highest Limits', 'Best Odds', 'No Bet Limits'],
+    bonusWelcome: 'Nessun bonus',
+    minDeposit: '€20',
+    paymentMethods: ['Carta di Credito', 'Bitcoin', 'Skrill'],
+    sports: ['Calcio', 'Tennis', 'Basket', 'Esports'],
+    liveStreaming: false,
+    cashOut: false,
+    mobileApp: true,
+    description: 'Il bookmaker preferito dai professionisti per le quote più alte del mercato.',
+    pros: ['Quote imbattibili', 'Limiti alti', 'Accetta vincitori'],
+    cons: ['Nessun bonus', 'No cash out', 'No streaming'],
+    verified: true,
+    popular: false
+  },
+  {
+    id: 'betsson',
+    name: 'Betsson',
+    logo: '⭐',
+    rating: 4.4,
+    url: 'https://www.betsson.com',
+    country: 'Svezia',
+    founded: 1963,
+    license: 'Malta Gaming Authority',
+    features: ['Live Casino', 'Poker', 'Bingo'],
+    bonusWelcome: 'Fino a €50',
+    minDeposit: '€10',
+    paymentMethods: ['Carta di Credito', 'Trustly', 'Neteller'],
+    sports: ['Calcio', 'Hockey', 'Tennis', 'Handball'],
+    liveStreaming: true,
+    cashOut: true,
+    mobileApp: true,
+    description: 'Operatore nordico con forte presenza nei mercati europei.',
+    pros: ['Design moderno', 'Buone promozioni', 'Casinò integrato'],
+    cons: ['Meno popolare in Italia', 'Assistenza limitata'],
+    verified: true,
+    popular: false
+  }
+];
+
+const countries = ['Tutti', 'Italia', 'Regno Unito', 'Svezia', 'Curaçao'];
+const sortOptions = ['Rating', 'Nome', 'Anno di fondazione', 'Popolarità'];
 
 export default function BookmakersPage() {
-  const [bookmakers, setBookmakers] = useState<Bookmaker[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedRegion, setSelectedRegion] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'name' | 'category' | 'country'>('category');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('Tutti');
+  const [sortBy, setSortBy] = useState('Rating');
+  const [showVerifiedOnly, setShowVerifiedOnly] = useState(false);
+  const [showPopularOnly, setShowPopularOnly] = useState(false);
 
-  useEffect(() => {
-    const loadBookmakers = async () => {
-      try {
-        const data = await getSupportedBookmakers();
-        setBookmakers(data);
-      } catch (error) {
-        console.error('Errore nel caricamento bookmaker:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadBookmakers();
-  }, []);
-
-  const filteredBookmakers = useMemo(() => {
-    let filtered = bookmakers.filter(bookmaker => {
-      const matchesSearch = bookmaker.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           bookmaker.country.toLowerCase().includes(searchTerm.toLowerCase());
+  // Filtra e ordina i bookmaker
+  const filteredBookmakers = bookmakers
+    .filter(bookmaker => {
+      const matchesSearch = bookmaker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           bookmaker.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCountry = selectedCountry === 'Tutti' || bookmaker.country === selectedCountry;
+      const matchesVerified = !showVerifiedOnly || bookmaker.verified;
+      const matchesPopular = !showPopularOnly || bookmaker.popular;
       
-      const matchesCategory = selectedCategory === 'all' || bookmaker.category === selectedCategory;
-      const matchesRegion = selectedRegion === 'all' || bookmaker.region === selectedRegion;
-      
-      return matchesSearch && matchesCategory && matchesRegion;
-    });
-
-    // Ordinamento
-    filtered.sort((a, b) => {
+      return matchesSearch && matchesCountry && matchesVerified && matchesPopular;
+    })
+    .sort((a, b) => {
       switch (sortBy) {
-        case 'name':
+        case 'Rating':
+          return b.rating - a.rating;
+        case 'Nome':
           return a.name.localeCompare(b.name);
-        case 'category':
-          return a.category.localeCompare(b.category);
-        case 'country':
-          return a.country.localeCompare(b.country);
+        case 'Anno di fondazione':
+          return b.founded - a.founded;
+        case 'Popolarità':
+          return (b.popular ? 1 : 0) - (a.popular ? 1 : 0);
         default:
           return 0;
       }
     });
 
-    return filtered;
-  }, [bookmakers, searchTerm, selectedCategory, selectedRegion, sortBy]);
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'italian': return <Shield className="h-4 w-4" />;
-      case 'international': return <Globe className="h-4 w-4" />;
-      case 'specialized': return <Zap className="h-4 w-4" />;
-      case 'uk': return <Award className="h-4 w-4" />;
-      case 'us': return <Star className="h-4 w-4" />;
-      default: return <Star className="h-4 w-4" />;
-    }
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`h-4 w-4 ${
+          i < Math.floor(rating) 
+            ? 'text-yellow-400 fill-current' 
+            : i < rating 
+              ? 'text-yellow-400 fill-current opacity-50'
+              : 'text-gray-300'
+        }`}
+      />
+    ));
   };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'italian': return 'bg-success-500/20 text-success-400 border-success-500/30';
-      case 'international': return 'bg-primary-500/20 text-primary-400 border-primary-500/30';
-      case 'specialized': return 'bg-accent-500/20 text-accent-400 border-accent-500/30';
-      case 'uk': return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-      case 'us': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-      default: return 'bg-dark-600/20 text-dark-300 border-dark-600/30';
-    }
-  };
-
-  const getCategoryLabel = (category: string) => {
-    switch (category) {
-      case 'italian': return 'Italiani';
-      case 'international': return 'Internazionali';
-      case 'specialized': return 'Specializzati';
-      case 'uk': return 'Regno Unito';
-      case 'us': return 'Stati Uniti';
-      default: return category;
-    }
-  };
-
-  const getRegionFlag = (region: string) => {
-    switch (region) {
-      case 'eu': return '🇪🇺';
-      case 'uk': return '🇬🇧';
-      case 'us': return '🇺🇸';
-      case 'au': return '🇦🇺';
-      default: return '🌍';
-    }
-  };
-
-  const handleBookmakerClick = (bookmaker: Bookmaker) => {
-    console.log(`Aprendo ${bookmaker.name}:`, bookmaker.url);
-    window.open(bookmaker.url, '_blank', 'noopener,noreferrer');
-  };
-
-  const categories = ['all', ...Array.from(new Set(bookmakers.map(b => b.category)))];
-  const regions = ['all', ...Array.from(new Set(bookmakers.map(b => b.region)))];
-
-  const stats = {
-    total: bookmakers.length,
-    verified: bookmakers.filter(b => b.verified).length,
-    byCategory: bookmakers.reduce((acc, b) => {
-      acc[b.category] = (acc[b.category] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number }),
-    byRegion: bookmakers.reduce((acc, b) => {
-      acc[b.region] = (acc[b.region] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number })
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-dark-900 text-dark-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-dark-900 text-dark-50">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-dark-gradient">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent">
-            Bookmaker Supportati
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-primary-200 to-accent-300 bg-clip-text text-transparent">
+            Bookmaker Verificati
           </h1>
-          <p className="text-xl text-dark-300 mb-6">
-            {stats.total} bookmaker verificati con URL homepage diretti
+          <p className="text-xl text-dark-300 mb-8 max-w-3xl mx-auto">
+            Scopri i migliori bookmaker del mercato con recensioni dettagliate, 
+            rating verificati e informazioni complete su bonus e caratteristiche.
           </p>
           
-          {/* Statistiche */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
-            <div className="bg-dark-800 rounded-lg p-4 border border-dark-700">
-              <div className="text-2xl font-bold text-primary-400">{stats.total}</div>
-              <div className="text-sm text-dark-400">Totali</div>
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+              <div className="text-2xl font-bold text-primary-400">{bookmakers.length}</div>
+              <div className="text-sm text-dark-400">Bookmaker Totali</div>
             </div>
-            <div className="bg-dark-800 rounded-lg p-4 border border-dark-700">
-              <div className="text-2xl font-bold text-success-400">{stats.verified}</div>
+            <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+              <div className="text-2xl font-bold text-success-400">{bookmakers.filter(b => b.verified).length}</div>
               <div className="text-sm text-dark-400">Verificati</div>
             </div>
-            <div className="bg-dark-800 rounded-lg p-4 border border-dark-700">
-              <div className="text-2xl font-bold text-accent-400">{Object.keys(stats.byCategory).length}</div>
-              <div className="text-sm text-dark-400">Categorie</div>
+            <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+              <div className="text-2xl font-bold text-warning-400">{bookmakers.filter(b => b.popular).length}</div>
+              <div className="text-sm text-dark-400">Più Popolari</div>
             </div>
-            <div className="bg-dark-800 rounded-lg p-4 border border-dark-700">
-              <div className="text-2xl font-bold text-warning-400">{Object.keys(stats.byRegion).length}</div>
-              <div className="text-sm text-dark-400">Regioni</div>
+            <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
+              <div className="text-2xl font-bold text-accent-400">4.6</div>
+              <div className="text-sm text-dark-400">Rating Medio</div>
             </div>
           </div>
         </div>
 
-        {/* Filtri e Ricerca */}
-        <div className="bg-dark-800 rounded-xl p-6 mb-8 border border-dark-700">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Ricerca */}
+        {/* Filters */}
+        <div className="bg-dark-800 border border-dark-700 rounded-xl p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-dark-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-400 h-4 w-4" />
               <input
                 type="text"
                 placeholder="Cerca bookmaker..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-dark-100 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
 
-            {/* Filtro Categoria */}
+            {/* Country Filter */}
             <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-dark-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value)}
+              className="w-full py-2 px-4 bg-dark-700 border border-dark-600 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
-              <option value="all">Tutte le Categorie</option>
-              {categories.filter(c => c !== 'all').map(category => (
-                <option key={category} value={category}>
-                  {getCategoryLabel(category)} ({stats.byCategory[category] || 0})
-                </option>
+              {countries.map(country => (
+                <option key={country} value={country}>{country}</option>
               ))}
             </select>
 
-            {/* Filtro Regione */}
-            <select
-              value={selectedRegion}
-              onChange={(e) => setSelectedRegion(e.target.value)}
-              className="px-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-dark-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            >
-              <option value="all">Tutte le Regioni</option>
-              {regions.filter(r => r !== 'all').map(region => (
-                <option key={region} value={region}>
-                  {getRegionFlag(region)} {region.toUpperCase()} ({stats.byRegion[region] || 0})
-                </option>
-              ))}
-            </select>
-
-            {/* Ordinamento */}
+            {/* Sort */}
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'name' | 'category' | 'country')}
-              className="px-4 py-3 bg-dark-700 border border-dark-600 rounded-lg text-dark-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full py-2 px-4 bg-dark-700 border border-dark-600 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
-              <option value="category">Ordina per Categoria</option>
-              <option value="name">Ordina per Nome</option>
-              <option value="country">Ordina per Paese</option>
+              {sortOptions.map(option => (
+                <option key={option} value={option}>Ordina per {option}</option>
+              ))}
             </select>
+
+            {/* Quick Filters */}
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setShowVerifiedOnly(!showVerifiedOnly)}
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                  showVerifiedOnly 
+                    ? 'bg-success-500/20 text-success-400 border border-success-500/30' 
+                    : 'bg-dark-700 text-dark-400 border border-dark-600 hover:bg-dark-600'
+                }`}
+              >
+                <CheckCircle className="h-4 w-4 inline mr-1" />
+                Verificati
+              </button>
+              <button
+                onClick={() => setShowPopularOnly(!showPopularOnly)}
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                  showPopularOnly 
+                    ? 'bg-warning-500/20 text-warning-400 border border-warning-500/30' 
+                    : 'bg-dark-700 text-dark-400 border border-dark-600 hover:bg-dark-600'
+                }`}
+              >
+                <Star className="h-4 w-4 inline mr-1" />
+                Popolari
+              </button>
+            </div>
+          </div>
+          
+          <div className="text-sm text-dark-400">
+            Mostrando {filteredBookmakers.length} di {bookmakers.length} bookmaker
           </div>
         </div>
 
-        {/* Risultati */}
-        <div className="mb-6">
-          <p className="text-dark-300">
-            Mostrando {filteredBookmakers.length} di {bookmakers.length} bookmaker
-          </p>
-        </div>
-
-        {/* Grid Bookmaker */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Bookmakers Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredBookmakers.map((bookmaker) => (
             <div
               key={bookmaker.id}
-              className="bg-dark-800 rounded-xl p-6 border border-dark-700 hover:border-primary-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/10 group cursor-pointer"
-              onClick={() => handleBookmakerClick(bookmaker)}
+              className="bg-dark-800 border border-dark-700 rounded-xl p-6 hover:border-dark-600 transition-all duration-200 hover:scale-105"
             >
               {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-dark-50 mb-2 group-hover:text-primary-400 transition-colors">
-                    {bookmaker.name}
-                  </h3>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm text-dark-400">{getRegionFlag(bookmaker.region)} {bookmaker.country}</span>
-                    {bookmaker.verified && (
-                      <CheckCircle className="h-4 w-4 text-success-400" />
-                    )}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="text-3xl">{bookmaker.logo}</div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">{bookmaker.name}</h3>
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
+                        {renderStars(bookmaker.rating)}
+                      </div>
+                      <span className="text-sm text-dark-400">({bookmaker.rating})</span>
+                    </div>
                   </div>
                 </div>
-                <ExternalLink className="h-5 w-5 text-dark-400 group-hover:text-primary-400 transition-colors" />
+                
+                <div className="flex flex-col items-end space-y-1">
+                  {bookmaker.verified && (
+                    <div className="flex items-center space-x-1 text-xs text-success-400">
+                      <CheckCircle className="h-3 w-3" />
+                      <span>Verificato</span>
+                    </div>
+                  )}
+                  {bookmaker.popular && (
+                    <div className="bg-warning-500/20 text-warning-400 px-2 py-1 rounded text-xs font-medium">
+                      POPOLARE
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Categoria */}
-              <div className="flex items-center gap-2 mb-4">
-                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${getCategoryColor(bookmaker.category)}`}>
-                  {getCategoryIcon(bookmaker.category)}
-                  {getCategoryLabel(bookmaker.category)}
-                </span>
+              {/* Info */}
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-dark-400">Paese:</span>
+                  <span className="text-white">{bookmaker.country}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-dark-400">Fondato:</span>
+                  <span className="text-white">{bookmaker.founded}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-dark-400">Bonus:</span>
+                  <span className="text-primary-400 font-medium">{bookmaker.bonusWelcome}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-dark-400">Deposito min:</span>
+                  <span className="text-white">{bookmaker.minDeposit}</span>
+                </div>
               </div>
 
-              {/* URL */}
-              <div className="text-sm text-dark-400 mb-4 font-mono bg-dark-700 rounded px-3 py-2 truncate">
-                {bookmaker.url}
+              {/* Features */}
+              <div className="mb-4">
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {bookmaker.liveStreaming && (
+                    <span className="bg-accent-500/20 text-accent-400 px-2 py-1 rounded text-xs">Live TV</span>
+                  )}
+                  {bookmaker.cashOut && (
+                    <span className="bg-primary-500/20 text-primary-400 px-2 py-1 rounded text-xs">Cash Out</span>
+                  )}
+                  {bookmaker.mobileApp && (
+                    <span className="bg-success-500/20 text-success-400 px-2 py-1 rounded text-xs">App Mobile</span>
+                  )}
+                </div>
+                <p className="text-sm text-dark-300">{bookmaker.description}</p>
               </div>
 
-              {/* Footer */}
-              <div className="flex items-center justify-between pt-4 border-t border-dark-700">
-                <span className="text-xs text-dark-500">
-                  Regione: {bookmaker.region.toUpperCase()}
-                </span>
-                <span className="text-xs text-success-400 font-medium">
-                  ✓ Verificato
-                </span>
-              </div>
+              {/* Action Button */}
+              <a
+                href={bookmaker.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-primary-gradient text-white py-2 px-4 rounded-lg font-medium hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-200 flex items-center justify-center space-x-2"
+              >
+                <span>Visita Sito</span>
+                <ExternalLink className="h-4 w-4" />
+              </a>
             </div>
           ))}
         </div>
 
-        {/* Nessun risultato */}
+        {/* No Results */}
         {filteredBookmakers.length === 0 && (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-dark-300 mb-2">
+            <div className="text-dark-400 text-6xl mb-4">🔍</div>
+            <h3 className="text-xl font-semibold text-white mb-2">
               Nessun bookmaker trovato
             </h3>
-            <p className="text-dark-400">
+            <p className="text-dark-300 mb-6">
               Prova a modificare i filtri di ricerca
             </p>
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCountry('Tutti');
+                setShowVerifiedOnly(false);
+                setShowPopularOnly(false);
+              }}
+              className="bg-primary-gradient text-white px-6 py-2 rounded-lg font-medium hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-200"
+            >
+              Cancella Filtri
+            </button>
           </div>
         )}
 
-        {/* Footer Info */}
-        <div className="mt-12 bg-dark-800 rounded-xl p-6 border border-dark-700">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-dark-200 mb-2">
-              📋 Informazioni sui Bookmaker
-            </h3>
-            <p className="text-dark-400 mb-4">
-              Tutti i bookmaker elencati sono verificati e utilizzano URL homepage diretti senza parametri di tracking.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="bg-dark-700 rounded-lg p-4">
-                <div className="text-success-400 font-semibold mb-1">✓ URL Verificati</div>
-                <div className="text-dark-400">Tutti i link sono testati e funzionanti</div>
+        {/* Info Section */}
+        <div className="mt-16 bg-dark-800 border border-dark-700 rounded-xl p-8">
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">
+            Come Scegliere il Bookmaker Giusto
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="bg-primary-500/20 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Shield className="h-8 w-8 text-primary-400" />
               </div>
-              <div className="bg-dark-700 rounded-lg p-4">
-                <div className="text-primary-400 font-semibold mb-1">🏠 Homepage Diretti</div>
-                <div className="text-dark-400">Accesso diretto alla homepage del bookmaker</div>
+              <h3 className="text-lg font-semibold text-white mb-2">Sicurezza</h3>
+              <p className="text-dark-300 text-sm">
+                Verifica sempre che il bookmaker abbia licenze valide e sia regolamentato dalle autorità competenti.
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="bg-success-500/20 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <TrendingUp className="h-8 w-8 text-success-400" />
               </div>
-              <div className="bg-dark-700 rounded-lg p-4">
-                <div className="text-accent-400 font-semibold mb-1">🔒 Sicurezza</div>
-                <div className="text-dark-400">Apertura in nuova scheda sicura</div>
+              <h3 className="text-lg font-semibold text-white mb-2">Quote</h3>
+              <p className="text-dark-300 text-sm">
+                Confronta le quote offerte sui tuoi sport preferiti per massimizzare i potenziali guadagni.
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="bg-warning-500/20 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Award className="h-8 w-8 text-warning-400" />
               </div>
+              <h3 className="text-lg font-semibold text-white mb-2">Bonus</h3>
+              <p className="text-dark-300 text-sm">
+                Leggi sempre i termini e condizioni dei bonus per capire i requisiti di scommessa.
+              </p>
             </div>
           </div>
         </div>
