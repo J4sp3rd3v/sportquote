@@ -1,73 +1,40 @@
 import { Bookmaker, Match, League, Sport } from '@/types';
 
 export const bookmakers: Bookmaker[] = [
-  // Top bookmaker italiani verificati e funzionanti
-  { id: '1', name: 'Bet365', logo: '/logos/bet365.png', rating: 4.8, bonus: 'Fino a €100', website: 'bet365.it', isPopular: true, country: 'UK' },
-  { id: '2', name: 'Sisal', logo: '/logos/sisal.png', rating: 4.7, bonus: 'Fino a €250', website: 'sisal.it', isPopular: true, country: 'Italia' },
-  { id: '3', name: 'Snai', logo: '/logos/snai.png', rating: 4.6, bonus: 'Fino a €15', website: 'snai.it', isPopular: true, country: 'Italia' },
-  { id: '4', name: 'Eurobet', logo: '/logos/eurobet.png', rating: 4.5, bonus: 'Fino a €50', website: 'eurobet.it', isPopular: true, country: 'Italia' },
-  { id: '5', name: 'Lottomatica', logo: '/logos/lottomatica.png', rating: 4.4, bonus: 'Fino a €200', website: 'lottomatica.it', isPopular: true, country: 'Italia' },
-  { id: '6', name: 'William Hill', logo: '/logos/williamhill.png', rating: 4.3, bonus: 'Fino a €50', website: 'williamhill.it', isPopular: true, country: 'UK' },
-  { id: '7', name: 'Betfair', logo: '/logos/betfair.png', rating: 4.2, bonus: 'Fino a €200', website: 'betfair.it', isPopular: true, country: 'UK' },
-  { id: '8', name: 'Unibet', logo: '/logos/unibet.png', rating: 4.1, bonus: 'Fino a €100', website: 'unibet.it', isPopular: true, country: 'Malta' },
-  { id: '9', name: 'Bwin', logo: '/logos/bwin.png', rating: 4.0, bonus: 'Fino a €50', website: 'bwin.it', isPopular: true, country: 'Austria' },
-  { id: '10', name: 'Betclic', logo: '/logos/betclic.png', rating: 3.9, bonus: 'Fino a €100', website: 'betclic.it', isPopular: true, country: 'Francia' },
+  // TOP 5 bookmaker italiani più affidabili e funzionanti
+  { id: '1', name: 'Bet365', logo: '/logos/bet365.png', rating: 4.9, bonus: 'Fino a €100', website: 'bet365.it', isPopular: true, country: 'UK' },
+  { id: '2', name: 'Sisal', logo: '/logos/sisal.png', rating: 4.8, bonus: 'Fino a €250', website: 'sisal.it', isPopular: true, country: 'Italia' },
+  { id: '3', name: 'Snai', logo: '/logos/snai.png', rating: 4.7, bonus: 'Fino a €15', website: 'snai.it', isPopular: true, country: 'Italia' },
+  { id: '4', name: 'Eurobet', logo: '/logos/eurobet.png', rating: 4.6, bonus: 'Fino a €50', website: 'eurobet.it', isPopular: true, country: 'Italia' },
+  { id: '5', name: 'Lottomatica', logo: '/logos/lottomatica.png', rating: 4.5, bonus: 'Fino a €200', website: 'lottomatica.it', isPopular: true, country: 'Italia' },
   
-  // Bookmaker internazionali affidabili
-  { id: '11', name: 'Pinnacle', logo: '/logos/pinnacle.png', rating: 4.5, bonus: 'Quote migliori', website: 'pinnacle.com', isPopular: true, country: 'Malta' },
+  // Bookmaker internazionali top con licenza italiana
+  { id: '6', name: 'William Hill', logo: '/logos/williamhill.png', rating: 4.4, bonus: 'Fino a €50', website: 'williamhill.it', isPopular: true, country: 'UK' },
+  { id: '7', name: 'Betfair', logo: '/logos/betfair.png', rating: 4.3, bonus: 'Fino a €200', website: 'betfair.it', isPopular: true, country: 'UK' },
+  { id: '8', name: 'Unibet', logo: '/logos/unibet.png', rating: 4.2, bonus: 'Fino a €100', website: 'unibet.it', isPopular: true, country: 'Malta' },
+  { id: '9', name: 'Bwin', logo: '/logos/bwin.png', rating: 4.1, bonus: 'Fino a €50', website: 'bwin.it', isPopular: true, country: 'Austria' },
+  { id: '10', name: 'Betclic', logo: '/logos/betclic.png', rating: 4.0, bonus: 'Fino a €100', website: 'betclic.it', isPopular: true, country: 'Francia' },
+  
+  // Bookmaker specializzati con quote competitive
+  { id: '11', name: 'Pinnacle', logo: '/logos/pinnacle.png', rating: 4.6, bonus: 'Quote migliori', website: 'pinnacle.com', isPopular: true, country: 'Malta' },
   { id: '12', name: 'Betway', logo: '/logos/betway.png', rating: 4.0, bonus: 'Fino a €30', website: 'betway.it', isPopular: true, country: 'Malta' },
-  { id: '13', name: 'NetBet', logo: '/logos/netbet.png', rating: 3.8, bonus: 'Fino a €50', website: 'netbet.it', isPopular: true, country: 'Malta' },
-  { id: '14', name: 'LeoVegas', logo: '/logos/leovegas.png', rating: 3.7, bonus: 'Fino a €1000', website: 'leovegas.it', isPopular: true, country: 'Malta' },
-  { id: '15', name: 'Marathonbet', logo: '/logos/marathonbet.png', rating: 3.9, bonus: 'Fino a €100', website: 'marathonbet.it', isPopular: true, country: 'Malta' },
+  { id: '13', name: 'NetBet', logo: '/logos/netbet.png', rating: 3.9, bonus: 'Fino a €50', website: 'netbet.it', isPopular: true, country: 'Malta' },
+  { id: '14', name: 'Marathonbet', logo: '/logos/marathonbet.png', rating: 3.8, bonus: 'Fino a €100', website: 'marathonbet.it', isPopular: true, country: 'Malta' },
+  { id: '15', name: 'Betano', logo: '/logos/betano.png', rating: 4.2, bonus: 'Fino a €100', website: 'betano.it', isPopular: true, country: 'Malta' },
   
-  // Bookmaker italiani aggiuntivi verificati
-  { id: '16', name: 'Better', logo: '/logos/better.png', rating: 3.6, bonus: 'Fino a €100', website: 'better.it', isPopular: true, country: 'Italia' },
-  { id: '17', name: 'Goldbet', logo: '/logos/goldbet.png', rating: 3.5, bonus: 'Fino a €500', website: 'goldbet.it', isPopular: true, country: 'Italia' },
-  { id: '18', name: 'Planetwin365', logo: '/logos/planetwin365.png', rating: 3.4, bonus: 'Fino a €200', website: 'planetwin365.it', isPopular: true, country: 'Italia' },
-  { id: '19', name: 'Betflag', logo: '/logos/betflag.png', rating: 3.3, bonus: 'Fino a €500', website: 'betflag.it', isPopular: true, country: 'Italia' },
-  { id: '20', name: 'Stanleybet', logo: '/logos/stanleybet.png', rating: 3.2, bonus: 'Fino a €250', website: 'stanleybet.it', isPopular: true, country: 'Italia' },
+  // Bookmaker italiani affidabili aggiuntivi
+  { id: '16', name: 'Better', logo: '/logos/better.png', rating: 3.7, bonus: 'Fino a €100', website: 'better.it', isPopular: true, country: 'Italia' },
+  { id: '17', name: 'Goldbet', logo: '/logos/goldbet.png', rating: 3.6, bonus: 'Fino a €500', website: 'goldbet.it', isPopular: true, country: 'Italia' },
+  { id: '18', name: 'Planetwin365', logo: '/logos/planetwin365.png', rating: 3.5, bonus: 'Fino a €200', website: 'planetwin365.it', isPopular: true, country: 'Italia' },
+  { id: '19', name: 'Admiral', logo: '/logos/admiral.png', rating: 3.4, bonus: 'Fino a €100', website: 'admiralbet.it', isPopular: true, country: 'Italia' },
+  { id: '20', name: 'Stanleybet', logo: '/logos/stanleybet.png', rating: 3.3, bonus: 'Fino a €250', website: 'stanleybet.it', isPopular: true, country: 'Italia' },
   
-  // Bookmaker emergenti e affidabili
-  { id: '21', name: 'Betano', logo: '/logos/betano.png', rating: 4.1, bonus: 'Fino a €100', website: 'betano.it', isPopular: true, country: 'Malta' },
-  { id: '22', name: '888sport', logo: '/logos/888sport.png', rating: 3.8, bonus: 'Fino a €100', website: '888sport.it', isPopular: true, country: 'Malta' },
-  { id: '23', name: 'Pokerstars', logo: '/logos/pokerstars.png', rating: 3.7, bonus: 'Fino a €30', website: 'pokerstars.it', isPopular: true, country: 'Malta' },
-  { id: '24', name: '1xBet', logo: '/logos/1xbet.png', rating: 3.6, bonus: 'Fino a €100', website: '1xbet.it', country: 'Curacao' },
-  { id: '25', name: '22Bet', logo: '/logos/22bet.png', rating: 3.5, bonus: 'Fino a €122', website: '22bet.it', country: 'Curacao' },
-  
-  // Bookmaker UK affidabili
-  { id: '26', name: 'Ladbrokes', logo: '/logos/ladbrokes.png', rating: 4.2, bonus: 'Fino a €100', website: 'ladbrokes.it', country: 'UK' },
-  { id: '27', name: 'Paddy Power', logo: '/logos/paddypower.png', rating: 4.0, bonus: 'Fino a €100', website: 'paddypower.it', country: 'Irlanda' },
-  { id: '28', name: 'Betvictor', logo: '/logos/betvictor.png', rating: 3.9, bonus: 'Fino a €100', website: 'betvictor.it', country: 'UK' },
-  { id: '29', name: 'Coral', logo: '/logos/coral.png', rating: 3.8, bonus: 'Fino a €100', website: 'coral.it', country: 'UK' },
-  { id: '30', name: 'Betfred', logo: '/logos/betfred.png', rating: 3.7, bonus: 'Fino a €100', website: 'betfred.it', country: 'UK' },
-  
-  // Bookmaker europei verificati
-  { id: '31', name: 'Betsson', logo: '/logos/betsson.png', rating: 3.8, bonus: 'Fino a €50', website: 'betsson.it', country: 'Svezia' },
-  { id: '32', name: 'Betsafe', logo: '/logos/betsafe.png', rating: 3.6, bonus: 'Fino a €100', website: 'betsafe.it', country: 'Malta' },
-  { id: '33', name: 'Nordicbet', logo: '/logos/nordicbet.png', rating: 3.5, bonus: 'Fino a €200', website: 'nordicbet.it', country: 'Malta' },
-  { id: '34', name: 'Tipico', logo: '/logos/tipico.png', rating: 3.4, bonus: 'Fino a €100', website: 'tipico.it', country: 'Germania' },
-  { id: '35', name: 'Interwetten', logo: '/logos/interwetten.png', rating: 3.3, bonus: 'Fino a €100', website: 'interwetten.it', country: 'Austria' },
-  
-  // Exchange e bookmaker specializzati
-  { id: '36', name: 'Betfair Exchange', logo: '/logos/betfair-exchange.png', rating: 4.3, bonus: 'Commissioni ridotte', website: 'betfair.it/exchange', country: 'UK' },
-  { id: '37', name: 'Smarkets', logo: '/logos/smarkets.png', rating: 4.0, bonus: 'Commissioni ridotte', website: 'smarkets.com', country: 'UK' },
-  { id: '38', name: 'Betdaq', logo: '/logos/betdaq.png', rating: 3.7, bonus: 'Commissioni ridotte', website: 'betdaq.com', country: 'Malta' },
-  { id: '39', name: 'Matchbook', logo: '/logos/matchbook.png', rating: 3.6, bonus: 'Commissioni ridotte', website: 'matchbook.com', country: 'Malta' },
-  { id: '40', name: '10Bet', logo: '/logos/10bet.png', rating: 3.4, bonus: 'Fino a €100', website: '10bet.it', country: 'Malta' },
-  
-  // Bookmaker con licenza italiana aggiuntivi
-  { id: '41', name: 'Admiral', logo: '/logos/admiral.png', rating: 3.2, bonus: 'Fino a €100', website: 'admiralbet.it', country: 'Italia' },
-  { id: '42', name: 'Vincitu', logo: '/logos/vincitu.png', rating: 3.1, bonus: 'Fino a €200', website: 'vincitu.it', country: 'Italia' },
-  { id: '43', name: 'Cplay', logo: '/logos/cplay.png', rating: 3.0, bonus: 'Fino a €150', website: 'cplay.it', country: 'Italia' },
-  { id: '44', name: 'Betaland', logo: '/logos/betaland.png', rating: 2.9, bonus: 'Fino a €50', website: 'betaland.it', country: 'Italia' },
-  { id: '45', name: 'Winamax', logo: '/logos/winamax.png', rating: 3.8, bonus: 'Fino a €100', website: 'winamax.it', country: 'Francia' },
-  
-  // Bookmaker internazionali con buona reputazione
-  { id: '46', name: 'Parimatch', logo: '/logos/parimatch.png', rating: 3.7, bonus: 'Fino a €100', website: 'parimatch.it', country: 'Malta' },
-  { id: '47', name: 'Librabet', logo: '/logos/librabet.png', rating: 3.4, bonus: 'Fino a €100', website: 'librabet.com', country: 'Malta' },
-  { id: '48', name: 'Rabona', logo: '/logos/rabona.png', rating: 3.3, bonus: 'Fino a €500', website: 'rabona.com', country: 'Malta' },
-  { id: '49', name: 'Campobet', logo: '/logos/campobet.png', rating: 3.2, bonus: 'Fino a €100', website: 'campobet.com', country: 'Malta' },
-  { id: '50', name: '32Red', logo: '/logos/32red.png', rating: 3.5, bonus: 'Fino a €100', website: '32red.com', country: 'Malta' }
+  // Bookmaker UK premium
+  { id: '21', name: 'Ladbrokes', logo: '/logos/ladbrokes.png', rating: 4.3, bonus: 'Fino a €100', website: 'ladbrokes.it', country: 'UK' },
+  { id: '22', name: 'Paddy Power', logo: '/logos/paddypower.png', rating: 4.1, bonus: 'Fino a €100', website: 'paddypower.it', country: 'Irlanda' },
+  { id: '23', name: 'Coral', logo: '/logos/coral.png', rating: 3.9, bonus: 'Fino a €100', website: 'coral.it', country: 'UK' },
+  { id: '24', name: '888sport', logo: '/logos/888sport.png', rating: 3.8, bonus: 'Fino a €100', website: '888sport.it', country: 'Malta' },
+  { id: '25', name: 'LeoVegas', logo: '/logos/leovegas.png', rating: 3.7, bonus: 'Fino a €1000', website: 'leovegas.it', country: 'Malta' }
 ];
 
 export const sports: Sport[] = [
@@ -84,14 +51,25 @@ export const sports: Sport[] = [
 ];
 
 export const leagues: League[] = [
-  // Calcio
+  // Calcio Italiano
   { id: 'serie-a', name: 'Serie A', country: 'Italia', sport: 'calcio', logo: '/leagues/serie-a.png', isPopular: true },
+  { id: 'serie-b', name: 'Serie B', country: 'Italia', sport: 'calcio', logo: '/leagues/serie-b.png', isPopular: true },
+  { id: 'coppa-italia', name: 'Coppa Italia', country: 'Italia', sport: 'calcio', logo: '/leagues/coppa-italia.png', isPopular: true },
+  
+  // Calcio Internazionale Top
   { id: 'premier-league', name: 'Premier League', country: 'Inghilterra', sport: 'calcio', logo: '/leagues/premier-league.png', isPopular: true },
   { id: 'la-liga', name: 'La Liga', country: 'Spagna', sport: 'calcio', logo: '/leagues/la-liga.png', isPopular: true },
   { id: 'bundesliga', name: 'Bundesliga', country: 'Germania', sport: 'calcio', logo: '/leagues/bundesliga.png', isPopular: true },
   { id: 'ligue-1', name: 'Ligue 1', country: 'Francia', sport: 'calcio', logo: '/leagues/ligue-1.png', isPopular: true },
+  
+  // Competizioni Europee
   { id: 'champions-league', name: 'Champions League', country: 'Europa', sport: 'calcio', logo: '/leagues/champions-league.png', isPopular: true },
   { id: 'europa-league', name: 'Europa League', country: 'Europa', sport: 'calcio', logo: '/leagues/europa-league.png', isPopular: true },
+  { id: 'conference-league', name: 'Conference League', country: 'Europa', sport: 'calcio', logo: '/leagues/conference-league.png', isPopular: true },
+  
+  // Altri campionati importanti
+  { id: 'eredivisie', name: 'Eredivisie', country: 'Olanda', sport: 'calcio', logo: '/leagues/eredivisie.png', isPopular: false },
+  { id: 'primeira-liga', name: 'Primeira Liga', country: 'Portogallo', sport: 'calcio', logo: '/leagues/primeira-liga.png', isPopular: false },
   
   // Tennis
   { id: 'atp', name: 'ATP Tour', country: 'Mondiale', sport: 'tennis', logo: '/leagues/atp.png', isPopular: true },
@@ -104,12 +82,17 @@ export const leagues: League[] = [
   { id: 'serie-a-basket', name: 'Serie A Basket', country: 'Italia', sport: 'basket', logo: '/leagues/serie-a-basket.png', isPopular: true },
 ];
 
-// Database squadre reali per categoria
+// Database squadre reali aggiornato per categoria
 const REAL_TEAMS = {
   'serie-a': [
     'Juventus', 'Inter', 'Milan', 'Napoli', 'Roma', 'Lazio', 'Atalanta', 'Fiorentina',
     'Bologna', 'Torino', 'Udinese', 'Sassuolo', 'Verona', 'Genoa', 'Cagliari', 'Lecce',
     'Empoli', 'Monza', 'Frosinone', 'Salernitana'
+  ],
+  'serie-b': [
+    'Parma', 'Como', 'Venezia', 'Cremonese', 'Catanzaro', 'Palermo', 'Sampdoria', 'Brescia',
+    'Pisa', 'Spezia', 'Modena', 'Reggiana', 'Cosenza', 'Cittadella', 'Bari', 'Ternana',
+    'Ascoli', 'Feralpisalò', 'Sudtirol', 'Lecco'
   ],
   'premier-league': [
     'Manchester City', 'Arsenal', 'Liverpool', 'Aston Villa', 'Tottenham', 'Chelsea',
@@ -137,6 +120,16 @@ const REAL_TEAMS = {
     'Real Madrid', 'Manchester City', 'Bayern Munich', 'PSG', 'Arsenal', 'Barcelona',
     'Atletico Madrid', 'Borussia Dortmund', 'Inter', 'Napoli', 'AC Milan', 'Porto',
     'Benfica', 'PSV', 'Lazio', 'Real Sociedad'
+  ],
+  'eredivisie': [
+    'PSV', 'Feyenoord', 'Ajax', 'AZ Alkmaar', 'Twente', 'Go Ahead Eagles', 'NEC',
+    'Utrecht', 'Fortuna Sittard', 'Heerenveen', 'PEC Zwolle', 'Sparta Rotterdam',
+    'Vitesse', 'RKC Waalwijk', 'Almere City', 'Volendam', 'Excelsior', 'Heracles'
+  ],
+  'primeira-liga': [
+    'Sporting CP', 'Porto', 'Benfica', 'Braga', 'Vitoria Guimaraes', 'Moreirense',
+    'Casa Pia', 'Gil Vicente', 'Famalicao', 'Estoril', 'Boavista', 'Arouca',
+    'Rio Ave', 'Vizela', 'Portimonense', 'Farense', 'Chaves', 'Estrela'
   ]
 };
 
@@ -260,10 +253,10 @@ const getRandomTeams = (league: string, count: number = 2): string[] => {
   return shuffled.slice(0, count);
 };
 
-// Genera partite con nomi reali
+// Genera partite con nomi reali - Database completo
 export const matches: Match[] = [
-  // SERIE A - 10 partite
-  ...Array.from({ length: 10 }, (_, i) => {
+  // SERIE A - 15 partite (giornata completa)
+  ...Array.from({ length: 15 }, (_, i) => {
     const [homeTeam, awayTeam] = getRandomTeams('serie-a');
     return {
       id: `serie-a-${i + 1}`,
@@ -271,16 +264,33 @@ export const matches: Match[] = [
       awayTeam,
       league: 'serie-a',
       sport: 'calcio',
-      date: new Date(Date.now() + (i + 1) * 86400000), // Prossimi giorni
+      date: new Date(Date.now() + (i % 3 + 1) * 86400000), // Distribuiti su 3 giorni
       status: 'upcoming' as const,
-      odds: bookmakers.slice(0, 15 + Math.floor(Math.random() * 10)).map(b => 
+      odds: bookmakers.slice(0, 20 + Math.floor(Math.random() * 5)).map(b => 
         generateRealisticOdds(homeTeam, awayTeam, 'serie-a', b.name)
       )
     };
   }),
 
-  // PREMIER LEAGUE - 8 partite
-  ...Array.from({ length: 8 }, (_, i) => {
+  // SERIE B - 12 partite
+  ...Array.from({ length: 12 }, (_, i) => {
+    const [homeTeam, awayTeam] = getRandomTeams('serie-b');
+    return {
+      id: `serie-b-${i + 1}`,
+      homeTeam,
+      awayTeam,
+      league: 'serie-b',
+      sport: 'calcio',
+      date: new Date(Date.now() + (i % 2 + 1) * 86400000),
+      status: 'upcoming' as const,
+      odds: bookmakers.slice(0, 15 + Math.floor(Math.random() * 8)).map(b => 
+        generateRealisticOdds(homeTeam, awayTeam, 'serie-b', b.name)
+      )
+    };
+  }),
+
+  // PREMIER LEAGUE - 12 partite
+  ...Array.from({ length: 12 }, (_, i) => {
     const [homeTeam, awayTeam] = getRandomTeams('premier-league');
     return {
       id: `premier-${i + 1}`,
@@ -288,16 +298,16 @@ export const matches: Match[] = [
       awayTeam,
       league: 'premier-league',
       sport: 'calcio',
-      date: new Date(Date.now() + (i + 1) * 86400000),
+      date: new Date(Date.now() + (i % 3 + 1) * 86400000),
       status: 'upcoming' as const,
-      odds: bookmakers.slice(0, 20 + Math.floor(Math.random() * 10)).map(b => 
+      odds: bookmakers.slice(0, 22 + Math.floor(Math.random() * 3)).map(b => 
         generateRealisticOdds(homeTeam, awayTeam, 'premier-league', b.name)
       )
     };
   }),
 
-  // LA LIGA - 8 partite
-  ...Array.from({ length: 8 }, (_, i) => {
+  // LA LIGA - 12 partite
+  ...Array.from({ length: 12 }, (_, i) => {
     const [homeTeam, awayTeam] = getRandomTeams('la-liga');
     return {
       id: `laliga-${i + 1}`,
@@ -305,16 +315,16 @@ export const matches: Match[] = [
       awayTeam,
       league: 'la-liga',
       sport: 'calcio',
-      date: new Date(Date.now() + (i + 1) * 86400000),
+      date: new Date(Date.now() + (i % 3 + 1) * 86400000),
       status: 'upcoming' as const,
-      odds: bookmakers.slice(0, 18 + Math.floor(Math.random() * 10)).map(b => 
+      odds: bookmakers.slice(0, 20 + Math.floor(Math.random() * 5)).map(b => 
         generateRealisticOdds(homeTeam, awayTeam, 'la-liga', b.name)
       )
     };
   }),
 
-  // BUNDESLIGA - 6 partite
-  ...Array.from({ length: 6 }, (_, i) => {
+  // BUNDESLIGA - 10 partite
+  ...Array.from({ length: 10 }, (_, i) => {
     const [homeTeam, awayTeam] = getRandomTeams('bundesliga');
     return {
       id: `bundesliga-${i + 1}`,
@@ -322,16 +332,33 @@ export const matches: Match[] = [
       awayTeam,
       league: 'bundesliga',
       sport: 'calcio',
-      date: new Date(Date.now() + (i + 1) * 86400000),
+      date: new Date(Date.now() + (i % 2 + 1) * 86400000),
       status: 'upcoming' as const,
-      odds: bookmakers.slice(0, 16 + Math.floor(Math.random() * 8)).map(b => 
+      odds: bookmakers.slice(0, 18 + Math.floor(Math.random() * 5)).map(b => 
         generateRealisticOdds(homeTeam, awayTeam, 'bundesliga', b.name)
       )
     };
   }),
 
-  // CHAMPIONS LEAGUE - 8 partite
-  ...Array.from({ length: 8 }, (_, i) => {
+  // LIGUE 1 - 10 partite
+  ...Array.from({ length: 10 }, (_, i) => {
+    const [homeTeam, awayTeam] = getRandomTeams('ligue-1');
+    return {
+      id: `ligue1-${i + 1}`,
+      homeTeam,
+      awayTeam,
+      league: 'ligue-1',
+      sport: 'calcio',
+      date: new Date(Date.now() + (i % 2 + 1) * 86400000),
+      status: 'upcoming' as const,
+      odds: bookmakers.slice(0, 16 + Math.floor(Math.random() * 6)).map(b => 
+        generateRealisticOdds(homeTeam, awayTeam, 'ligue-1', b.name)
+      )
+    };
+  }),
+
+  // CHAMPIONS LEAGUE - 12 partite
+  ...Array.from({ length: 12 }, (_, i) => {
     const [homeTeam, awayTeam] = getRandomTeams('champions-league');
     return {
       id: `ucl-${i + 1}`,
@@ -339,16 +366,68 @@ export const matches: Match[] = [
       awayTeam,
       league: 'champions-league',
       sport: 'calcio',
-      date: new Date(Date.now() + (i + 2) * 86400000),
+      date: new Date(Date.now() + (i % 2 + 2) * 86400000),
       status: 'upcoming' as const,
-      odds: bookmakers.slice(0, 25 + Math.floor(Math.random() * 15)).map(b => 
+      odds: bookmakers.map(b => 
         generateRealisticOdds(homeTeam, awayTeam, 'champions-league', b.name)
       )
     };
   }),
 
-  // TENNIS ATP - 12 partite
-  ...Array.from({ length: 12 }, (_, i) => {
+  // EUROPA LEAGUE - 8 partite
+  ...Array.from({ length: 8 }, (_, i) => {
+    const teams = ['Roma', 'Milan', 'Atalanta', 'Fiorentina', 'Liverpool', 'Arsenal', 'Barcelona', 'Atletico Madrid', 'Sevilla', 'Villarreal', 'Eintracht Frankfurt', 'Bayer Leverkusen'];
+    const [homeTeam, awayTeam] = [...teams].sort(() => 0.5 - Math.random()).slice(0, 2);
+    return {
+      id: `uel-${i + 1}`,
+      homeTeam,
+      awayTeam,
+      league: 'europa-league',
+      sport: 'calcio',
+      date: new Date(Date.now() + (i % 2 + 3) * 86400000),
+      status: 'upcoming' as const,
+      odds: bookmakers.slice(0, 20 + Math.floor(Math.random() * 5)).map(b => 
+        generateRealisticOdds(homeTeam, awayTeam, 'europa-league', b.name)
+      )
+    };
+  }),
+
+  // EREDIVISIE - 8 partite
+  ...Array.from({ length: 8 }, (_, i) => {
+    const [homeTeam, awayTeam] = getRandomTeams('eredivisie');
+    return {
+      id: `eredivisie-${i + 1}`,
+      homeTeam,
+      awayTeam,
+      league: 'eredivisie',
+      sport: 'calcio',
+      date: new Date(Date.now() + (i % 2 + 1) * 86400000),
+      status: 'upcoming' as const,
+      odds: bookmakers.slice(0, 12 + Math.floor(Math.random() * 8)).map(b => 
+        generateRealisticOdds(homeTeam, awayTeam, 'eredivisie', b.name)
+      )
+    };
+  }),
+
+  // PRIMEIRA LIGA - 8 partite
+  ...Array.from({ length: 8 }, (_, i) => {
+    const [homeTeam, awayTeam] = getRandomTeams('primeira-liga');
+    return {
+      id: `primeira-${i + 1}`,
+      homeTeam,
+      awayTeam,
+      league: 'primeira-liga',
+      sport: 'calcio',
+      date: new Date(Date.now() + (i % 2 + 1) * 86400000),
+      status: 'upcoming' as const,
+      odds: bookmakers.slice(0, 14 + Math.floor(Math.random() * 6)).map(b => 
+        generateRealisticOdds(homeTeam, awayTeam, 'primeira-liga', b.name)
+      )
+    };
+  }),
+
+  // TENNIS ATP - 16 partite
+  ...Array.from({ length: 16 }, (_, i) => {
     const players = [...TENNIS_PLAYERS].sort(() => 0.5 - Math.random()).slice(0, 2);
     return {
       id: `atp-${i + 1}`,
@@ -356,16 +435,33 @@ export const matches: Match[] = [
       awayTeam: players[1],
       league: 'atp',
       sport: 'tennis',
-      date: new Date(Date.now() + (i + 1) * 86400000),
+      date: new Date(Date.now() + (i % 4 + 1) * 86400000),
       status: 'upcoming' as const,
-      odds: bookmakers.slice(0, 20 + Math.floor(Math.random() * 10)).map(b => 
+      odds: bookmakers.slice(0, 18 + Math.floor(Math.random() * 7)).map(b => 
         generateTennisOdds(players[0], players[1], b.name)
       )
     };
   }),
 
-  // NBA - 10 partite
-  ...Array.from({ length: 10 }, (_, i) => {
+  // TENNIS WTA - 12 partite
+  ...Array.from({ length: 12 }, (_, i) => {
+    const players = [...TENNIS_PLAYERS.filter(p => ['Iga Swiatek', 'Aryna Sabalenka', 'Coco Gauff', 'Elena Rybakina', 'Jessica Pegula', 'Ons Jabeur', 'Marketa Vondrousova', 'Qinwen Zheng', 'Maria Sakkari', 'Barbora Krejcikova'].includes(p))].sort(() => 0.5 - Math.random()).slice(0, 2);
+    return {
+      id: `wta-${i + 1}`,
+      homeTeam: players[0],
+      awayTeam: players[1],
+      league: 'wta',
+      sport: 'tennis',
+      date: new Date(Date.now() + (i % 3 + 1) * 86400000),
+      status: 'upcoming' as const,
+      odds: bookmakers.slice(0, 16 + Math.floor(Math.random() * 6)).map(b => 
+        generateTennisOdds(players[0], players[1], b.name)
+      )
+    };
+  }),
+
+  // NBA - 15 partite
+  ...Array.from({ length: 15 }, (_, i) => {
     const teams = [...NBA_TEAMS].sort(() => 0.5 - Math.random()).slice(0, 2);
     return {
       id: `nba-${i + 1}`,
@@ -373,16 +469,16 @@ export const matches: Match[] = [
       awayTeam: teams[1],
       league: 'nba',
       sport: 'basket',
-      date: new Date(Date.now() + (i + 1) * 86400000),
+      date: new Date(Date.now() + (i % 3 + 1) * 86400000),
       status: 'upcoming' as const,
-      odds: bookmakers.slice(0, 18 + Math.floor(Math.random() * 8)).map(b => 
+      odds: bookmakers.slice(0, 20 + Math.floor(Math.random() * 5)).map(b => 
         generateBasketOdds(teams[0], teams[1], b.name)
       )
     };
   }),
 
-  // EUROLEAGUE - 6 partite
-  ...Array.from({ length: 6 }, (_, i) => {
+  // EUROLEAGUE - 10 partite
+  ...Array.from({ length: 10 }, (_, i) => {
     const teams = [...EUROLEAGUE_TEAMS].sort(() => 0.5 - Math.random()).slice(0, 2);
     return {
       id: `euroleague-${i + 1}`,
@@ -390,10 +486,28 @@ export const matches: Match[] = [
       awayTeam: teams[1],
       league: 'euroleague',
       sport: 'basket',
-      date: new Date(Date.now() + (i + 1) * 86400000),
+      date: new Date(Date.now() + (i % 2 + 1) * 86400000),
       status: 'upcoming' as const,
-      odds: bookmakers.slice(0, 15 + Math.floor(Math.random() * 8)).map(b => 
+      odds: bookmakers.slice(0, 16 + Math.floor(Math.random() * 6)).map(b => 
         generateBasketOdds(teams[0], teams[1], b.name)
+      )
+    };
+  }),
+
+  // SERIE A BASKET - 8 partite
+  ...Array.from({ length: 8 }, (_, i) => {
+    const teams = ['Virtus Bologna', 'EA7 Emporio Armani Milano', 'Umana Reyer Venezia', 'Dolomiti Energia Trentino', 'Germani Brescia', 'Pallacanestro Reggiana', 'Napoli Basket', 'Bertram Tortona'];
+    const [homeTeam, awayTeam] = [...teams].sort(() => 0.5 - Math.random()).slice(0, 2);
+    return {
+      id: `lba-${i + 1}`,
+      homeTeam,
+      awayTeam,
+      league: 'serie-a-basket',
+      sport: 'basket',
+      date: new Date(Date.now() + (i % 2 + 1) * 86400000),
+      status: 'upcoming' as const,
+      odds: bookmakers.slice(0, 12 + Math.floor(Math.random() * 8)).map(b => 
+        generateBasketOdds(homeTeam, awayTeam, b.name)
       )
     };
   })
