@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 import MatchCard from '@/components/MatchCard';
 import FilterPanel from '@/components/FilterPanel';
 import MatchDetails from '@/components/MatchDetails';
-import DataSourceToggle from '@/components/DataSourceToggle';
+
 import SportCategoryStats from '@/components/SportCategoryStats';
 import NavigationOverlay from '@/components/NavigationOverlay';
 import ApiStatusBanner from '@/components/ApiStatusBanner';
@@ -194,7 +194,7 @@ export default function HomePage() {
             <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-white via-primary-200 to-accent-300 bg-clip-text text-transparent leading-tight">
               Quote Live in Tempo Reale
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 text-dark-300 px-2">
+            <p className="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 text-dark-200 px-2">
               {useRealData 
                 ? '🔴 LIVE: Quote aggiornate ogni minuto da API professionali'
                 : 'Confronta le migliori quote tra 54+ bookmaker verificati'
@@ -315,12 +315,7 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Data Source Toggle */}
-        <DataSourceToggle
-          useRealData={useRealData}
-          onToggle={toggleDataSource}
-          loading={loading}
-        />
+
 
         {/* API Status Banner */}
         <ApiStatusBanner
@@ -355,7 +350,7 @@ export default function HomePage() {
 
         {/* Results Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-dark-50">
             Partite e Quote
             {useRealData && (
               <span className="ml-2 text-sm font-normal text-primary-600">
@@ -399,7 +394,7 @@ export default function HomePage() {
                        category === 'tennis' ? '🎾' : 
                        category === 'basket' ? '🏀' : '🏆'}
                     </span>
-                    <h3 className="text-xl font-semibold text-gray-900 capitalize">
+                    <h3 className="text-xl font-semibold text-dark-50 capitalize">
                       {category}
                     </h3>
                     <span className="ml-3 text-sm text-gray-500">
@@ -424,10 +419,10 @@ export default function HomePage() {
         ) : !loading ? (
           <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-dark-50 mb-2">
               {useRealData && matches.length === 0 ? 'Nessuna partita disponibile dall\'API' : 'Nessuna partita trovata'}
             </h3>
-            <p className="text-gray-500 mb-6">
+            <p className="text-dark-300 mb-6">
               {useRealData && matches.length === 0 
                 ? 'Le quote live potrebbero non essere disponibili al momento. Riprova tra qualche minuto.'
                 : 'Prova a modificare i filtri di ricerca o la query'

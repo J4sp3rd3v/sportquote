@@ -9,19 +9,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Dark theme colors
+        // Dark theme colors - Migliorati per contrasto
         dark: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
-          950: '#020617',
+          50: '#ffffff',     // Bianco puro per testo principale
+          100: '#f8fafc',    // Quasi bianco per testo importante
+          200: '#e2e8f0',    // Grigio molto chiaro per testo secondario
+          300: '#cbd5e1',    // Grigio chiaro per testo normale
+          400: '#94a3b8',    // Grigio medio per testo meno importante
+          500: '#64748b',    // Grigio per testo disabilitato
+          600: '#475569',    // Grigio scuro per bordi
+          700: '#334155',    // Grigio molto scuro per bordi
+          800: '#1e293b',    // Sfondo componenti
+          900: '#0f172a',    // Sfondo principale
+          950: '#020617',    // Sfondo più scuro
         },
         primary: {
           50: '#eff6ff',

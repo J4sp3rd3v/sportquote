@@ -135,13 +135,7 @@ export function getBookmakerUrl(bookmakerName: string): string {
   }
   
   if (baseUrl) {
-    // Aggiungi parametri UTM per tracking
-    const separator = baseUrl.includes('?') ? '&' : '?';
-    const utmParams = `utm_source=sitosport&utm_medium=referral&utm_campaign=quote_comparison`;
-    
-    if (!baseUrl.includes('utm_source')) {
-      return `${baseUrl}${separator}${utmParams}`;
-    }
+    // Ritorna solo l'URL base senza parametri UTM
     return baseUrl;
   }
   
@@ -179,23 +173,8 @@ export function openBookmaker(
     
     console.log(`Aprendo ${bookmakerName}:`, url);
     
-    // Strategia multi-livello per apertura
-    // 1. Prova window.open
-    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
-    
-    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-      // 2. Popup bloccato - mostra dialog di conferma
-      const userConfirmed = confirm(
-        `Il popup è stato bloccato dal browser.\n\n` +
-        `Vuoi aprire ${bookmakerName} in questa scheda?\n\n` +
-        `Potrai tornare a SitoSport usando il pulsante "Torna al Sito" che apparirà.`
-      );
-      
-      if (userConfirmed) {
-        // 3. Redirect con dati salvati
-        window.location.href = url;
-      }
-    }
+    // Apertura diretta in nuova scheda senza popup
+    window.open(url, '_blank', 'noopener,noreferrer');
   } catch (error) {
     console.error('Errore apertura bookmaker:', error);
     
