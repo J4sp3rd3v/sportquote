@@ -1,12 +1,16 @@
 export interface Bookmaker {
   id: string;
   name: string;
-  logo: string;
-  rating: number;
-  bonus: string;
-  website: string;
+  logo?: string;
+  rating?: number;
+  bonus?: string;
+  website?: string;
+  url: string;
   isPopular?: boolean;
   country: string;
+  region: string;
+  verified: boolean;
+  category: string;
 }
 
 export interface Odds {
