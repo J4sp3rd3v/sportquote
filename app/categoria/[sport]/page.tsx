@@ -9,7 +9,7 @@ import MatchDetails from '@/components/MatchDetails';
 import DataSourceToggle from '@/components/DataSourceToggle';
 import ApiStatusBanner from '@/components/ApiStatusBanner';
 import BestOddsHighlight from '@/components/BestOddsHighlight';
-import BookmakerFrame from '@/components/BookmakerFrame';
+
 import { useRealOdds } from '@/hooks/useRealOdds';
 import { FilterOptions, BestOdds, Match } from '@/types';
 import { ArrowLeft, Filter, TrendingUp } from 'lucide-react';
@@ -24,18 +24,7 @@ export default function CategoryPage() {
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   
-  // Stati per il sistema iframe bookmaker
-  const [bookmakerFrame, setBookmakerFrame] = useState<{
-    isOpen: boolean;
-    url: string;
-    bookmakerName: string;
-    matchInfo?: any;
-  }>({
-    isOpen: false,
-    url: '',
-    bookmakerName: '',
-    matchInfo: null
-  });
+
   
   // Hook per gestire le quote reali
   const {

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import BookmakerFrame from './BookmakerFrame';
 import BookmakerLinkHandler from './BookmakerLinkHandler';
 import { getBookmakerInfo, isBookmakerSupported } from '@/lib/bookmakerLinks';
 
