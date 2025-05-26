@@ -38,6 +38,7 @@ export default function SubscriptionManager({ className = '' }: SubscriptionMana
   });
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showPlansSection, setShowPlansSection] = useState(true);
 
   // Aggiorna i dati dell'abbonamento
   const updateSubscriptionData = () => {
@@ -135,14 +136,22 @@ export default function SubscriptionManager({ className = '' }: SubscriptionMana
             </div>
           </div>
           
-          {currentPlan.id !== 'free' && (
+          <div className="flex items-center space-x-2">
             <button
-              onClick={() => setShowCancelConfirm(true)}
-              className="px-3 py-1 text-xs text-danger-400 border border-danger-500/30 rounded-lg hover:bg-danger-500/10 transition-colors"
+              onClick={() => setShowPlansSection(!showPlansSection)}
+              className="px-3 py-1 text-xs text-primary-400 border border-primary-500/30 rounded-lg hover:bg-primary-500/10 transition-colors"
             >
-              Cancella
+              {showPlansSection ? 'Nascondi Piani' : 'Gestisci Piano'}
             </button>
-          )}
+            {currentPlan.id !== 'free' && (
+              <button
+                onClick={() => setShowCancelConfirm(true)}
+                className="px-3 py-1 text-xs text-danger-400 border border-danger-500/30 rounded-lg hover:bg-danger-500/10 transition-colors"
+              >
+                Cancella
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Usage Stats */}
@@ -198,8 +207,9 @@ export default function SubscriptionManager({ className = '' }: SubscriptionMana
       </div>
 
       {/* Available Plans */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white">Piani disponibili</h3>
+      {showPlansSection && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-white">Piani disponibili</h3>
         
         <div className="grid gap-4 md:grid-cols-3">
           {SUBSCRIPTION_PLANS.map((plan) => {
@@ -271,7 +281,8 @@ export default function SubscriptionManager({ className = '' }: SubscriptionMana
             );
           })}
         </div>
-      </div>
+        </div>
+      )}
 
       {/* Cancel Confirmation Modal */}
       {showCancelConfirm && (

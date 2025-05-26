@@ -99,7 +99,16 @@ export default function PremiumPage() {
 
           {/* Live Demo */}
           <div className="max-w-2xl mx-auto mb-12">
-            <CountdownTimer showDetails={true} />
+            <CountdownTimer 
+              showDetails={true} 
+              onOpenSubscriptionModal={() => {
+                // Scroll to subscription plans section
+                const plansSection = document.getElementById('subscription-plans');
+                if (plansSection) {
+                  plansSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            />
           </div>
         </div>
 
@@ -152,7 +161,7 @@ export default function PremiumPage() {
         </div>
 
         {/* Subscription Plans */}
-        <div className="mb-16">
+        <div id="subscription-plans" className="mb-16">
           <h2 className="text-3xl font-bold text-white text-center mb-12">
             Scegli il Tuo Piano
           </h2>

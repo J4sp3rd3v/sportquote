@@ -7,9 +7,10 @@ import { useApiManager, formatCountdown } from '@/lib/apiManager';
 interface CountdownTimerProps {
   className?: string;
   showDetails?: boolean;
+  onOpenSubscriptionModal?: () => void;
 }
 
-export default function CountdownTimer({ className = '', showDetails = true }: CountdownTimerProps) {
+export default function CountdownTimer({ className = '', showDetails = true, onOpenSubscriptionModal }: CountdownTimerProps) {
   const { 
     countdown, 
     nextUpdate, 
@@ -132,7 +133,13 @@ export default function CountdownTimer({ className = '', showDetails = true }: C
               </div>
               <button 
                 className="text-xs text-primary-400 hover:text-primary-300 transition-colors"
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  if (onOpenSubscriptionModal) {
+                    onOpenSubscriptionModal();
+                  } else {
+                    window.location.reload();
+                  }
+                }}
               >
                 Aggiorna ora
               </button>

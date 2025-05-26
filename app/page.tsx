@@ -201,7 +201,10 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             {/* Countdown Timer */}
             <div className="lg:col-span-2">
-              <CountdownTimer showDetails={true} />
+              <CountdownTimer 
+              showDetails={true} 
+              onOpenSubscriptionModal={() => setShowSubscriptionModal(true)}
+            />
             </div>
             
             {/* Quick Stats */}
