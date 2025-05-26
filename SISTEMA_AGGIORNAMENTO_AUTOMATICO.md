@@ -5,8 +5,9 @@ Il sistema di aggiornamento automatico è stato implementato per gestire l'aggio
 
 ## Caratteristiche Principali
 
-### 🔄 Aggiornamento Automatico
-- **Intervallo**: Ogni ora
+### 🔄 Aggiornamento Automatico Sincronizzato
+- **Intervallo**: Ogni ora a orari fissi (16:00, 17:00, 18:00, ecc.)
+- **Sincronizzazione**: Basata sull'orologio di sistema, non sul momento di connessione utente
 - **Avvio automatico**: Il sistema si avvia automaticamente al caricamento dell'app
 - **Gestione intelligente**: Ferma automaticamente gli aggiornamenti se il limite API è quasi raggiunto (95%)
 
@@ -80,11 +81,12 @@ Mostra:
 
 1. **Avvio automatico** al caricamento dell'app
 2. **Prima esecuzione** immediata
-3. **Aggiornamenti programmati** ogni ora
-4. **Recupero dati** da sport multipli
-5. **Conversione formato** per l'app
-6. **Notifica subscribers** con nuovi dati
-7. **Aggiornamento statistiche** utilizzo API
+3. **Calcolo prossima ora** intera (es. se sono le 16:30, prossimo aggiornamento alle 17:00)
+4. **Aggiornamenti sincronizzati** ogni ora a orari fissi
+5. **Recupero dati** da sport multipli
+6. **Conversione formato** per l'app
+7. **Notifica subscribers** con nuovi dati
+8. **Aggiornamento statistiche** utilizzo API
 
 ## Protezioni Implementate
 
@@ -150,10 +152,13 @@ Mostra:
 ## Vantaggi del Sistema
 
 1. **Efficienza**: Aggiornamenti programmati ottimizzano l'uso delle richieste API
-2. **Trasparenza**: L'utente vede sempre l'utilizzo API corrente
-3. **Protezione**: Impossibile superare i limiti API
-4. **Scalabilità**: Sistema pronto per upgrade a piani premium
-5. **UX**: Informazioni chiare sui limiti e upgrade necessari
+2. **Sincronizzazione**: Tutti gli utenti ricevono aggiornamenti contemporaneamente
+3. **Prevedibilità**: Orari fissi rendono il sistema facile da monitorare e debuggare
+4. **Trasparenza**: L'utente vede sempre l'utilizzo API corrente
+5. **Protezione**: Impossibile superare i limiti API
+6. **Scalabilità**: Sistema pronto per upgrade a piani premium
+7. **UX**: Informazioni chiare sui limiti e upgrade necessari
+8. **Ottimizzazione server**: Cache e risorse ottimizzate per aggiornamenti sincronizzati
 
 ## Upgrade Premium
 
@@ -177,12 +182,43 @@ Per aggiornamenti più frequenti o in tempo reale, il sistema è predisposto per
 - Ottimizzazione intervalli
 - Pulizia log e cache
 
+## Esempi Pratici Sistema Sincronizzato
+
+### Scenario 1: Connessione alle 16:30
+- **Aggiornamento immediato**: Dati attuali mostrati subito
+- **Prossimo aggiornamento**: Alle 17:00 (tra 30 minuti)
+- **Countdown**: Mostra "30m 0s" e decresce in tempo reale
+
+### Scenario 2: Connessione alle 16:59
+- **Aggiornamento immediato**: Dati attuali mostrati subito  
+- **Prossimo aggiornamento**: Alle 17:00 (tra 1 minuto)
+- **Countdown**: Mostra "1m 0s" e decresce rapidamente
+
+### Scenario 3: Connessione alle 17:00
+- **Aggiornamento in corso**: Sistema esegue aggiornamento
+- **Prossimo aggiornamento**: Alle 18:00 (tra 1 ora)
+- **Countdown**: Mostra "59m 59s" dopo l'aggiornamento
+
+### Programma Giornaliero Tipo
+```
+00:00 - Aggiornamento notturno
+01:00 - Aggiornamento automatico
+...
+16:00 - Aggiornamento pomeridiano
+17:00 - Aggiornamento serale
+18:00 - Aggiornamento prime time
+...
+23:00 - Ultimo aggiornamento giornata
+```
+
 ## Conclusioni
 
-Il sistema di aggiornamento automatico fornisce:
-- **Dati sempre aggiornati** senza intervento utente (ogni ora)
+Il sistema di aggiornamento automatico sincronizzato fornisce:
+- **Dati sempre aggiornati** senza intervento utente (ogni ora a orari fissi)
+- **Sincronizzazione globale** per tutti gli utenti
 - **Gestione intelligente** delle risorse API
 - **Esperienza utente ottimale** con informazioni trasparenti sull'ultimo aggiornamento
+- **Prevedibilità** degli aggiornamenti per monitoraggio e debug
 - **Scalabilità** per futuri upgrade
 - **Protezione** da superamento limiti
 

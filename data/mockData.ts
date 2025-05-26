@@ -1,40 +1,22 @@
 import { Bookmaker, Match, League, Sport } from '@/types';
 
 export const bookmakers: Bookmaker[] = [
-  // TOP 5 bookmaker italiani più affidabili e funzionanti
-  { id: '1', name: 'Bet365', logo: '/logos/bet365.png', rating: 4.9, bonus: 'Fino a €100', website: 'bet365.it', isPopular: true, country: 'UK' },
-  { id: '2', name: 'Sisal', logo: '/logos/sisal.png', rating: 4.8, bonus: 'Fino a €250', website: 'sisal.it', isPopular: true, country: 'Italia' },
-  { id: '3', name: 'Snai', logo: '/logos/snai.png', rating: 4.7, bonus: 'Fino a €15', website: 'snai.it', isPopular: true, country: 'Italia' },
-  { id: '4', name: 'Eurobet', logo: '/logos/eurobet.png', rating: 4.6, bonus: 'Fino a €50', website: 'eurobet.it', isPopular: true, country: 'Italia' },
-  { id: '5', name: 'Lottomatica', logo: '/logos/lottomatica.png', rating: 4.5, bonus: 'Fino a €200', website: 'lottomatica.it', isPopular: true, country: 'Italia' },
+  // Bookmaker italiani verificati e funzionanti
+  { id: '1', name: 'Sisal', logo: '/logos/sisal.png', rating: 4.8, bonus: 'Fino a €250', website: 'sisal.com', isPopular: true, country: 'Italia' },
+  { id: '2', name: 'Betflag', logo: '/logos/betflag.png', rating: 4.2, bonus: 'Fino a €100', website: 'betflag.it', isPopular: true, country: 'Italia' },
+  { id: '3', name: 'Betaland', logo: '/logos/betaland.png', rating: 4.1, bonus: 'Fino a €200', website: 'betaland.it', isPopular: true, country: 'Italia' },
+  { id: '4', name: 'Vincitu', logo: '/logos/vincitu.png', rating: 4.0, bonus: 'Fino a €150', website: 'vincitu.it', isPopular: true, country: 'Italia' },
+  { id: '5', name: 'Stanleybet', logo: '/logos/stanleybet.png', rating: 3.9, bonus: 'Fino a €250', website: 'stanleybet.it', isPopular: true, country: 'Italia' },
   
-  // Bookmaker internazionali top con licenza italiana
+  // Bookmaker internazionali con licenza italiana
   { id: '6', name: 'William Hill', logo: '/logos/williamhill.png', rating: 4.4, bonus: 'Fino a €50', website: 'williamhill.it', isPopular: true, country: 'UK' },
-  { id: '7', name: 'Betfair', logo: '/logos/betfair.png', rating: 4.3, bonus: 'Fino a €200', website: 'betfair.it', isPopular: true, country: 'UK' },
-  { id: '8', name: 'Unibet', logo: '/logos/unibet.png', rating: 4.2, bonus: 'Fino a €100', website: 'unibet.it', isPopular: true, country: 'Malta' },
-  { id: '9', name: 'Bwin', logo: '/logos/bwin.png', rating: 4.1, bonus: 'Fino a €50', website: 'bwin.it', isPopular: true, country: 'Austria' },
-  { id: '10', name: 'Betclic', logo: '/logos/betclic.png', rating: 4.0, bonus: 'Fino a €100', website: 'betclic.it', isPopular: true, country: 'Francia' },
-  
-  // Bookmaker specializzati con quote competitive
-  { id: '11', name: 'Pinnacle', logo: '/logos/pinnacle.png', rating: 4.6, bonus: 'Quote migliori', website: 'pinnacle.com', isPopular: true, country: 'Malta' },
-  { id: '12', name: 'Betway', logo: '/logos/betway.png', rating: 4.0, bonus: 'Fino a €30', website: 'betway.it', isPopular: true, country: 'Malta' },
-  { id: '13', name: 'NetBet', logo: '/logos/netbet.png', rating: 3.9, bonus: 'Fino a €50', website: 'netbet.it', isPopular: true, country: 'Malta' },
-  { id: '14', name: 'Marathonbet', logo: '/logos/marathonbet.png', rating: 3.8, bonus: 'Fino a €100', website: 'marathonbet.it', isPopular: true, country: 'Malta' },
-  { id: '15', name: 'Betano', logo: '/logos/betano.png', rating: 4.2, bonus: 'Fino a €100', website: 'betano.it', isPopular: true, country: 'Malta' },
-  
-  // Bookmaker italiani affidabili aggiuntivi
-  { id: '16', name: 'Better', logo: '/logos/better.png', rating: 3.7, bonus: 'Fino a €100', website: 'better.it', isPopular: true, country: 'Italia' },
-  { id: '17', name: 'Goldbet', logo: '/logos/goldbet.png', rating: 3.6, bonus: 'Fino a €500', website: 'goldbet.it', isPopular: true, country: 'Italia' },
-  { id: '18', name: 'Planetwin365', logo: '/logos/planetwin365.png', rating: 3.5, bonus: 'Fino a €200', website: 'planetwin365.it', isPopular: true, country: 'Italia' },
-  { id: '19', name: 'Admiral', logo: '/logos/admiral.png', rating: 3.4, bonus: 'Fino a €100', website: 'admiralbet.it', isPopular: true, country: 'Italia' },
-  { id: '20', name: 'Stanleybet', logo: '/logos/stanleybet.png', rating: 3.3, bonus: 'Fino a €250', website: 'stanleybet.it', isPopular: true, country: 'Italia' },
-  
-  // Bookmaker UK premium
-  { id: '21', name: 'Ladbrokes', logo: '/logos/ladbrokes.png', rating: 4.3, bonus: 'Fino a €100', website: 'ladbrokes.it', country: 'UK' },
-  { id: '22', name: 'Paddy Power', logo: '/logos/paddypower.png', rating: 4.1, bonus: 'Fino a €100', website: 'paddypower.it', country: 'Irlanda' },
-  { id: '23', name: 'Coral', logo: '/logos/coral.png', rating: 3.9, bonus: 'Fino a €100', website: 'coral.it', country: 'UK' },
-  { id: '24', name: '888sport', logo: '/logos/888sport.png', rating: 3.8, bonus: 'Fino a €100', website: '888sport.it', country: 'Malta' },
-  { id: '25', name: 'LeoVegas', logo: '/logos/leovegas.png', rating: 3.7, bonus: 'Fino a €1000', website: 'leovegas.it', country: 'Malta' }
+  { id: '7', name: 'Betclic', logo: '/logos/betclic.png', rating: 4.3, bonus: 'Fino a €100', website: 'betclic.it', isPopular: true, country: 'Francia' },
+  { id: '8', name: 'Betway', logo: '/logos/betway.png', rating: 4.2, bonus: 'Fino a €30', website: 'betway.it', isPopular: true, country: 'Malta' },
+  { id: '9', name: 'NetBet', logo: '/logos/netbet.png', rating: 4.1, bonus: 'Fino a €50', website: 'netbet.it', isPopular: true, country: 'Malta' },
+  { id: '10', name: 'Marathonbet', logo: '/logos/marathonbet.png', rating: 4.0, bonus: 'Fino a €100', website: 'marathonbet.it', isPopular: true, country: 'Malta' },
+  { id: '11', name: '888sport', logo: '/logos/888sport.png', rating: 3.9, bonus: 'Fino a €100', website: '888sport.it', isPopular: true, country: 'Malta' },
+  { id: '12', name: 'Betsson', logo: '/logos/betsson.png', rating: 3.8, bonus: 'Fino a €100', website: 'betsson.it', isPopular: true, country: 'Malta' },
+  { id: '13', name: 'Betfred', logo: '/logos/betfred.png', rating: 3.7, bonus: 'Fino a €50', website: 'betfred.it', isPopular: true, country: 'UK' }
 ];
 
 export const sports: Sport[] = [

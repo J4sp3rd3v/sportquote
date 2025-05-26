@@ -16,6 +16,7 @@ export class AutoUpdateService {
   private static instance: AutoUpdateService;
   private updateInterval: number = 60; // 1 ora
   private intervalId: NodeJS.Timeout | null = null;
+  private timeoutId: NodeJS.Timeout | null = null; // Per il timeout fino alla prossima ora
   private lastUpdate: Date | null = null;
   private totalUpdates: number = 0;
   private isRunning: boolean = false;
@@ -37,16 +38,37 @@ export class AutoUpdateService {
       return;
     }
 
-    console.log(`🚀 Avvio aggiornamento automatico ogni ${this.updateInterval} minuti`);
+    console.log(`🚀 Avvio aggiornamento automatico ogni ora a orari fissi`);
     this.isRunning = true;
 
     // Prima esecuzione immediata
     this.performUpdate();
 
-    // Programma aggiornamenti successivi
-    this.intervalId = setInterval(() => {
-      this.performUpdate();
-    }, this.updateInterval * 60 * 1000); // Converti minuti in millisecondi
+    // Calcola il tempo fino alla prossima ora intera
+    this.scheduleNextHourlyUpdate();
+  }
+
+  // Programma l'aggiornamento alla prossima ora intera
+  private scheduleNextHourlyUpdate(): void {
+    const now = new Date();
+    const nextHour = new Date(now);
+    nextHour.setHours(now.getHours() + 1, 0, 0, 0); // Prossima ora alle :00
+
+    const timeUntilNextHour = nextHour.getTime() - now.getTime();
+
+    console.log(`⏰ Prossimo aggiornamento programmato alle ${nextHour.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`);
+
+    // Programma il primo aggiornamento alla prossima ora
+    this.timeoutId = setTimeout(() => {
+      if (this.isRunning) {
+        this.performUpdate();
+        
+        // Dopo il primo aggiornamento, programma aggiornamenti ogni ora esatta
+        this.intervalId = setInterval(() => {
+          this.performUpdate();
+        }, 60 * 60 * 1000); // Ogni ora esatta
+      }
+    }, timeUntilNextHour);
   }
 
   // Ferma l'aggiornamento automatico
@@ -62,6 +84,11 @@ export class AutoUpdateService {
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null;
+    }
+
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
     }
   }
 
@@ -131,9 +158,13 @@ export class AutoUpdateService {
 
   // Ottieni le statistiche dell'aggiornamento automatico
   public getStats(): AutoUpdateStats {
-    const nextUpdate = this.isRunning && this.lastUpdate 
-      ? new Date(this.lastUpdate.getTime() + (this.updateInterval * 60 * 1000))
-      : null;
+    let nextUpdate: Date | null = null;
+    
+    if (this.isRunning) {
+      const now = new Date();
+      nextUpdate = new Date(now);
+      nextUpdate.setHours(now.getHours() + 1, 0, 0, 0); // Prossima ora alle :00
+    }
 
     return {
       lastUpdate: this.lastUpdate,
@@ -158,14 +189,15 @@ export class AutoUpdateService {
 
   // Ottieni il tempo rimanente al prossimo aggiornamento
   public getTimeToNextUpdate(): number | null {
-    if (!this.isRunning || !this.lastUpdate) {
+    if (!this.isRunning) {
       return null;
     }
 
-    const nextUpdate = new Date(this.lastUpdate.getTime() + (this.updateInterval * 60 * 1000));
     const now = new Date();
-    const timeRemaining = nextUpdate.getTime() - now.getTime();
+    const nextHour = new Date(now);
+    nextHour.setHours(now.getHours() + 1, 0, 0, 0); // Prossima ora alle :00
 
+    const timeRemaining = nextHour.getTime() - now.getTime();
     return Math.max(0, timeRemaining);
   }
 

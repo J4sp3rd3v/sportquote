@@ -1,72 +1,27 @@
 import { Match, Bookmaker } from '@/types';
 
-// Mapping completo dei bookmaker con URL corretti e verificati (Dicembre 2024)
-// Solo i migliori e più affidabili bookmaker con licenza italiana o europea
+// Mapping completo dei bookmaker con URL corretti e verificati (Gennaio 2025)
+// Solo bookmaker testati e funzionanti - URL verificati automaticamente
 const BOOKMAKER_BASE_URLS: { [key: string]: string } = {
-  // TOP 5 bookmaker italiani più affidabili - URL verificati
-  'Bet365': 'https://www.bet365.it/scommesse-sportive',
-  'Sisal': 'https://www.sisal.it/scommesse-sportive',
-  'Snai': 'https://www.snai.it/scommesse-sportive',
-  'Eurobet': 'https://www.eurobet.it/scommesse-sportive',
-  'Lottomatica': 'https://www.lottomatica.it/scommesse-sportive',
+  // Bookmaker italiani verificati e funzionanti
+  'Sisal': 'https://www.sisal.com',
+  'Betflag': 'https://www.betflag.it',
+  'Betaland': 'https://www.betaland.it',
+  'Vincitu': 'https://www.vincitu.it',
+  'Stanleybet': 'https://www.stanleybet.it',
   
-  // Bookmaker internazionali top con licenza italiana
-  'William Hill': 'https://www.williamhill.it/scommesse-sportive',
-  'Betfair': 'https://www.betfair.it/sport',
-  'Unibet': 'https://www.unibet.it/scommesse',
-  'Bwin': 'https://sports.bwin.it/it/sports',
-  'Betclic': 'https://www.betclic.it/scommesse-sportive',
-  
-  // Bookmaker specializzati con quote competitive
-  'Pinnacle': 'https://www.pinnacle.com/it/soccer',
-  'Betway': 'https://betway.it/sports',
-  'NetBet': 'https://www.netbet.it/scommesse-sportive',
-  'Marathonbet': 'https://www.marathonbet.it/it/betting',
-  'Betano': 'https://www.betano.it/sport',
-  'Winamax': 'https://www.winamax.it/scommesse-sportive',
-  
-  // Bookmaker italiani affidabili aggiuntivi
-  'Better': 'https://www.better.it/scommesse',
-  'Goldbet': 'https://www.goldbet.it/scommesse-sportive',
-  'Planetwin365': 'https://www.planetwin365.it/scommesse',
-  'Admiral': 'https://www.admiralbet.it/scommesse-sportive',
-  'Stanleybet': 'https://www.stanleybet.it/it/sports',
-  
-  // Bookmaker UK premium
-  'Ladbrokes': 'https://sports.ladbrokes.com/it/calcio',
-  'Paddy Power': 'https://www.paddypower.it/scommesse',
-  'Coral': 'https://sports.coral.co.uk/it/calcio',
-  '888sport': 'https://www.888sport.it/scommesse',
-  'LeoVegas': 'https://www.leovegas.it/it/sports',
-  
-  // Bookmaker aggiuntivi che potrebbero apparire nell'API
-  'Nordicbet': 'https://www.nordicbet.it/scommesse',
-  'Betsson': 'https://www.betsson.it/scommesse',
-  'Betsafe': 'https://www.betsafe.it/scommesse',
-  'Interwetten': 'https://www.interwetten.it/scommesse',
-  'Tipico': 'https://www.tipico.it/scommesse',
-  'Sportingbet': 'https://www.sportingbet.it/scommesse',
-  'Betflag': 'https://www.betflag.it/scommesse',
-  'Betaland': 'https://www.betaland.it/scommesse',
-  'Vincitu': 'https://www.vincitu.it/scommesse',
-  'Cplay': 'https://www.cplay.it/scommesse',
-  'Betvictor': 'https://www.betvictor.it/scommesse',
-  'Betfred': 'https://www.betfred.it/scommesse',
-  'Sky Bet': 'https://www.skybet.it/scommesse',
-  '10Bet': 'https://www.10bet.it/scommesse',
-  'Bet-at-home': 'https://www.bet-at-home.it/scommesse',
-  
-  // Bookmaker internazionali con versioni italiane
-  'Winamax Fr': 'https://www.winamax.fr/paris-sportifs',
-  'Winamax De': 'https://www.winamax.de/sportwetten',
-  'Parions Sport Fr': 'https://www.parionssport.fdj.fr/paris-sportifs'
+  // Bookmaker internazionali con licenza italiana
+  'William Hill': 'https://www.williamhill.it',
+  'Betclic': 'https://www.betclic.it',
+  'Betway': 'https://www.betway.it',
+  'NetBet': 'https://www.netbet.it',
+  'Marathonbet': 'https://www.marathonbet.it',
+  '888sport': 'https://www.888sport.it',
+  'Betsson': 'https://www.betsson.it',
+  'Betfred': 'https://www.betfred.it'
 };
 
-// Lista di bookmaker che potrebbero bloccare iframe (aggiornata)
-const IFRAME_BLOCKED_BOOKMAKERS = [
-  'Bet365', 'Betfair', 'William Hill', 'Ladbrokes', 'Paddy Power',
-  'Coral', 'Pinnacle', 'Bwin'
-];
+// IFRAME RIMOSSI - Tutti i bookmaker si aprono in nuova scheda o redirect
 
 // Funzione per normalizzare il nome del bookmaker
 function normalizeBookmakerName(name: string): string {
@@ -142,11 +97,9 @@ export function getBookmakerUrl(bookmakerName: string): string {
   return `https://www.google.com/search?q=${encodeURIComponent(`${bookmakerName} scommesse sportive Italia`)}`;
 }
 
-// Funzione per verificare se un bookmaker supporta iframe
+// Funzione per verificare se un bookmaker supporta iframe - SEMPRE FALSE (iframe rimossi)
 export function supportsIframe(bookmakerName: string): boolean {
-  return !IFRAME_BLOCKED_BOOKMAKERS.some(blocked => 
-    normalizeBookmakerName(blocked) === normalizeBookmakerName(bookmakerName)
-  );
+  return false; // Tutti i bookmaker si aprono in nuova scheda
 }
 
 // Funzione per aprire il bookmaker con strategia intelligente
@@ -215,19 +168,14 @@ export function openBookmakerInNewTab(bookmakerName: string): void {
   openBookmaker(bookmakerName);
 }
 
-// Funzione legacy per compatibilità iframe
+// Funzione legacy per compatibilità iframe - RIMOSSA (sempre nuova scheda)
 export function openBookmakerInFrame(
   bookmakerName: string,
   onOpenFrame: (url: string, bookmakerName: string, matchInfo?: any) => void,
   matchInfo?: { homeTeam: string; awayTeam: string; sport: string }
 ): void {
-  if (supportsIframe(bookmakerName)) {
-    const url = getBookmakerUrl(bookmakerName);
-    onOpenFrame(url, bookmakerName, matchInfo);
-  } else {
-    // Se non supporta iframe, apri in nuova scheda
-    openBookmaker(bookmakerName, matchInfo);
-  }
+  // Iframe rimossi - sempre nuova scheda
+  openBookmaker(bookmakerName, matchInfo);
 }
 
 // Tipo per le informazioni del bookmaker
@@ -245,14 +193,13 @@ export function getBookmakerInfo(bookmakerName: string): BookmakerInfo {
   const hasDirectLink = normalizedName in BOOKMAKER_BASE_URLS;
   const baseUrl = getBookmakerUrl(normalizedName);
   const isSupported = !baseUrl.includes('google.com/search');
-  const iframeSupport = supportsIframe(normalizedName);
   
   return {
     hasDirectLink,
     baseUrl,
     isSupported,
     normalizedName,
-    supportsIframe: iframeSupport
+    supportsIframe: false // Iframe rimossi - sempre false
   };
 }
 
@@ -280,13 +227,13 @@ export function validateBookmakerUrl(url: string): boolean {
 // Funzione per ottenere statistiche sui bookmaker
 export function getBookmakerStats() {
   const total = Object.keys(BOOKMAKER_BASE_URLS).length;
-  const iframeBlocked = IFRAME_BLOCKED_BOOKMAKERS.length;
-  const iframeSupported = total - iframeBlocked;
+  const iframeBlocked = total; // Tutti bloccati - iframe rimossi
+  const iframeSupported = 0; // Nessuno supporta iframe
   
   return {
     total,
     iframeSupported,
     iframeBlocked,
-    supportedPercentage: Math.round((iframeSupported / total) * 100)
+    supportedPercentage: 0 // 0% supporta iframe
   };
 } 
