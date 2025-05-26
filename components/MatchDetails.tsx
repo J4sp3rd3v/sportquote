@@ -5,7 +5,7 @@ import { X, Star, ExternalLink, Clock, TrendingUp } from 'lucide-react';
 import { Match, Bookmaker } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { getBookmakerInfo as getBookmakerLinkInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
+import { getBookmakerInfo as getBookmakerLinkInfo, BookmakerInfo, getBookmakerUrl } from '@/lib/bookmakerLinks';
 import { getSupportedBookmakers } from '@/lib/oddsApiService';
 import SmartBookmakerHandler from './SmartBookmakerHandler';
 import { useState, useEffect } from 'react';
@@ -41,24 +41,72 @@ export default function MatchDetails({ match, isOpen, onClose, onOpenBookmaker }
     return format(date, 'EEEE dd MMMM yyyy - HH:mm', { locale: it });
   };
 
+  // Funzione per normalizzare e pulire i nomi dei bookmaker
+  const normalizeBookmakerName = (bookmakerName: string): string => {
+    // Rimuovi prefissi comuni
+    let cleanName = bookmakerName
+      .replace(/^Bookmaker\s+/i, '') // Rimuove "Bookmaker " all'inizio
+      .replace(/^The\s+/i, '') // Rimuove "The " all'inizio
+      .trim();
+
+    // Se il nome è ancora vuoto o troppo corto, usa l'originale senza prefisso
+    if (cleanName.length < 2) {
+      cleanName = bookmakerName.replace(/^Bookmaker\s+/i, '').trim() || bookmakerName;
+    }
+
+    return cleanName;
+  };
+
   const getBookmakerInfo = (bookmakerName: string) => {
-    // Cerca prima per nome esatto
-    let found = bookmakers.find(b => b.name === bookmakerName);
+    // Normalizza il nome prima di cercare
+    const cleanName = normalizeBookmakerName(bookmakerName);
+    
+    // Verifica se il bookmaker è supportato nel sistema di link
+    const linkInfo = getBookmakerLinkInfo(cleanName);
+    
+    // Cerca nei bookmaker dell'API
+    let found = bookmakers.find(b => b.name === cleanName);
+    
+    // Se non trovato, cerca per nome originale
+    if (!found) {
+      found = bookmakers.find(b => b.name === bookmakerName);
+    }
     
     // Se non trovato, cerca per nome case-insensitive
     if (!found) {
-      found = bookmakers.find(b => b.name.toLowerCase() === bookmakerName.toLowerCase());
+      found = bookmakers.find(b => b.name.toLowerCase() === cleanName.toLowerCase());
     }
     
     // Se ancora non trovato, cerca per nome parziale
     if (!found) {
       found = bookmakers.find(b => 
-        b.name.toLowerCase().includes(bookmakerName.toLowerCase()) ||
-        bookmakerName.toLowerCase().includes(b.name.toLowerCase())
+        b.name.toLowerCase().includes(cleanName.toLowerCase()) ||
+        cleanName.toLowerCase().includes(b.name.toLowerCase())
       );
     }
     
-    return found;
+    // Se trovato, restituisci con il nome pulito e info aggiuntive
+    if (found) {
+      return {
+        ...found,
+        name: cleanName, // Usa sempre il nome pulito per la visualizzazione
+        isSupported: linkInfo?.isSupported || false,
+        baseUrl: linkInfo?.baseUrl || ''
+      };
+    }
+    
+    // Se non trovato nei bookmaker API, crea un oggetto con le info di base
+    if (linkInfo?.isSupported) {
+      return {
+        name: cleanName,
+        rating: 'N/A',
+        bonus: 'N/A',
+        isSupported: true,
+        baseUrl: linkInfo.baseUrl
+      };
+    }
+    
+    return null;
   };
 
   const handleBookmakerClickWithFallback = (bookmaker: Bookmaker | undefined, oddsBookmakerName: string, betType: 'home' | 'away' | 'draw' = 'home') => {
@@ -113,7 +161,8 @@ export default function MatchDetails({ match, isOpen, onClose, onOpenBookmaker }
     
     // Bonus per rating del bookmaker (secondario)
     const bookmaker = getBookmakerInfo(odds.bookmaker);
-    score += (bookmaker?.rating || 0) * 0.1;
+    const rating = typeof bookmaker?.rating === 'number' ? bookmaker.rating : parseFloat(bookmaker?.rating || '0') || 0;
+    score += rating * 0.1;
     
     return score;
   };
@@ -213,7 +262,7 @@ export default function MatchDetails({ match, isOpen, onClose, onOpenBookmaker }
                               <div className="min-w-0">
                                 <div className="flex items-center space-x-2">
                                   <div className="font-medium text-gray-900 text-xs sm:text-sm truncate">
-                                    {bookmaker?.name || `Bookmaker ${odds.bookmaker}`}
+                                    {bookmaker?.name || normalizeBookmakerName(odds.bookmaker)}
                                   </div>
                                   {hasBestOdd && (
                                     <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
@@ -287,7 +336,7 @@ export default function MatchDetails({ match, isOpen, onClose, onOpenBookmaker }
                               className="inline-flex items-center px-3 py-2 text-xs font-medium text-white bg-primary-600 rounded hover:bg-primary-700 transition-colors duration-200 w-full justify-center"
                             >
                               <ExternalLink className="h-3 w-3 mr-1" />
-                              <span className="truncate">{bookmaker?.name || odds.bookmaker}</span>
+                              <span className="truncate">{bookmaker?.name || normalizeBookmakerName(odds.bookmaker)}</span>
                             </SmartBookmakerHandler>
                           </td>
                         </tr>

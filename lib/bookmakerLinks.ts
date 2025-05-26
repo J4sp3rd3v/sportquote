@@ -71,7 +71,11 @@ export const BOOKMAKER_BASE_URLS: { [key: string]: string } = {
   '22Bet': 'https://22bet.com',
   'Parimatch': 'https://www.parimatch.com',
   'Melbet': 'https://melbet.com',
-  'Betwinner': 'https://betwinner.com'
+  'Betwinner': 'https://betwinner.com',
+  
+  // Bookmaker aggiuntivi dall'API
+  'Matchbook': 'https://www.matchbook.com',
+  'Coolbet': 'https://www.coolbet.com'
 };
 
 // IFRAME RIMOSSI - Tutti i bookmaker si aprono in nuova scheda o redirect
