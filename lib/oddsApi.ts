@@ -225,11 +225,41 @@ const TEAM_NAME_MAPPING: { [key: string]: string } = {
 
 export class OddsApiService {
   private apiKey: string;
-  private baseUrl: string;
+  private baseUrl: string = 'https://api.the-odds-api.com/v4';
+  private requestCount: number = 0;
+  private maxRequests: number = 500;
 
   constructor() {
-    this.apiKey = ODDS_API_KEY;
-    this.baseUrl = BASE_URL;
+    this.apiKey = process.env.NEXT_PUBLIC_ODDS_API_KEY || '';
+    if (!this.apiKey) {
+      console.warn('ODDS_API_KEY non configurata');
+    }
+  }
+
+  // Getter per il contatore delle richieste
+  getRequestCount(): number {
+    return this.requestCount;
+  }
+
+  // Getter per il limite massimo
+  getMaxRequests(): number {
+    return this.maxRequests;
+  }
+
+  // Getter per le richieste rimanenti
+  getRemainingRequests(): number {
+    return this.maxRequests - this.requestCount;
+  }
+
+  // Getter per la percentuale di utilizzo
+  getUsagePercentage(): number {
+    return Math.round((this.requestCount / this.maxRequests) * 100);
+  }
+
+  // Incrementa il contatore delle richieste
+  private incrementRequestCount(): void {
+    this.requestCount++;
+    console.log(`API Requests: ${this.requestCount}/${this.maxRequests} (${this.getUsagePercentage()}%)`);
   }
 
   // Normalizza il nome della squadra
@@ -251,13 +281,27 @@ export class OddsApiService {
       return normalizedFromTitle;
     }
 
-    // Se non trovato, usa il title pulito
-    return bookmakerTitle.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+    // Rimuovi prefissi comuni e pulisci il nome
+    let cleanName = bookmakerTitle
+      .replace(/^Bookmaker\s+/i, '') // Rimuove "Bookmaker " all'inizio
+      .replace(/\s+(IT|FR|UK|DE|ES|NL|PT|US|CA|AU)$/i, '') // Rimuove codici paese alla fine
+      .replace(/[^a-zA-Z0-9\s]/g, '') // Rimuove caratteri speciali
+      .trim();
+
+    // Se il nome pulito è nella mappatura, usalo
+    const cleanMapped = BOOKMAKER_NAME_MAPPING[cleanName.toLowerCase()];
+    if (cleanMapped) {
+      return cleanMapped;
+    }
+
+    // Altrimenti usa il nome pulito
+    return cleanName || bookmakerTitle;
   }
 
   // Ottieni tutti gli sport disponibili
   async getSports(): Promise<OddsApiSport[]> {
     try {
+      this.incrementRequestCount();
       const response = await fetch(`${this.baseUrl}/sports/?apiKey=${this.apiKey}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -277,6 +321,7 @@ export class OddsApiService {
     oddsFormat: string = 'decimal'
   ): Promise<OddsApiEvent[]> {
     try {
+      this.incrementRequestCount();
       const url = `${this.baseUrl}/sports/${sport}/odds/?apiKey=${this.apiKey}&regions=${regions}&markets=${markets}&oddsFormat=${oddsFormat}`;
       
       const response = await fetch(url);
@@ -426,6 +471,7 @@ export class OddsApiService {
   // Verifica lo stato dell'API e i crediti rimanenti
   async checkApiStatus() {
     try {
+      this.incrementRequestCount();
       const response = await fetch(`${this.baseUrl}/sports/?apiKey=${this.apiKey}`);
       
       return {

@@ -23,6 +23,7 @@ const BOOKMAKER_BASE_URLS: { [key: string]: string } = {
   'NetBet': 'https://www.netbet.it/scommesse-sportive',
   'Marathonbet': 'https://www.marathonbet.it/it/betting',
   'Betano': 'https://www.betano.it/sport',
+  'Winamax': 'https://www.winamax.it/scommesse-sportive',
   
   // Bookmaker italiani affidabili aggiuntivi
   'Better': 'https://www.better.it/scommesse',
