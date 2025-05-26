@@ -1,233 +1,188 @@
-# 🏆 MonitorQuote - Comparatore Quote Sportive Moderno
+# 🎯 MonitorQuote - Comparatore Quote Sportive Avanzato
 
-Un'applicazione web moderna e responsive per il confronto delle quote sportive in tempo reale, con sistema di abbonamenti e interfaccia ottimizzata per tema scuro.
+**MonitorQuote** è una piattaforma moderna e completa per il confronto delle quote sportive in tempo reale, con sistema di abbonamenti intelligente e aggiornamenti automatici.
 
-## ✨ Caratteristiche Principali
+## 🚀 Funzionalità Principali
 
-### 🎯 Sistema di Abbonamenti Intelligente
-- **Piano Gratuito**: 500 richieste/mese, aggiornamenti ogni ora
-- **Piano Pro**: 10.000 richieste/mese, aggiornamenti ogni 5 minuti  
-- **Piano Premium**: Richieste illimitate, aggiornamenti ogni 30 secondi
+### 📊 Sistema di Abbonamenti a 3 Livelli
+- **🆓 Gratuito**: Aggiornamenti ogni ora, 100 richieste/mese
+- **👑 Pro**: Aggiornamenti ogni minuto, 1.000 richieste/mese (PIÙ POPOLARE)
+- **⭐ Premium**: Aggiornamenti ogni 30 secondi, 5.000 richieste/mese
 
-### ⏱️ Timer Countdown Live
-- Countdown in tempo reale per prossimi aggiornamenti quote
-- Progress bar animata con indicatori di stato
-- Gestione automatica dei diversi piani abbonamento
-- Visualizzazione tempo rimanente in formato MM:SS
+### 🔄 Aggiornamenti Automatici Intelligenti
+- Frequenza basata sul piano di abbonamento
+- Gestione automatica dei limiti e scadenze
+- Persistenza dati con localStorage
+- Pattern singleton per gestione globale
 
-### 🏪 Database Bookmaker Completo
-- **54+ bookmaker supportati** con informazioni dettagliate
-- Categorizzazione: Italiani, Internazionali, Specializzati
-- Sistema di ricerca e filtri avanzati
-- Rating, bonus benvenuto, caratteristiche uniche
-- Link intelligenti con apertura sicura
+### 🏆 Copertura Sportiva Completa
+- **⚽ Calcio**: Serie A, Premier League, La Liga, Bundesliga, Ligue 1, Champions League
+- **🎾 Tennis**: ATP/WTA Grand Slam e tornei principali
+- **🏀 Basket**: NBA, EuroLeague, Serie A Basket
+- **🏈 Altri Sport**: NFL, NHL, MLB e molto altro
 
-### 🏈 Sport e Campionati
-- **6 sport principali**: Calcio, Basket, Tennis, Football Americano, Hockey, Baseball
-- **30+ campionati** con classificazione tier (Premium, Standard, Basic)
-- Statistiche dettagliate: numero squadre, popolarità, stagione
-- Filtri per sport, livello e ricerca testuale
+### 📱 Interfaccia Utente Moderna
+- Design responsive e mobile-first
+- Dark theme ottimizzato
+- Componenti UI interattivi
+- Statistiche utilizzo in tempo reale
+- Dashboard intelligente con guide
 
-### 🎨 Design Moderno
-- **Tema scuro completo** con palette colori moderna
-- **Responsive design** ottimizzato per desktop e mobile
-- **Animazioni fluide** e transizioni eleganti
-- **Componenti interattivi** con feedback visivo
+## 🛠️ Tecnologie Utilizzate
 
-## 🚀 Tecnologie Utilizzate
+- **Framework**: Next.js 14 con App Router
+- **Linguaggio**: TypeScript
+- **Styling**: Tailwind CSS
+- **API**: The Odds API per dati reali
+- **Deployment**: Vercel
+- **Gestione Stato**: React Hooks + Context
 
-- **Next.js 14** - Framework React con App Router
-- **TypeScript** - Type safety e sviluppo robusto
-- **Tailwind CSS** - Styling moderno e responsive
-- **Zustand** - State management leggero e performante
-- **Lucide React** - Icone moderne e scalabili
-- **Framer Motion** - Animazioni fluide
+## 🔧 Architettura del Sistema
 
-## 📦 Installazione
-
-1. **Clona il repository**
-```bash
-git clone https://github.com/tuousername/monitorquote.git
-cd monitorquote
+### 📁 Struttura Progetto
+```
+SITOSPORT/
+├── app/                    # App Router Next.js
+│   ├── categoria/[sport]/  # Pagine dinamiche sport
+│   ├── bookmakers/         # Lista bookmaker
+│   ├── premium/            # Gestione abbonamenti
+│   └── sports/             # Categorie sportive
+├── components/             # Componenti React
+│   ├── SubscriptionManager.tsx
+│   ├── BettingStrategies.tsx
+│   └── BettingGuide.tsx
+├── lib/                    # Logica business
+│   ├── subscriptionManager.ts
+│   ├── oddsApi.ts
+│   └── oddsApiService.ts
+├── hooks/                  # Custom hooks
+├── types/                  # Definizioni TypeScript
+└── public/                 # Asset statici
 ```
 
-2. **Installa le dipendenze**
+### 🎯 Componenti Chiave
+
+#### `lib/subscriptionManager.ts`
+- **Classe SubscriptionManager**: Gestione completa abbonamenti
+- **Interfacce TypeScript**: `SubscriptionPlan`, `UserSubscription`
+- **Funzionalità**:
+  - Cicli di aggiornamento automatici
+  - Controllo limiti e scadenze
+  - Reset mensile contatori
+  - Cambio piano dinamico
+  - Statistiche utilizzo
+
+#### `lib/oddsApi.ts`
+- **Mappatura Bookmaker**: 150+ variazioni nomi gestite
+- **Normalizzazione Robusta**: Algoritmo a 7 step
+- **Gestione API**: The Odds API integration
+- **Sport Mapping**: Conversione dati API → formato app
+
+#### `components/SubscriptionManager.tsx`
+- **UI Moderna**: Cards piani con animazioni
+- **Statistiche Live**: Barra progresso utilizzo
+- **Gestione Upgrade**: Cambio piano istantaneo
+- **Modal Conferma**: UX ottimizzata
+
+## 🚀 Installazione e Setup
+
+### Prerequisiti
+- Node.js 18+ 
+- npm o yarn
+- Account The Odds API
+
+### 1. Clone del Repository
+```bash
+git clone https://github.com/J4sp3rd3v/sportquote.git
+cd sportquote
+```
+
+### 2. Installazione Dipendenze
 ```bash
 npm install
 ```
 
-3. **Configura le variabili d'ambiente**
-```bash
-cp .env.example .env.local
+### 3. Configurazione Environment
+Crea file `.env.local`:
+```env
+NEXT_PUBLIC_ODDS_API_KEY=your_odds_api_key_here
 ```
 
-4. **Avvia il server di sviluppo**
+### 4. Avvio Sviluppo
 ```bash
 npm run dev
 ```
 
-5. **Apri il browser**
-```
-http://localhost:3000
-```
-
-## 🔧 Configurazione
-
-### Variabili d'Ambiente
-```env
-# API Configuration
-NEXT_PUBLIC_ODDS_API_KEY=your_odds_api_key
-NEXT_PUBLIC_RAPID_API_KEY=your_rapid_api_key
-
-# App Configuration
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_ENVIRONMENT=development
-```
-
-### Configurazione API
-Il sistema gestisce automaticamente i limiti delle API:
-- **Odds API**: Gestione intelligente delle 500 richieste mensili gratuite
-- **RapidAPI**: Backup per dati aggiuntivi
-- **Rate limiting**: Prevenzione automatica del superamento limiti
-
-## 📁 Struttura del Progetto
-
-```
-monitorquote/
-├── app/                    # App Router (Next.js 14)
-│   ├── bookmakers/        # Pagina bookmaker
-│   ├── sports/            # Pagina sport e campionati
-│   ├── premium/           # Pagina piani abbonamento
-│   ├── layout.tsx         # Layout principale
-│   └── page.tsx           # Homepage
-├── components/            # Componenti React
-│   ├── Navigation.tsx     # Navbar moderna
-│   ├── CountdownTimer.tsx # Timer countdown live
-│   ├── SubscriptionManager.tsx # Gestione abbonamenti
-│   └── ...
-├── lib/                   # Utilities e servizi
-│   ├── apiManager.ts      # Gestione API e abbonamenti
-│   ├── oddsApi.ts         # Integrazione Odds API
-│   └── ...
-├── hooks/                 # Custom React hooks
-├── types/                 # Definizioni TypeScript
-└── public/               # Asset statici
-```
-
-## 🎮 Funzionalità Dettagliate
-
-### Sistema di Gestione API
-- **Store Zustand** con persistenza locale
-- **Calcolo automatico** usage e richieste rimanenti
-- **Reset mensile** automatico dei contatori
-- **Gestione errori** e fallback intelligenti
-
-### Componenti Principali
-
-#### CountdownTimer
-- Timer live con aggiornamento ogni secondo
-- Stati visivi: normale, prossimo aggiornamento, in corso
-- Supporto per tutti i piani abbonamento
-- Progress bar animata
-
-#### SubscriptionManager
-- Visualizzazione piano corrente e statistiche
-- Grid piani con badge "PIÙ POPOLARE"
-- Modal di conferma per upgrade/downgrade
-- Gestione cancellazione abbonamento
-
-#### Navigation
-- Navbar sticky con backdrop blur
-- Logo animato con gradiente
-- Menu responsive desktop/mobile
-- Indicatori di stato live
-
-### Database Bookmaker
-```typescript
-interface Bookmaker {
-  id: string;
-  name: string;
-  category: 'italian' | 'international' | 'specialized';
-  rating: number;
-  bonus: string;
-  features: string[];
-  description: string;
-  website: string;
-  logo: string;
-}
-```
-
-### Database Sport
-```typescript
-interface Sport {
-  id: string;
-  name: string;
-  icon: string;
-  leagues: League[];
-}
-
-interface League {
-  id: string;
-  name: string;
-  tier: 'premium' | 'standard' | 'basic';
-  teams: number;
-  popularity: number;
-  season: string;
-}
-```
-
-## 🔒 Sicurezza
-
-- **Validazione input** su tutti i form
-- **Sanitizzazione URL** per link bookmaker
-- **Rate limiting** per prevenire abusi API
-- **Gestione errori** robusta con fallback
-- **HTTPS enforcement** in produzione
-
-## 📱 Responsive Design
-
-- **Mobile First** approach
-- **Breakpoints Tailwind**: sm, md, lg, xl, 2xl
-- **Touch-friendly** interfaccia per dispositivi mobili
-- **Performance ottimizzate** per connessioni lente
-
-## 🎨 Sistema Colori
-
-```css
-/* Colori Principali */
---primary: #3B82F6      /* Blu principale */
---accent: #F97316       /* Arancione accent */
---success: #10B981      /* Verde successo */
---warning: #F59E0B      /* Giallo warning */
---danger: #EF4444       /* Rosso errore */
-
-/* Tema Scuro */
---dark-900: #0F172A     /* Sfondo principale */
---dark-800: #1E293B     /* Sfondo componenti */
---dark-700: #334155     /* Bordi */
---dark-400: #94A3B8     /* Testo secondario */
-```
-
-## 📊 Performance
-
-- **Lazy loading** per componenti pesanti
-- **Memoization** per calcoli complessi
-- **Debouncing** per ricerche e filtri
-- **Caching intelligente** per dati API
-- **Bundle optimization** con Next.js
-
-## 🚀 Deploy
-
-### Netlify (Raccomandato)
+### 5. Build Produzione
 ```bash
 npm run build
-# Deploy automatico con git push
+npm start
 ```
 
-### Vercel
+## 📊 API Integration
+
+### The Odds API
+- **Endpoint**: `https://api.the-odds-api.com/v4`
+- **Copertura**: 54+ bookmaker verificati
+- **Mercati**: H2H, Spread, Totals
+- **Regioni**: Europa, Italia, Globale
+- **Rate Limiting**: Gestito automaticamente
+
+### Bookmaker Supportati
+- **Italia**: Bet365, Sisal, Snai, Eurobet, Lottomatica, Betflag
+- **Internazionali**: William Hill, Betfair, Unibet, Bwin, Betway
+- **Emergenti**: LeoVegas, NetBet, Betclic, Pinnacle, Marathonbet
+
+## 🎨 Design System
+
+### Colori Principali
+- **Primary**: Blu (#3B82F6)
+- **Accent**: Viola (#8B5CF6) 
+- **Success**: Verde (#10B981)
+- **Warning**: Giallo (#F59E0B)
+- **Danger**: Rosso (#EF4444)
+- **Dark**: Grigio scuro (#1F2937)
+
+### Componenti UI
+- **Cards**: Bordi arrotondati, ombre sottili
+- **Buttons**: Gradienti, hover effects
+- **Progress Bars**: Colori dinamici basati su utilizzo
+- **Modals**: Backdrop blur, animazioni smooth
+
+## 📈 Funzionalità Avanzate
+
+### 🧮 Calcolatori Betting
+- **Kelly Criterion**: Calcolo stake ottimale
+- **Value Betting**: Identificazione quote sottovalutate
+- **Arbitrage**: Rilevamento opportunità arbitraggio
+- **Bankroll Management**: Gestione capitale
+
+### 📚 Guide Complete
+- **Principianti**: Introduzione al betting
+- **Strategie Avanzate**: Tecniche professionali
+- **Gestione Rischio**: Controllo perdite
+- **Analisi Quote**: Interpretazione dati
+
+### 🔔 Sistema Notifiche
+- **Alerts Personalizzati**: Quote favorite
+- **Push Notifications**: Aggiornamenti importanti
+- **Email Reports**: Riassunti periodici
+
+## 🚀 Deployment
+
+### Vercel (Raccomandato)
 ```bash
-npm run build
+# Deploy automatico da GitHub
 vercel --prod
+```
+
+### Netlify
+```bash
+# Build command
+npm run build
+
+# Publish directory
+.next
 ```
 
 ### Docker
@@ -242,69 +197,87 @@ EXPOSE 3000
 CMD ["npm", "start"]
 ```
 
-## 🧪 Testing
+## 📊 Monitoraggio e Analytics
 
-```bash
-# Unit tests
-npm run test
+### Metriche Chiave
+- **Utilizzo API**: Richieste/mese per piano
+- **Conversioni**: Free → Pro → Premium
+- **Engagement**: Tempo sessione, pagine visitate
+- **Performance**: Velocità caricamento, errori
 
-# E2E tests
-npm run test:e2e
+### Dashboard Admin
+- **Statistiche Utenti**: Piani attivi, churn rate
+- **Performance API**: Latenza, successo rate
+- **Revenue Tracking**: MRR, LTV, CAC
 
-# Coverage
-npm run test:coverage
-```
+## 🔒 Sicurezza e Privacy
 
-## 📈 Monitoraggio
+### Protezione Dati
+- **GDPR Compliant**: Gestione consensi
+- **Data Encryption**: Dati sensibili crittografati
+- **API Security**: Rate limiting, autenticazione
+- **Privacy First**: Dati minimi necessari
 
-- **Analytics** integrato per tracking utenti
-- **Error tracking** con Sentry (opzionale)
-- **Performance monitoring** con Web Vitals
-- **API usage tracking** in tempo reale
+### Best Practices
+- **Environment Variables**: Chiavi API sicure
+- **HTTPS Only**: Comunicazioni crittografate
+- **Input Validation**: Sanitizzazione dati
+- **Error Handling**: Logging sicuro
 
 ## 🤝 Contribuire
 
-1. **Fork** il repository
-2. **Crea** un branch per la feature (`git checkout -b feature/AmazingFeature`)
-3. **Commit** le modifiche (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** al branch (`git push origin feature/AmazingFeature`)
-5. **Apri** una Pull Request
+### Processo Contribuzione
+1. **Fork** del repository
+2. **Branch** feature: `git checkout -b feature/amazing-feature`
+3. **Commit** modifiche: `git commit -m 'Add amazing feature'`
+4. **Push** branch: `git push origin feature/amazing-feature`
+5. **Pull Request** con descrizione dettagliata
 
-## 📝 Changelog
+### Coding Standards
+- **TypeScript**: Tipizzazione forte
+- **ESLint**: Linting automatico
+- **Prettier**: Formattazione codice
+- **Conventional Commits**: Messaggi standardizzati
 
-### v1.0.0 (2024-01-15)
-- ✨ Implementazione completa interfaccia tema scuro
-- 🎯 Sistema abbonamenti con 3 piani
-- ⏱️ Timer countdown live funzionante
-- 🏪 Database 54+ bookmaker
-- 🏈 6 sport e 30+ campionati
-- 📱 Design responsive ottimizzato
-- 🔧 Sistema API manager intelligente
+## 📞 Supporto
+
+### Contatti
+- **Email**: support@monitorquote.com
+- **GitHub Issues**: [Segnala Bug](https://github.com/J4sp3rd3v/sportquote/issues)
+- **Discord**: [Community](https://discord.gg/monitorquote)
+
+### FAQ
+**Q: Come ottengo una API key per The Odds API?**
+A: Registrati su [the-odds-api.com](https://the-odds-api.com) e ottieni la tua chiave gratuita.
+
+**Q: Posso usare MonitorQuote commercialmente?**
+A: Sì, con licenza MIT puoi usarlo per progetti commerciali.
+
+**Q: Quanto costa mantenere il servizio?**
+A: Dipende dall'utilizzo API. Piano gratuito The Odds API include 500 richieste/mese.
 
 ## 📄 Licenza
 
-Questo progetto è sotto licenza MIT. Vedi il file `LICENSE` per dettagli.
-
-## 👥 Team
-
-- **Sviluppatore Principal**: [Il tuo nome]
-- **UI/UX Design**: [Designer nome]
-- **API Integration**: [Developer nome]
-
-## 🆘 Supporto
-
-Per supporto e domande:
-- 📧 Email: support@monitorquote.com
-- 💬 Discord: [Link server Discord]
-- 📱 Telegram: [Link canale Telegram]
-
-## 🔗 Link Utili
-
-- [Documentazione API](https://docs.monitorquote.com)
-- [Guida Utente](https://guide.monitorquote.com)
-- [Status Page](https://status.monitorquote.com)
-- [Roadmap](https://roadmap.monitorquote.com)
+Questo progetto è rilasciato sotto licenza **MIT**. Vedi il file [LICENSE](LICENSE) per dettagli.
 
 ---
 
-**Fatto con ❤️ per gli appassionati di sport e scommesse** 
+## 🎯 Roadmap Futura
+
+### Q1 2025
+- [ ] **Mobile App**: React Native
+- [ ] **API Propria**: Backend personalizzato
+- [ ] **Machine Learning**: Predizioni AI
+- [ ] **Social Features**: Community betting
+
+### Q2 2025
+- [ ] **Live Betting**: Quote in tempo reale
+- [ ] **Streaming**: Video partite integrate
+- [ ] **Crypto Payments**: Bitcoin, Ethereum
+- [ ] **Multi-language**: Supporto internazionale
+
+---
+
+**Sviluppato con ❤️ da [J4sp3rd3v](https://github.com/J4sp3rd3v)**
+
+*MonitorQuote - La tua fonte definitiva per le migliori quote sportive* 🏆 
