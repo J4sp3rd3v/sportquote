@@ -1,266 +1,310 @@
-# 🏆 SitoSport - Confronta Quote Scommesse
+# 🏆 SitoSport - Comparatore Quote Sportive Moderno
 
-Una piattaforma moderna e reattiva per confrontare le quote dei migliori siti di scommesse sportive. Monitora oltre 100 bookmakers e trova sempre le migliori opportunità.
-
-![SitoSport Preview](https://via.placeholder.com/800x400/667eea/ffffff?text=SitoSport+Preview)
+Un'applicazione web moderna e responsive per il confronto delle quote sportive in tempo reale, con sistema di abbonamenti e interfaccia ottimizzata per tema scuro.
 
 ## ✨ Caratteristiche Principali
 
-- 🔄 **Quote in Tempo Reale**: Integrazione con The Odds API per quote reali aggiornate ogni 5 minuti
-- 🏢 **100+ Bookmakers**: Confronta quote da tutti i principali operatori (reali + simulati)
-- 🎯 **Migliori Opportunità**: Identifica automaticamente le quote più vantaggiose
-- 📱 **Design Responsivo**: Interfaccia ottimizzata per desktop, tablet e mobile
-- 🔍 **Ricerca Avanzata**: Filtra per sport, campionati, date e range di quote
-- ⚡ **Performance Ottimizzate**: Caricamento veloce e navigazione fluida
-- 🎨 **UI Moderna**: Design pulito e intuitivo con Tailwind CSS
-- 🔀 **Modalità Duale**: Alterna tra quote reali e dati simulati
-- 📊 **Monitoraggio API**: Visualizza stato connessione e utilizzo API
+### 🎯 Sistema di Abbonamenti Intelligente
+- **Piano Gratuito**: 500 richieste/mese, aggiornamenti ogni ora
+- **Piano Pro**: 10.000 richieste/mese, aggiornamenti ogni 5 minuti  
+- **Piano Premium**: Richieste illimitate, aggiornamenti ogni 30 secondi
 
-## 🚀 **DEPLOYMENT RAPIDO**
+### ⏱️ Timer Countdown Live
+- Countdown in tempo reale per prossimi aggiornamenti quote
+- Progress bar animata con indicatori di stato
+- Gestione automatica dei diversi piani abbonamento
+- Visualizzazione tempo rimanente in formato MM:SS
 
-### **🌟 Opzione 1: Vercel (Raccomandato)**
+### 🏪 Database Bookmaker Completo
+- **54+ bookmaker supportati** con informazioni dettagliate
+- Categorizzazione: Italiani, Internazionali, Specializzati
+- Sistema di ricerca e filtri avanzati
+- Rating, bonus benvenuto, caratteristiche uniche
+- Link intelligenti con apertura sicura
 
-1. **Crea account GitHub** su https://github.com
-2. **Crea nuovo repository** chiamato "sitosport"
-3. **Carica il progetto:**
-   ```bash
-   git remote add origin https://github.com/TUOUSERNAME/sitosport.git
-   git branch -M main
-   git push -u origin main
-   ```
-4. **Vai su Vercel** https://vercel.com
-5. **"Continue with GitHub"** → **"New Project"** → Seleziona "sitosport" → **"Deploy"**
-6. **Il tuo sito sarà live in 2-3 minuti!** 🎉
+### 🏈 Sport e Campionati
+- **6 sport principali**: Calcio, Basket, Tennis, Football Americano, Hockey, Baseball
+- **30+ campionati** con classificazione tier (Premium, Standard, Basic)
+- Statistiche dettagliate: numero squadre, popolarità, stagione
+- Filtri per sport, livello e ricerca testuale
 
-**Link finale:** `https://sitosport-tuousername.vercel.app`
+### 🎨 Design Moderno
+- **Tema scuro completo** con palette colori moderna
+- **Responsive design** ottimizzato per desktop e mobile
+- **Animazioni fluide** e transizioni eleganti
+- **Componenti interattivi** con feedback visivo
 
-### **🔥 Opzione 2: Netlify**
+## 🚀 Tecnologie Utilizzate
 
-1. **Carica su GitHub** (come sopra)
-2. **Vai su Netlify** https://netlify.com
-3. **"New site from Git"** → GitHub → Seleziona repository → **"Deploy"**
+- **Next.js 14** - Framework React con App Router
+- **TypeScript** - Type safety e sviluppo robusto
+- **Tailwind CSS** - Styling moderno e responsive
+- **Zustand** - State management leggero e performante
+- **Lucide React** - Icone moderne e scalabili
+- **Framer Motion** - Animazioni fluide
 
-### **📱 Opzione 3: Script Automatico**
-
-**Windows:**
-```bash
-./deploy.bat
-```
-
-**Linux/Mac:**
-```bash
-./deploy.sh
-```
-
-## 🔧 Tecnologie Utilizzate
-
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, CSS Modules
-- **Icons**: Lucide React
-- **Animations**: Framer Motion
-- **Date Handling**: date-fns
-- **Development**: ESLint, PostCSS, Autoprefixer
-
-## 📦 Installazione Locale
-
-### Prerequisiti
-
-- Node.js 18+ 
-- npm o yarn
-
-### Passi per l'installazione
+## 📦 Installazione
 
 1. **Clona il repository**
-   ```bash
-   git clone https://github.com/tuousername/sitosport.git
-   cd sitosport
-   ```
+```bash
+git clone https://github.com/tuousername/sitosport.git
+cd sitosport
+```
 
 2. **Installa le dipendenze**
-   ```bash
-   npm install
-   ```
-
-3. **Avvia il server di sviluppo**
-   ```bash
-   npm run dev
-   ```
-
-4. **Apri il browser**
-   Vai su [http://localhost:3000](http://localhost:3000)
-
-## 🏗️ Struttura del Progetto
-
-```
-sitosport/
-├── app/                    # App Router di Next.js
-│   ├── globals.css        # Stili globali
-│   ├── layout.tsx         # Layout principale
-│   └── page.tsx           # Homepage
-├── components/            # Componenti React riutilizzabili
-│   ├── Header.tsx         # Header con navigazione e ricerca
-│   ├── MatchCard.tsx      # Card per visualizzare le partite
-│   ├── FilterPanel.tsx    # Panel per i filtri di ricerca
-│   ├── DataSourceToggle.tsx # Toggle quote reali/simulate
-│   └── SportCategoryStats.tsx # Statistiche per categoria
-├── data/                  # Dati simulati
-│   └── mockData.ts        # Database simulato con 100 bookmakers
-├── lib/                   # Servizi e utilità
-│   └── oddsApi.ts         # Integrazione The Odds API
-├── hooks/                 # Custom React hooks
-│   └── useRealOdds.ts     # Hook per gestire quote reali
-├── types/                 # Definizioni TypeScript
-│   └── index.ts           # Interfacce e tipi
-├── public/                # Asset statici
-└── ...                    # File di configurazione
+```bash
+npm install
 ```
 
-## 🎮 Utilizzo
+3. **Configura le variabili d'ambiente**
+```bash
+cp .env.example .env.local
+```
 
-### Ricerca e Filtri
+4. **Avvia il server di sviluppo**
+```bash
+npm run dev
+```
 
-1. **Ricerca Testuale**: Usa la barra di ricerca per trovare squadre, campionati o bookmakers
-2. **Filtri Avanzati**: Clicca su "Filtri" per accedere a opzioni avanzate:
-   - Sport (Calcio, Tennis, Basket, ecc.)
-   - Campionati (Serie A, Premier League, ecc.)
-   - Date (Oggi, Domani, Questa settimana)
-   - Range di quote (Min/Max)
-
-### Confronto Quote
-
-1. **Visualizzazione**: Ogni partita mostra le migliori quote disponibili
-2. **Dettagli**: Clicca su "Confronta Tutte" per vedere tutte le quote disponibili
-3. **Bookmakers**: Vedi quale bookmaker offre la quota migliore per ogni esito
-
-### Quote Reali vs Simulate
-
-**Modalità Quote Reali:**
-- Dati live da The Odds API
-- Aggiornamento automatico ogni 5 minuti
-- Include Serie A, Premier League, La Liga, Bundesliga, Champions League, NBA, Tennis
-- Monitoraggio utilizzo API e richieste rimanenti
-- Gestione errori e fallback automatico
-
-**Modalità Simulata:**
-- Dati dimostrativi per test e sviluppo
-- 100+ bookmakers simulati
-- Quote generate algoritmicamente
-- Nessun limite di utilizzo
-
-## 📊 Database Simulato
-
-Il progetto include un database simulato con:
-
-- **100 Bookmakers**: Include i principali operatori italiani e internazionali
-- **Multiple Partite**: Partite di calcio, tennis, basket con quote realistiche
-- **Quote Dinamiche**: Quote generate automaticamente con variazioni realistiche
-- **Aggiornamenti**: Timestamp di ultimo aggiornamento per ogni quota
-
-### Bookmakers Inclusi
-
-- **Italiani**: Sisal, Snai, Eurobet, Lottomatica, Better, Goldbet
-- **Internazionali**: Bet365, William Hill, Betfair, Unibet, Bwin
-- **E molti altri**: Oltre 90 bookmakers aggiuntivi
-
-### Squadre e Campionati Reali
-
-- **Serie A**: Juventus, Inter, Milan, Napoli, Roma, Lazio, Atalanta, ecc.
-- **Premier League**: Manchester City, Arsenal, Liverpool, Chelsea, ecc.
-- **La Liga**: Real Madrid, Barcelona, Atletico Madrid, ecc.
-- **Bundesliga**: Bayern Munich, Borussia Dortmund, RB Leipzig, ecc.
-- **Tennis**: Djokovic, Alcaraz, Sinner, Swiatek, Sabalenka, ecc.
-- **NBA**: Lakers, Celtics, Warriors, Heat, Bucks, ecc.
+5. **Apri il browser**
+```
+http://localhost:3000
+```
 
 ## 🔧 Configurazione
 
-### Quote Reali (Opzionale)
+### Variabili d'Ambiente
+```env
+# API Configuration
+NEXT_PUBLIC_ODDS_API_KEY=your_odds_api_key
+NEXT_PUBLIC_RAPID_API_KEY=your_rapid_api_key
 
-Per utilizzare quote reali, aggiungi la variabile d'ambiente:
-
-**Vercel/Netlify:**
-```
-ODDS_API_KEY=9640f946c5bb763f61fd8105717aad6b
-```
-
-**Locale (.env.local):**
-```
-ODDS_API_KEY=9640f946c5bb763f61fd8105717aad6b
+# App Configuration
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_ENVIRONMENT=development
 ```
 
-### Personalizzazione Colori
+### Configurazione API
+Il sistema gestisce automaticamente i limiti delle API:
+- **Odds API**: Gestione intelligente delle 500 richieste mensili gratuite
+- **RapidAPI**: Backup per dati aggiuntivi
+- **Rate limiting**: Prevenzione automatica del superamento limiti
 
-Modifica i colori in `tailwind.config.js`:
+## 📁 Struttura del Progetto
 
-```javascript
-theme: {
-  extend: {
-    colors: {
-      primary: {
-        // I tuoi colori personalizzati
-      }
-    }
-  }
+```
+sitosport/
+├── app/                    # App Router (Next.js 14)
+│   ├── bookmakers/        # Pagina bookmaker
+│   ├── sports/            # Pagina sport e campionati
+│   ├── premium/           # Pagina piani abbonamento
+│   ├── layout.tsx         # Layout principale
+│   └── page.tsx           # Homepage
+├── components/            # Componenti React
+│   ├── Navigation.tsx     # Navbar moderna
+│   ├── CountdownTimer.tsx # Timer countdown live
+│   ├── SubscriptionManager.tsx # Gestione abbonamenti
+│   └── ...
+├── lib/                   # Utilities e servizi
+│   ├── apiManager.ts      # Gestione API e abbonamenti
+│   ├── oddsApi.ts         # Integrazione Odds API
+│   └── ...
+├── hooks/                 # Custom React hooks
+├── types/                 # Definizioni TypeScript
+└── public/               # Asset statici
+```
+
+## 🎮 Funzionalità Dettagliate
+
+### Sistema di Gestione API
+- **Store Zustand** con persistenza locale
+- **Calcolo automatico** usage e richieste rimanenti
+- **Reset mensile** automatico dei contatori
+- **Gestione errori** e fallback intelligenti
+
+### Componenti Principali
+
+#### CountdownTimer
+- Timer live con aggiornamento ogni secondo
+- Stati visivi: normale, prossimo aggiornamento, in corso
+- Supporto per tutti i piani abbonamento
+- Progress bar animata
+
+#### SubscriptionManager
+- Visualizzazione piano corrente e statistiche
+- Grid piani con badge "PIÙ POPOLARE"
+- Modal di conferma per upgrade/downgrade
+- Gestione cancellazione abbonamento
+
+#### Navigation
+- Navbar sticky con backdrop blur
+- Logo animato con gradiente
+- Menu responsive desktop/mobile
+- Indicatori di stato live
+
+### Database Bookmaker
+```typescript
+interface Bookmaker {
+  id: string;
+  name: string;
+  category: 'italian' | 'international' | 'specialized';
+  rating: number;
+  bonus: string;
+  features: string[];
+  description: string;
+  website: string;
+  logo: string;
 }
 ```
 
-## 🔄 Aggiornamenti Automatici
+### Database Sport
+```typescript
+interface Sport {
+  id: string;
+  name: string;
+  icon: string;
+  leagues: League[];
+}
 
-Una volta configurato il deployment:
-1. Modifica il codice localmente
-2. `git add .`
-3. `git commit -m "Aggiornamento"`
-4. `git push`
-5. Il sito si aggiorna automaticamente in 2-3 minuti
+interface League {
+  id: string;
+  name: string;
+  tier: 'premium' | 'standard' | 'basic';
+  teams: number;
+  popularity: number;
+  season: string;
+}
+```
 
-## 📱 Guide Dettagliate
+## 🔒 Sicurezza
 
-- **[GUIDA_RAPIDA_DEPLOYMENT.md](GUIDA_RAPIDA_DEPLOYMENT.md)** - Deployment in 5 minuti
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Guida completa con tutte le opzioni
-- **Script automatici**: `deploy.bat` (Windows) e `deploy.sh` (Linux/Mac)
+- **Validazione input** su tutti i form
+- **Sanitizzazione URL** per link bookmaker
+- **Rate limiting** per prevenire abusi API
+- **Gestione errori** robusta con fallback
+- **HTTPS enforcement** in produzione
+
+## 📱 Responsive Design
+
+- **Mobile First** approach
+- **Breakpoints Tailwind**: sm, md, lg, xl, 2xl
+- **Touch-friendly** interfaccia per dispositivi mobili
+- **Performance ottimizzate** per connessioni lente
+
+## 🎨 Sistema Colori
+
+```css
+/* Colori Principali */
+--primary: #3B82F6      /* Blu principale */
+--accent: #F97316       /* Arancione accent */
+--success: #10B981      /* Verde successo */
+--warning: #F59E0B      /* Giallo warning */
+--danger: #EF4444       /* Rosso errore */
+
+/* Tema Scuro */
+--dark-900: #0F172A     /* Sfondo principale */
+--dark-800: #1E293B     /* Sfondo componenti */
+--dark-700: #334155     /* Bordi */
+--dark-400: #94A3B8     /* Testo secondario */
+```
+
+## 📊 Performance
+
+- **Lazy loading** per componenti pesanti
+- **Memoization** per calcoli complessi
+- **Debouncing** per ricerche e filtri
+- **Caching intelligente** per dati API
+- **Bundle optimization** con Next.js
+
+## 🚀 Deploy
+
+### Netlify (Raccomandato)
+```bash
+npm run build
+# Deploy automatico con git push
+```
+
+### Vercel
+```bash
+npm run build
+vercel --prod
+```
+
+### Docker
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+## 🧪 Testing
+
+```bash
+# Unit tests
+npm run test
+
+# E2E tests
+npm run test:e2e
+
+# Coverage
+npm run test:coverage
+```
+
+## 📈 Monitoraggio
+
+- **Analytics** integrato per tracking utenti
+- **Error tracking** con Sentry (opzionale)
+- **Performance monitoring** con Web Vitals
+- **API usage tracking** in tempo reale
 
 ## 🤝 Contribuire
 
-1. Fork del progetto
-2. Crea un branch per la tua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit delle modifiche (`git commit -m 'Add some AmazingFeature'`)
-4. Push al branch (`git push origin feature/AmazingFeature`)
-5. Apri una Pull Request
+1. **Fork** il repository
+2. **Crea** un branch per la feature (`git checkout -b feature/AmazingFeature`)
+3. **Commit** le modifiche (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** al branch (`git push origin feature/AmazingFeature`)
+5. **Apri** una Pull Request
 
-## 📝 Roadmap
+## 📝 Changelog
 
-- [ ] **API Reali**: Integrazione con API di bookmakers reali ✅
-- [ ] **Notifiche**: Alert per quote vantaggiose
-- [ ] **Storico Quote**: Grafici di andamento delle quote
-- [ ] **Confronto Avanzato**: Calcolo automatico di arbitraggi
-- [ ] **Account Utente**: Salvataggio preferiti e impostazioni
-- [ ] **App Mobile**: Versione nativa per iOS e Android
+### v1.0.0 (2024-01-15)
+- ✨ Implementazione completa interfaccia tema scuro
+- 🎯 Sistema abbonamenti con 3 piani
+- ⏱️ Timer countdown live funzionante
+- 🏪 Database 54+ bookmaker
+- 🏈 6 sport e 30+ campionati
+- 📱 Design responsive ottimizzato
+- 🔧 Sistema API manager intelligente
 
 ## 📄 Licenza
 
-Questo progetto è sotto licenza MIT. Vedi il file [LICENSE](LICENSE) per i dettagli.
+Questo progetto è sotto licenza MIT. Vedi il file `LICENSE` per dettagli.
 
-## 🙏 Ringraziamenti
+## 👥 Team
 
-- [Next.js](https://nextjs.org/) per il framework
-- [Tailwind CSS](https://tailwindcss.com/) per lo styling
-- [Lucide](https://lucide.dev/) per le icone
-- [The Odds API](https://the-odds-api.com/) per le quote reali
-- [Vercel](https://vercel.com/) per l'hosting
+- **Sviluppatore Principal**: [Il tuo nome]
+- **UI/UX Design**: [Designer nome]
+- **API Integration**: [Developer nome]
 
-## 📞 Supporto
+## 🆘 Supporto
 
-Per supporto, email a support@sitosport.com o apri un issue su GitHub.
+Per supporto e domande:
+- 📧 Email: support@sitosport.com
+- 💬 Discord: [Link server Discord]
+- 📱 Telegram: [Link canale Telegram]
 
----
+## 🔗 Link Utili
 
-## 🎯 **LINK UTILI**
-
-- **🚀 Deploy Vercel**: https://vercel.com
-- **🔥 Deploy Netlify**: https://netlify.com  
-- **📚 Documentazione Next.js**: https://nextjs.org/docs
-- **🎨 Tailwind CSS**: https://tailwindcss.com/docs
-- **📊 The Odds API**: https://the-odds-api.com
+- [Documentazione API](https://docs.sitosport.com)
+- [Guida Utente](https://guide.sitosport.com)
+- [Status Page](https://status.sitosport.com)
+- [Roadmap](https://roadmap.sitosport.com)
 
 ---
 
-**⚠️ Disclaimer**: Questo è un progetto dimostrativo. Le quote mostrate in modalità simulata non rappresentano quote reali di bookmakers. Per scommesse reali, consulta sempre i siti ufficiali dei bookmakers autorizzati. 
+**Fatto con ❤️ per gli appassionati di sport e scommesse** 

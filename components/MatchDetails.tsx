@@ -6,6 +6,7 @@ import { Match, Bookmaker } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { getBookmakerInfo as getBookmakerLinkInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
+import SmartBookmakerHandler from './SmartBookmakerHandler';
 
 interface MatchDetailsProps {
   match: Match;
@@ -23,32 +24,55 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpe
   };
 
   const getBookmakerInfo = (bookmakerName: string) => {
-    return bookmakers.find(b => b.name === bookmakerName);
+    // Cerca prima per nome esatto
+    let found = bookmakers.find(b => b.name === bookmakerName);
+    
+    // Se non trovato, cerca per nome case-insensitive
+    if (!found) {
+      found = bookmakers.find(b => b.name.toLowerCase() === bookmakerName.toLowerCase());
+    }
+    
+    // Se ancora non trovato, cerca per nome parziale
+    if (!found) {
+      found = bookmakers.find(b => 
+        b.name.toLowerCase().includes(bookmakerName.toLowerCase()) ||
+        bookmakerName.toLowerCase().includes(b.name.toLowerCase())
+      );
+    }
+    
+    return found;
   };
 
+  const handleBookmakerClickWithFallback = (bookmaker: Bookmaker | undefined, oddsBookmakerName: string, betType: 'home' | 'away' | 'draw' = 'home') => {
+    console.log('Bookmaker clicked:', bookmaker, 'oddsBookmakerName:', oddsBookmakerName, 'betType:', betType);
+    
+    // Usa sempre il nome dalle quote (più affidabile)
+    const bookmakerNameToUse = oddsBookmakerName || bookmaker?.name;
+    
+    if (bookmakerNameToUse) {
+      try {
+        const { openBookmaker } = require('@/lib/bookmakerLinks');
+        openBookmaker(bookmakerNameToUse, {
+          homeTeam: match.homeTeam,
+          awayTeam: match.awayTeam,
+          sport: match.sport,
+          league: match.league,
+          betType
+        });
+        return;
+      } catch (error) {
+        console.error('Errore apertura bookmaker:', error);
+        alert(`Errore nell'apertura di ${bookmakerNameToUse}. Riprova più tardi.`);
+        return;
+      }
+    }
+    
+    alert('Nome bookmaker non disponibile');
+  };
+
+  // Mantieni la funzione originale per compatibilità
   const handleBookmakerClick = (bookmaker: Bookmaker | undefined, betType: 'home' | 'away' | 'draw' = 'home') => {
-    console.log('Bookmaker clicked:', bookmaker, 'betType:', betType);
-    
-    if (!bookmaker) {
-      console.log('Nessun bookmaker trovato');
-      alert('Bookmaker non trovato');
-      return;
-    }
-    
-    try {
-      // Usa la nuova funzione openBookmaker
-      const { openBookmaker } = require('@/lib/bookmakerLinks');
-      openBookmaker(bookmaker.name, {
-        homeTeam: match.homeTeam,
-        awayTeam: match.awayTeam,
-        sport: match.sport,
-        league: match.league,
-        betType
-      });
-    } catch (error) {
-      console.error('Errore apertura bookmaker:', error);
-      alert(`Errore nell'aprire ${bookmaker.name}: ${error}`);
-    }
+    return handleBookmakerClickWithFallback(bookmaker, bookmaker?.name || '', betType);
   };
 
   // Calcola il punteggio per ogni bookmaker basato sulle quote migliori
@@ -235,14 +259,18 @@ export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpe
                             </span>
                           </td>
                           <td className="py-3 sm:py-4 px-2 sm:px-4 text-center">
-                            <button 
-                              onClick={() => handleBookmakerClick(bookmaker, 'home')}
+                            <SmartBookmakerHandler
+                              bookmakerName={odds.bookmaker}
+                              matchInfo={{
+                                homeTeam: match.homeTeam,
+                                awayTeam: match.awayTeam,
+                                sport: match.sport
+                              }}
                               className="inline-flex items-center px-3 py-2 text-xs font-medium text-white bg-primary-600 rounded hover:bg-primary-700 transition-colors duration-200 w-full justify-center"
-                              title={`Vai su ${bookmaker?.name || odds.bookmaker}`}
                             >
                               <ExternalLink className="h-3 w-3 mr-1" />
                               <span className="truncate">{bookmaker?.name || odds.bookmaker}</span>
-                            </button>
+                            </SmartBookmakerHandler>
                           </td>
                         </tr>
                       );

@@ -14,7 +14,10 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import BookmakerTestPanel from '@/components/BookmakerTestPanel';
 import OptimizedApiStats from '@/components/OptimizedApiStats';
 import DebugPanel from '@/components/DebugPanel';
+import CountdownTimer from '@/components/CountdownTimer';
+import SubscriptionManager from '@/components/SubscriptionManager';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
+import { useApiManager } from '@/lib/apiManager';
 
 import { matches as mockMatches, bookmakers } from '@/data/mockData';
 import { useOptimizedOdds } from '@/hooks/useOptimizedOdds';
@@ -27,9 +30,13 @@ export default function HomePage() {
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [isDebugPanelOpen, setIsDebugPanelOpen] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   
   // Hook per gestire la barra di navigazione quando si torna da un bookmaker
   const { navigationData, showOverlay, closeOverlay } = useNavigationOverlay();
+  
+  // Hook per gestire API e abbonamenti
+  const { isSubscribed, subscriptionPlan, usage } = useApiManager();
   
   // Hook per gestire le quote ottimizzate
   const {
@@ -173,30 +180,74 @@ export default function HomePage() {
   // Rimosso sistema iframe - ora i bookmaker si aprono direttamente in nuova scheda
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-dark-gradient">
       <Header 
         onSearchChange={setSearchQuery}
         onFilterToggle={() => setIsFilterPanelOpen(true)}
       />
 
       {/* Hero Section */}
-      <div className="gradient-bg text-white py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 md:mb-6 text-shadow leading-tight">
-            Confronta le Migliori Quote
-          </h1>
-          <p className="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 text-blue-100 px-2">
-            {useRealData 
-              ? '🔴 LIVE: Quote reali aggiornate in tempo reale da The Odds API'
-              : 'Trova le quote più vantaggiose tra oltre 100 siti di scommesse'
-            }
-          </p>
-          
+      <div className="bg-dark-gradient text-white py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Main Hero Content */}
+          <div className="text-center mb-12">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-white via-primary-200 to-accent-300 bg-clip-text text-transparent leading-tight">
+              Quote Live in Tempo Reale
+            </h1>
+            <p className="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 text-dark-300 px-2">
+              {useRealData 
+                ? '🔴 LIVE: Quote aggiornate ogni minuto da API professionali'
+                : 'Confronta le migliori quote tra 54+ bookmaker verificati'
+              }
+            </p>
+            
+            {/* Status Badge */}
+            <div className="inline-flex items-center bg-accent-500/20 border border-accent-500/30 text-accent-400 px-6 py-3 rounded-full text-sm font-medium mb-8">
+              <div className="w-2 h-2 bg-accent-400 rounded-full mr-3 animate-pulse"></div>
+              {isSubscribed ? `Piano ${subscriptionPlan?.name} Attivo` : 'Piano Gratuito - 500 richieste/mese'}
+            </div>
+          </div>
+
+          {/* Dashboard Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Countdown Timer */}
+            <div className="lg:col-span-2">
+              <CountdownTimer showDetails={true} />
+            </div>
+            
+            {/* Quick Stats */}
+            <div className="bg-dark-800 border border-dark-700 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Statistiche Live</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-dark-400">Richieste utilizzate</span>
+                  <span className="text-white font-medium">{usage.requests}/500</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-dark-400">Bookmaker attivi</span>
+                  <span className="text-primary-400 font-medium">54</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-dark-400">Sport supportati</span>
+                  <span className="text-accent-400 font-medium">6</span>
+                </div>
+                <button
+                  onClick={() => setShowSubscriptionModal(true)}
+                  className="w-full mt-4 bg-primary-gradient text-white py-2 px-4 rounded-lg font-medium hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-200"
+                >
+                  {isSubscribed ? 'Gestisci Piano' : 'Upgrade Premium'}
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Badge Live per API reale */}
           {useRealData && (
-            <div className="inline-flex items-center bg-red-500 text-white px-4 py-2 rounded-full text-sm font-medium mb-4 animate-pulse">
-              <div className="w-2 h-2 bg-white rounded-full mr-2 animate-ping"></div>
-              QUOTE LIVE
+            <div className="text-center">
+              <div className="inline-flex items-center bg-success-500/20 border border-success-500/30 text-success-400 px-4 py-2 rounded-full text-sm font-medium animate-pulse">
+                <div className="w-2 h-2 bg-success-400 rounded-full mr-2 animate-ping"></div>
+                QUOTE LIVE ATTIVE
+              </div>
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-12 max-w-5xl mx-auto">
@@ -435,41 +486,95 @@ export default function HomePage() {
         />
       )}
 
+      {/* Subscription Modal */}
+      {showSubscriptionModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-dark-900 border border-dark-700 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">Gestione Abbonamento</h2>
+                <button
+                  onClick={() => setShowSubscriptionModal(false)}
+                  className="text-dark-400 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+              <SubscriptionManager />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 mt-16">
+      <footer className="bg-dark-900 border-t border-dark-800 text-white py-12 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center mb-4">
                 <TrendingUp className="h-8 w-8 text-primary-400 mr-2" />
-                <h3 className="text-2xl font-bold">SitoSport</h3>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-primary-300 bg-clip-text text-transparent">
+                  SitoSport
+                </h3>
               </div>
-              <p className="text-gray-300 mb-4">
-                La piattaforma leader per il confronto delle quote di scommesse sportive. 
-                Trova sempre le migliori opportunità tra centinaia di bookmakers.
+              <p className="text-dark-300 mb-6">
+                La piattaforma più avanzata per il confronto delle quote sportive in tempo reale. 
+                54+ bookmaker verificati, aggiornamenti ogni minuto, API professionali.
               </p>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-sm text-dark-400">
+                  <div className="w-2 h-2 bg-success-400 rounded-full animate-pulse"></div>
+                  <span>Sistema attivo 24/7</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-dark-400">
+                  <div className="w-2 h-2 bg-primary-400 rounded-full"></div>
+                  <span>Quote verificate</span>
+                </div>
+              </div>
             </div>
             <div>
-              <h4 className="text-lg font-semibold mb-4">Sport</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li><a href="#" className="hover:text-white transition-colors">Calcio</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Tennis</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Basket</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Altri Sport</a></li>
+              <h4 className="text-lg font-semibold mb-4 text-white">Sport & Campionati</h4>
+              <ul className="space-y-2 text-dark-300">
+                <li><a href="/sports" className="hover:text-primary-400 transition-colors flex items-center space-x-2">
+                  <span>⚽</span><span>Calcio</span>
+                </a></li>
+                <li><a href="/sports" className="hover:text-primary-400 transition-colors flex items-center space-x-2">
+                  <span>🎾</span><span>Tennis</span>
+                </a></li>
+                <li><a href="/sports" className="hover:text-primary-400 transition-colors flex items-center space-x-2">
+                  <span>🏀</span><span>Basket</span>
+                </a></li>
+                <li><a href="/sports" className="hover:text-primary-400 transition-colors flex items-center space-x-2">
+                  <span>🏈</span><span>Altri Sport</span>
+                </a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-lg font-semibold mb-4">Informazioni</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li><a href="#" className="hover:text-white transition-colors">Chi Siamo</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contatti</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Termini</a></li>
+              <h4 className="text-lg font-semibold mb-4 text-white">Risorse</h4>
+              <ul className="space-y-2 text-dark-300">
+                <li><a href="/bookmakers" className="hover:text-primary-400 transition-colors">Bookmaker Supportati</a></li>
+                <li><a href="/sports" className="hover:text-primary-400 transition-colors">Sport e Campionati</a></li>
+                <li><button onClick={() => setShowSubscriptionModal(true)} className="hover:text-primary-400 transition-colors text-left">Piani e Prezzi</button></li>
+                <li><a href="#" className="hover:text-primary-400 transition-colors">API Documentation</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 SitoSport. Tutti i diritti riservati.</p>
+          <div className="border-t border-dark-800 mt-8 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-dark-400 text-sm">
+                &copy; 2025 SitoSport. Tutti i diritti riservati. | Gioco responsabile +18
+              </p>
+              <div className="flex items-center space-x-4 mt-4 md:mt-0">
+                <span className="text-xs text-dark-500">Powered by</span>
+                <div className="flex items-center space-x-2 text-xs text-dark-400">
+                  <span>The Odds API</span>
+                  <span>•</span>
+                  <span>Next.js</span>
+                  <span>•</span>
+                  <span>Tailwind CSS</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

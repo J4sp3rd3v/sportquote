@@ -1,24 +1,35 @@
-import type { Metadata, Viewport } from 'next'
-import React from 'react'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
+import Navigation from '@/components/Navigation'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'SitoSport - Confronta Quote Scommesse',
-  description: 'Confronta le quote dei migliori siti di scommesse sportive in tempo reale. Trova le migliori quote per calcio, tennis, basket e molto altro.',
-  keywords: 'scommesse, quote, confronto, calcio, tennis, basket, sport',
+  title: 'SitoSport - Quote Live in Tempo Reale',
+  description: 'La piattaforma più avanzata per il confronto delle quote sportive. 54+ bookmaker verificati, aggiornamenti ogni minuto, API professionali.',
+  keywords: 'quote sportive, scommesse, bookmaker, calcio, tennis, basket, confronto quote, odds comparison',
   authors: [{ name: 'SitoSport Team' }],
-  robots: 'index, follow',
   openGraph: {
-    title: 'SitoSport - Confronta Quote Scommesse',
-    description: 'Confronta le quote dei migliori siti di scommesse sportive',
+    title: 'SitoSport - Quote Live in Tempo Reale',
+    description: 'Confronta le migliori quote tra 54+ bookmaker verificati. Aggiornamenti ogni minuto.',
     type: 'website',
     locale: 'it_IT',
   },
-}
-
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SitoSport - Quote Live in Tempo Reale',
+    description: 'Confronta le migliori quote tra 54+ bookmaker verificati.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  }
 }
 
 export default function RootLayout({
@@ -27,16 +38,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="it">
-      <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
-      <body className="min-h-screen bg-gray-50">
-        <div id="root">
+    <html lang="it" className="dark">
+      <body className={`${inter.className} bg-dark-gradient text-white antialiased`}>
+        <Navigation />
+        <main className="min-h-screen">
           {children}
-        </div>
+        </main>
       </body>
     </html>
   )

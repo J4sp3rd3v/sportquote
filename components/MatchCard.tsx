@@ -6,6 +6,7 @@ import { Match, BestOdds } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { getBookmakerInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
+import SmartBookmakerHandler from './SmartBookmakerHandler';
 
 interface MatchCardProps {
   match: Match;
@@ -19,42 +20,7 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
     return format(date, 'dd MMM yyyy - HH:mm', { locale: it });
   };
 
-  const handleQuickBookmakerClick = (bookmakerName: string, betType: 'home' | 'away' | 'draw' = 'home') => {
-    console.log(`Quick click su ${bookmakerName}:`, match.homeTeam, 'vs', match.awayTeam);
-    
-    try {
-      // Apri sempre in nuova scheda invece di iframe
-      const bookmakerInfo: BookmakerInfo = getBookmakerInfo(bookmakerName);
-      const url = bookmakerInfo.baseUrl;
-      
-      console.log(`Aprendo ${bookmakerName} in nuova scheda:`, url);
-      
-      const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
-      
-      if (!newWindow) {
-        // Popup bloccato, mostra conferma prima del redirect
-        const userConfirm = confirm(
-          `Il popup è stato bloccato dal browser.\n\n` +
-          `Vuoi essere reindirizzato a ${bookmakerName}?\n\n` +
-          `Nota: Verrà mostrata una barra di navigazione per tornare facilmente a SitoSport.`
-        );
-        
-        if (userConfirm) {
-          // Salva info per la barra di navigazione
-          sessionStorage.setItem('sitosport_navigation', JSON.stringify({
-            bookmakerName: bookmakerName,
-            originalUrl: window.location.origin,
-            timestamp: Date.now()
-          }));
-          
-          window.location.href = url;
-        }
-      }
-    } catch (error) {
-      console.error('Errore apertura finestra:', error);
-      alert(`Errore nell'aprire ${bookmakerName}: ${error}`);
-    }
-  };
+
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -125,10 +91,14 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
         </h4>
         <div className={`grid gap-2 sm:gap-3 ${bestOdds.draw ? 'grid-cols-3' : 'grid-cols-2'}`}>
           {/* Home Win */}
-          <div 
+          <SmartBookmakerHandler
+            bookmakerName={bestOdds.home.bookmaker}
+            matchInfo={{
+              homeTeam: match.homeTeam,
+              awayTeam: match.awayTeam,
+              sport: match.sport
+            }}
             className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-primary-50 hover:border-primary-200 border border-transparent transition-all duration-200 group"
-            onClick={() => handleQuickBookmakerClick(bestOdds.home.bookmaker, 'home')}
-            title={`Scommetti su vittoria ${match.homeTeam} con ${bestOdds.home.bookmaker}`}
           >
             <div className="text-xs text-gray-500 mb-1 group-hover:text-primary-600">1</div>
             <div className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-primary-700">{bestOdds.home.odds}</div>
@@ -136,14 +106,18 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
               {bestOdds.home.bookmaker}
               <ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
-          </div>
+          </SmartBookmakerHandler>
 
           {/* Draw (if available) */}
           {bestOdds.draw && (
-            <div 
+            <SmartBookmakerHandler
+              bookmakerName={bestOdds.draw!.bookmaker}
+              matchInfo={{
+                homeTeam: match.homeTeam,
+                awayTeam: match.awayTeam,
+                sport: match.sport
+              }}
               className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-primary-50 hover:border-primary-200 border border-transparent transition-all duration-200 group"
-              onClick={() => handleQuickBookmakerClick(bestOdds.draw!.bookmaker, 'draw')}
-              title={`Scommetti su pareggio con ${bestOdds.draw.bookmaker}`}
             >
               <div className="text-xs text-gray-500 mb-1 group-hover:text-primary-600">X</div>
               <div className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-primary-700">{bestOdds.draw.odds}</div>
@@ -151,14 +125,18 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
                 {bestOdds.draw.bookmaker}
                 <ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-            </div>
+            </SmartBookmakerHandler>
           )}
 
           {/* Away Win */}
-          <div 
+          <SmartBookmakerHandler
+            bookmakerName={bestOdds.away.bookmaker}
+            matchInfo={{
+              homeTeam: match.homeTeam,
+              awayTeam: match.awayTeam,
+              sport: match.sport
+            }}
             className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-primary-50 hover:border-primary-200 border border-transparent transition-all duration-200 group"
-            onClick={() => handleQuickBookmakerClick(bestOdds.away.bookmaker, 'away')}
-            title={`Scommetti su vittoria ${match.awayTeam} con ${bestOdds.away.bookmaker}`}
           >
             <div className="text-xs text-gray-500 mb-1 group-hover:text-primary-600">2</div>
             <div className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-primary-700">{bestOdds.away.odds}</div>
@@ -166,7 +144,7 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
               {bestOdds.away.bookmaker}
               <ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
-          </div>
+          </SmartBookmakerHandler>
         </div>
       </div>
 
