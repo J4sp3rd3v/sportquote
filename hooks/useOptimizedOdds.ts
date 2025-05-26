@@ -9,6 +9,8 @@ interface UseOptimizedOddsReturn {
   error: string | null;
   useRealData: boolean;
   apiStats: any;
+  lastUpdate: Date | null;
+  categoryStats: any;
   toggleDataSource: () => void;
   forceRefresh: () => void;
   refreshSport: (sport: string) => void;
@@ -20,6 +22,8 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
   const [error, setError] = useState<string | null>(null);
   const [useRealData, setUseRealData] = useState(false);
   const [apiStats, setApiStats] = useState<any>(null);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [categoryStats, setCategoryStats] = useState<any>(null);
 
   // Usa sempre API reale (non più supporto per dati mock)
   useEffect(() => {
@@ -89,6 +93,18 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
     try {
       const data = await loadRealData();
       setMatches(data);
+      setLastUpdate(new Date());
+      
+      // Calcola statistiche per categoria se ci sono dati
+      if (data.length > 0) {
+        const stats = {
+          calcio: { count: data.filter(m => m.sport === 'calcio').length, leagues: [] },
+          tennis: { count: data.filter(m => m.sport === 'tennis').length, leagues: [] },
+          basket: { count: data.filter(m => m.sport === 'basket').length, leagues: [] },
+          altro: { count: data.filter(m => !['calcio', 'tennis', 'basket'].includes(m.sport)).length, leagues: [] }
+        };
+        setCategoryStats(stats);
+      }
     } catch (error) {
       console.error('Errore nel caricamento dati:', error);
       setError('Errore nel caricamento dei dati');
@@ -199,6 +215,8 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
     error,
     useRealData,
     apiStats,
+    lastUpdate,
+    categoryStats,
     toggleDataSource,
     forceRefresh,
     refreshSport

@@ -327,7 +327,7 @@ export class OddsApiService {
   private maxRequests: number = 500;
 
   constructor() {
-    this.apiKey = process.env.NEXT_PUBLIC_ODDS_API_KEY || '';
+    this.apiKey = process.env.NEXT_PUBLIC_ODDS_API_KEY || ODDS_API_KEY;
     if (!this.apiKey) {
       console.warn('ODDS_API_KEY non configurata');
     }

@@ -70,16 +70,24 @@ export default function ApiStatusBanner({
             <div className="mt-2 text-sm text-red-700">
               <p>{error}</p>
               <p className="mt-1">
-                Il sistema è passato automaticamente ai dati simulati per garantire il funzionamento.
+                Il sistema può passare automaticamente ai dati simulati per garantire il funzionamento.
               </p>
-              {onToggle && (
+              <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                {onToggle && (
+                  <button
+                    onClick={onToggle}
+                    className="inline-flex items-center px-3 py-1 text-sm font-medium text-red-800 bg-red-100 hover:bg-red-200 rounded-md transition-colors"
+                  >
+                    Passa ai dati simulati
+                  </button>
+                )}
                 <button
-                  onClick={onToggle}
-                  className="mt-2 text-red-800 hover:text-red-900 font-medium underline"
+                  onClick={() => window.location.reload()}
+                  className="inline-flex items-center px-3 py-1 text-sm font-medium text-red-700 bg-white border border-red-300 hover:bg-red-50 rounded-md transition-colors"
                 >
-                  Torna ai dati simulati
+                  Riprova con API reale
                 </button>
-              )}
+              </div>
             </div>
           </div>
         </div>

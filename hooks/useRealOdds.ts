@@ -32,6 +32,7 @@ export function useRealOdds(): UseRealOddsReturn {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [apiStatus, setApiStatus] = useState<any>(null);
   const [categoryStats, setCategoryStats] = useState<any>(null);
+  const [failedAttempts, setFailedAttempts] = useState(0);
   
   // Attiva automaticamente l'API reale in produzione
   const [useRealData, setUseRealData] = useState(() => {
@@ -73,7 +74,9 @@ export function useRealOdds(): UseRealOddsReturn {
       const apiEvents = await oddsApi.getMultipleSportsOdds();
       
       if (apiEvents.length === 0) {
-        throw new Error('Nessun dato disponibile dall\'API');
+        // Messaggio più informativo quando non ci sono dati
+        const currentDate = new Date().toLocaleDateString('it-IT');
+        throw new Error(`Nessuna partita disponibile per oggi (${currentDate}). Le quote live potrebbero non essere disponibili durante la pausa stagionale o nei giorni senza eventi sportivi.`);
       }
 
       // Calcola statistiche per categoria
@@ -85,6 +88,7 @@ export function useRealOdds(): UseRealOddsReturn {
       
       setMatches(convertedMatches);
       setLastUpdate(new Date());
+      setFailedAttempts(0); // Reset contatore errori quando l'API funziona
       
       console.log(`✅ Caricati ${convertedMatches.length} eventi reali dall'API`);
       console.log('📊 Statistiche per categoria:', stats);
@@ -92,7 +96,15 @@ export function useRealOdds(): UseRealOddsReturn {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Errore sconosciuto';
       setError(errorMessage);
+      setFailedAttempts(prev => prev + 1);
       console.error('❌ Errore nel caricamento delle quote reali:', errorMessage);
+      
+      // Fallback automatico ai dati simulati dopo 3 tentativi falliti
+      if (failedAttempts >= 2) {
+        console.log('🔄 Troppi errori API, passaggio automatico ai dati simulati');
+        setUseRealData(false);
+        setFailedAttempts(0);
+      }
     } finally {
       setLoading(false);
     }
@@ -109,6 +121,7 @@ export function useRealOdds(): UseRealOddsReturn {
     setError(null);
     setMatches([]);
     setCategoryStats(null);
+    setFailedAttempts(0); // Reset contatore errori
   }, []);
 
   // Carica i dati quando useRealData cambia

@@ -72,7 +72,7 @@ export default function LoadingSpinner({
           <div className="flex items-start space-x-2">
             <TrendingUp className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-blue-700">
-              <p className="font-medium">Quote in tempo reale</p>
+                              <p className="font-medium">Quote aggiornate</p>
               <p>Le quote vengono aggiornate direttamente dai bookmaker per garantire la massima precisione.</p>
             </div>
           </div>

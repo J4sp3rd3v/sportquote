@@ -137,7 +137,7 @@ export default function BestOddsHighlight({ matches, onBookmakerClick, onMatchCl
           </div>
           <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
             <TrendingUp className="h-4 w-4" />
-            <span>Aggiornate in tempo reale</span>
+            <span>Aggiornate regolarmente</span>
           </div>
         </div>
       </div>

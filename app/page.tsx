@@ -9,6 +9,7 @@ import MatchDetails from '@/components/MatchDetails';
 import SportCategoryStats from '@/components/SportCategoryStats';
 import NavigationOverlay from '@/components/NavigationOverlay';
 import ApiStatusBanner from '@/components/ApiStatusBanner';
+import ApiStatusInfo from '@/components/ApiStatusInfo';
 import BestOddsHighlight from '@/components/BestOddsHighlight';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import BookmakerTestPanel from '@/components/BookmakerTestPanel';
@@ -47,6 +48,8 @@ export default function HomePage() {
     error,
     useRealData,
     apiStats,
+    lastUpdate,
+    categoryStats,
     toggleDataSource,
     forceRefresh,
     refreshSport
@@ -132,16 +135,7 @@ export default function HomePage() {
     });
   }, [searchQuery, filters, matches]);
 
-  // Raggruppa partite per sport
-  const matchesByCategory = useMemo(() => {
-    const grouped = {
-      calcio: filteredMatches.filter(m => m.sport === 'calcio'),
-      tennis: filteredMatches.filter(m => m.sport === 'tennis'),
-      basket: filteredMatches.filter(m => m.sport === 'basket'),
-      altro: filteredMatches.filter(m => !['calcio', 'tennis', 'basket'].includes(m.sport))
-    };
-    return grouped;
-  }, [filteredMatches]);
+
 
   const handleViewDetails = (matchId: string) => {
     const match = matches.find(m => m.id === matchId);
@@ -184,16 +178,16 @@ export default function HomePage() {
                 <p className="text-sm text-dark-300">Suggerimenti e strategie basate sui dati</p>
               </div>
               <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
-                <div className="text-2xl mb-2">⚡</div>
-                <h3 className="font-semibold text-white mb-1">Aggiornamenti Live</h3>
-                <p className="text-sm text-dark-300">Quote in tempo reale ogni 30 secondi</p>
+                              <div className="text-2xl mb-2">⚡</div>
+              <h3 className="font-semibold text-white mb-1">Aggiornamenti Regolari</h3>
+              <p className="text-sm text-dark-300">Quote aggiornate ogni ora (Pro: ogni minuto)</p>
               </div>
             </div>
             
             {/* Status Badge */}
             <div className="inline-flex items-center bg-accent-500/20 border border-accent-500/30 text-accent-400 px-6 py-3 rounded-full text-sm font-medium mb-8">
               <div className="w-2 h-2 bg-accent-400 rounded-full mr-3 animate-pulse"></div>
-              {useRealData ? '🔴 LIVE: Quote aggiornate ogni minuto' : 'Demo: Dati di esempio'}
+              {useRealData ? '🔴 Sistema attivo: Quote aggiornate ogni ora' : 'Demo: Dati di esempio'}
             </div>
           </div>
 
@@ -233,22 +227,14 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Badge Live per API reale */}
-          {useRealData && (
-            <div className="text-center">
-              <div className="inline-flex items-center bg-success-500/20 border border-success-500/30 text-success-400 px-4 py-2 rounded-full text-sm font-medium animate-pulse">
-                <div className="w-2 h-2 bg-success-400 rounded-full mr-2 animate-ping"></div>
-                QUOTE LIVE ATTIVE
-              </div>
-            </div>
-          )}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-12 max-w-5xl mx-auto">
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 md:p-8 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-2xl group">
               <div className="bg-gradient-to-br from-blue-400 to-blue-600 rounded-full p-3 md:p-4 w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 group-hover:from-blue-300 group-hover:to-blue-500 transition-all duration-300">
                 <TrendingUp className="h-6 w-6 md:h-8 md:w-8 text-white" />
               </div>
-              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3 text-white">Quote in Tempo Reale</h3>
-              <p className="text-blue-100 leading-relaxed text-sm md:text-base">Aggiornamenti costanti dalle migliori piattaforme di scommesse</p>
+              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3 text-white">Quote Sempre Aggiornate</h3>
+              <p className="text-blue-100 leading-relaxed text-sm md:text-base">Aggiornamenti regolari dalle migliori piattaforme di scommesse</p>
             </div>
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 md:p-8 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-2xl group">
               <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-full p-3 md:p-4 w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 group-hover:from-green-300 group-hover:to-green-500 transition-all duration-300">
@@ -317,6 +303,14 @@ export default function HomePage() {
           onToggle={toggleDataSource}
         />
 
+        {/* API Status Info - Dettagli tecnici */}
+        <ApiStatusInfo
+          apiStatus={apiStats}
+          lastUpdate={lastUpdate}
+          categoryStats={categoryStats}
+          useRealData={useRealData}
+        />
+
         {/* Bookmaker Test Panel - Solo in development */}
         {process.env.NODE_ENV === 'development' && (
           <BookmakerTestPanel />
@@ -367,7 +361,7 @@ export default function HomePage() {
             <div className="text-2xl font-bold text-white">
               {new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
             </div>
-            <div className="text-xs text-accent-400">Tempo reale</div>
+            <div className="text-xs text-accent-400">Aggiornato</div>
           </div>
         </div>
 
@@ -376,7 +370,7 @@ export default function HomePage() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white">🎯 Migliori Opportunità</h2>
-              <div className="text-sm text-dark-400">Aggiornato ogni 30 secondi</div>
+              <div className="text-sm text-dark-400">Aggiornato ogni ora</div>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -525,41 +519,17 @@ export default function HomePage() {
           />
         )}
 
-        {/* Matches by Category */}
+        {/* All Matches */}
         {!loading && filteredMatches.length > 0 ? (
-          <div className="space-y-8">
-            {Object.entries(matchesByCategory).map(([category, categoryMatches]) => {
-              if (categoryMatches.length === 0) return null;
-              
-              return (
-                <div key={category}>
-                  <div className="flex items-center mb-4">
-                    <span className="text-2xl mr-3">
-                      {category === 'calcio' ? '⚽' : 
-                       category === 'tennis' ? '🎾' : 
-                       category === 'basket' ? '🏀' : '🏆'}
-                    </span>
-                    <h3 className="text-xl font-semibold text-dark-50 capitalize">
-                      {category}
-                    </h3>
-                    <span className="ml-3 text-sm text-gray-500">
-                      ({categoryMatches.length} partite)
-                    </span>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                    {categoryMatches.map((match) => (
-                                        <MatchCard
-                    key={match.id}
-                    match={match}
-                    bestOdds={calculateBestOdds(match)}
-                    onViewDetails={handleViewDetails}
-                  />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+            {filteredMatches.map((match) => (
+              <MatchCard
+                key={match.id}
+                match={match}
+                bestOdds={calculateBestOdds(match)}
+                onViewDetails={handleViewDetails}
+              />
+            ))}
           </div>
         ) : !loading ? (
           <div className="text-center py-12">
@@ -656,8 +626,8 @@ export default function HomePage() {
                 </h3>
               </div>
               <p className="text-dark-300 mb-6">
-                La piattaforma più avanzata per il confronto delle quote sportive in tempo reale. 
-                54+ bookmaker verificati, aggiornamenti ogni minuto, API professionali.
+                La piattaforma più avanzata per il confronto delle quote sportive. 
+                54+ bookmaker verificati, aggiornamenti regolari, API professionali.
               </p>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-sm text-dark-400">
@@ -671,20 +641,12 @@ export default function HomePage() {
               </div>
             </div>
             <div>
-              <h4 className="text-lg font-semibold mb-4 text-white">Sport & Campionati</h4>
+              <h4 className="text-lg font-semibold mb-4 text-white">Risorse</h4>
               <ul className="space-y-2 text-dark-300">
-                <li><a href="/sports" className="hover:text-primary-400 transition-colors flex items-center space-x-2">
-                  <span>⚽</span><span>Calcio</span>
-                </a></li>
-                <li><a href="/sports" className="hover:text-primary-400 transition-colors flex items-center space-x-2">
-                  <span>🎾</span><span>Tennis</span>
-                </a></li>
-                <li><a href="/sports" className="hover:text-primary-400 transition-colors flex items-center space-x-2">
-                  <span>🏀</span><span>Basket</span>
-                </a></li>
-                <li><a href="/sports" className="hover:text-primary-400 transition-colors flex items-center space-x-2">
-                  <span>🏈</span><span>Altri Sport</span>
-                </a></li>
+                <li><a href="/sports" className="hover:text-primary-400 transition-colors">Tutti gli Sport</a></li>
+                <li><a href="/bookmakers" className="hover:text-primary-400 transition-colors">Bookmaker Supportati</a></li>
+                <li><button onClick={() => setShowSubscriptionModal(true)} className="hover:text-primary-400 transition-colors text-left">Piani e Prezzi</button></li>
+                <li><a href="#" className="hover:text-primary-400 transition-colors">API Documentation</a></li>
               </ul>
             </div>
             <div>
