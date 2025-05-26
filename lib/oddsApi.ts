@@ -1,5 +1,5 @@
 // Servizio per integrare The Odds API
-const ODDS_API_KEY = 'f9fddbc4c5be58bd8e9e13ad9c91a3cc';
+const ODDS_API_KEY = 'e8d4b5e534a34c76916de8016efa690d';
 const BASE_URL = 'https://api.the-odds-api.com/v4';
 
 export interface OddsApiSport {
@@ -164,7 +164,41 @@ const BOOKMAKER_NAME_MAPPING: { [key: string]: string } = {
   'betdaq': 'Betdaq',
   'matchbook': 'Matchbook',
   'smarkets': 'Smarkets',
-  'betconnect': 'Betconnect'
+  'betconnect': 'Betconnect',
+  
+  // Mappature aggiuntive per gestire prefissi "Bookmaker"
+  'bookmaker bet365': 'Bet365',
+  'bookmaker williamhill': 'William Hill',
+  'bookmaker betfair': 'Betfair',
+  'bookmaker unibet': 'Unibet',
+  'bookmaker bwin': 'Bwin',
+  'bookmaker sisal': 'Sisal',
+  'bookmaker snai': 'Snai',
+  'bookmaker eurobet': 'Eurobet',
+  'bookmaker lottomatica': 'Lottomatica',
+  'bookmaker betclic': 'Betclic',
+  'bookmaker netbet': 'NetBet',
+  'bookmaker leovegas': 'LeoVegas',
+  'bookmaker betway': 'Betway',
+  'bookmaker nordicbet': 'Nordicbet',
+  'bookmaker marathonbet': 'Marathonbet',
+  'bookmaker betano': 'Betano',
+  'bookmaker pinnacle': 'Pinnacle',
+  'bookmaker winamax': 'Winamax',
+  'bookmaker coral': 'Coral',
+  'bookmaker ladbrokes': 'Ladbrokes',
+  'bookmaker 888sport': '888sport',
+  
+  // Mappature per bookmaker con suffissi paese
+  'parionssport_fr': 'Parions Sport Fr',
+  'parions sport (fr)': 'Parions Sport Fr',
+  'tipico_de': 'Tipico',
+  'winamax_fr': 'Winamax Fr',
+  'winamax (fr)': 'Winamax Fr',
+  'winamax_de': 'Winamax De',
+  'winamax (de)': 'Winamax De',
+  'nordic bet': 'Nordicbet',
+  'marathon bet': 'Marathonbet'
 };
 
 // Mappatura nomi squadre per normalizzazione
@@ -284,6 +318,7 @@ export class OddsApiService {
     // Rimuovi prefissi comuni e pulisci il nome
     let cleanName = bookmakerTitle
       .replace(/^Bookmaker\s+/i, '') // Rimuove "Bookmaker " all'inizio
+      .replace(/^The\s+/i, '') // Rimuove "The " all'inizio
       .replace(/\s+(IT|FR|UK|DE|ES|NL|PT|US|CA|AU)$/i, '') // Rimuove codici paese alla fine
       .replace(/[^a-zA-Z0-9\s]/g, '') // Rimuove caratteri speciali
       .trim();
@@ -294,8 +329,30 @@ export class OddsApiService {
       return cleanMapped;
     }
 
-    // Altrimenti usa il nome pulito
-    return cleanName || bookmakerTitle;
+    // Prova anche con variazioni del nome pulito
+    const variations = [
+      cleanName,
+      cleanName.replace(/\s+/g, ''), // Senza spazi
+      cleanName.toLowerCase(),
+      cleanName.replace(/bet/i, 'Bet'), // Capitalizza "Bet"
+      cleanName.replace(/win/i, 'Win'), // Capitalizza "Win"
+    ];
+
+    for (const variation of variations) {
+      const mapped = BOOKMAKER_NAME_MAPPING[variation.toLowerCase()];
+      if (mapped) {
+        return mapped;
+      }
+    }
+
+    // Se ancora non trovato, capitalizza la prima lettera di ogni parola
+    const capitalizedName = cleanName
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+
+    // Altrimenti usa il nome capitalizzato
+    return capitalizedName || bookmakerTitle;
   }
 
   // Ottieni tutti gli sport disponibili

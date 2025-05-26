@@ -37,7 +37,29 @@ const BOOKMAKER_BASE_URLS: { [key: string]: string } = {
   'Paddy Power': 'https://www.paddypower.it/scommesse',
   'Coral': 'https://sports.coral.co.uk/it/calcio',
   '888sport': 'https://www.888sport.it/scommesse',
-  'LeoVegas': 'https://www.leovegas.it/it/sports'
+  'LeoVegas': 'https://www.leovegas.it/it/sports',
+  
+  // Bookmaker aggiuntivi che potrebbero apparire nell'API
+  'Nordicbet': 'https://www.nordicbet.it/scommesse',
+  'Betsson': 'https://www.betsson.it/scommesse',
+  'Betsafe': 'https://www.betsafe.it/scommesse',
+  'Interwetten': 'https://www.interwetten.it/scommesse',
+  'Tipico': 'https://www.tipico.it/scommesse',
+  'Sportingbet': 'https://www.sportingbet.it/scommesse',
+  'Betflag': 'https://www.betflag.it/scommesse',
+  'Betaland': 'https://www.betaland.it/scommesse',
+  'Vincitu': 'https://www.vincitu.it/scommesse',
+  'Cplay': 'https://www.cplay.it/scommesse',
+  'Betvictor': 'https://www.betvictor.it/scommesse',
+  'Betfred': 'https://www.betfred.it/scommesse',
+  'Sky Bet': 'https://www.skybet.it/scommesse',
+  '10Bet': 'https://www.10bet.it/scommesse',
+  'Bet-at-home': 'https://www.bet-at-home.it/scommesse',
+  
+  // Bookmaker internazionali con versioni italiane
+  'Winamax Fr': 'https://www.winamax.fr/paris-sportifs',
+  'Winamax De': 'https://www.winamax.de/sportwetten',
+  'Parions Sport Fr': 'https://www.parionssport.fdj.fr/paris-sportifs'
 };
 
 // Lista di bookmaker che potrebbero bloccare iframe (aggiornata)
@@ -49,6 +71,8 @@ const IFRAME_BLOCKED_BOOKMAKERS = [
 // Funzione per normalizzare il nome del bookmaker
 function normalizeBookmakerName(name: string): string {
   return name.trim()
+    .replace(/^Bookmaker\s+/i, '') // Rimuove "Bookmaker " all'inizio
+    .replace(/^The\s+/i, '') // Rimuove "The " all'inizio
     .replace(/\s+/g, ' ')
     .replace(/[^\w\s]/g, '')
     .toLowerCase();
@@ -56,18 +80,49 @@ function normalizeBookmakerName(name: string): string {
 
 // Funzione migliorata per ottenere l'URL del bookmaker
 export function getBookmakerUrl(bookmakerName: string): string {
-  const normalizedInput = normalizeBookmakerName(bookmakerName);
+  const cleanName = bookmakerName.trim();
   
-  // Cerca prima con il nome esatto
-  let baseUrl = BOOKMAKER_BASE_URLS[bookmakerName.trim()];
+  // 1. Cerca prima con il nome esatto
+  let baseUrl = BOOKMAKER_BASE_URLS[cleanName];
   
-  // Se non trovato, prova con variazioni del nome
   if (!baseUrl) {
+    // 2. Rimuovi prefissi comuni e riprova
+    const cleanedName = cleanName
+      .replace(/^Bookmaker\s+/i, '')
+      .replace(/^The\s+/i, '')
+      .trim();
+    
+    baseUrl = BOOKMAKER_BASE_URLS[cleanedName];
+  }
+  
+  if (!baseUrl) {
+    // 3. Cerca con normalizzazione completa
+    const normalizedInput = normalizeBookmakerName(cleanName);
     const foundKey = Object.keys(BOOKMAKER_BASE_URLS).find(key => 
       normalizeBookmakerName(key) === normalizedInput
     );
     if (foundKey) {
       baseUrl = BOOKMAKER_BASE_URLS[foundKey];
+    }
+  }
+  
+  if (!baseUrl) {
+    // 4. Cerca con variazioni del nome
+    const variations = [
+      cleanName,
+      cleanName.replace(/\s+/g, ''), // Senza spazi
+      cleanName.replace(/bet/i, 'Bet'), // Capitalizza "Bet"
+      cleanName.replace(/win/i, 'Win'), // Capitalizza "Win"
+      cleanName.split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      ).join(' ') // Capitalizza ogni parola
+    ];
+    
+    for (const variation of variations) {
+      if (BOOKMAKER_BASE_URLS[variation]) {
+        baseUrl = BOOKMAKER_BASE_URLS[variation];
+        break;
+      }
     }
   }
   
