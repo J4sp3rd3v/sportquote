@@ -82,7 +82,7 @@ export default function NavigationOverlay({ bookmakerName, originalUrl, onClose 
           onClick={showBar}
         >
           <Home className="h-4 w-4" />
-          <span className="text-sm font-medium">Torna a SitoSport</span>
+                        <span className="text-sm font-medium">Torna a MonitorQuote</span>
           {position === 'top' ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function NavigationOverlay({ bookmakerName, originalUrl, onClose 
               </div>
               <div>
                 <div className="font-semibold text-sm">Stai navigando su {bookmakerName}</div>
-                <div className="text-xs text-blue-100">tramite SitoSport</div>
+                <div className="text-xs text-blue-100">tramite MonitorQuote</div>
               </div>
             </div>
           </div>
@@ -112,16 +112,16 @@ export default function NavigationOverlay({ bookmakerName, originalUrl, onClose 
             <button
               onClick={handleBackToSite}
               className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-colors duration-200"
-              title="Torna a SitoSport"
+              title="Torna a MonitorQuote"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">Torna a SitoSport</span>
+              <span className="hidden sm:inline text-sm">Torna a MonitorQuote</span>
             </button>
             
             <button
               onClick={handleOpenInNewTab}
               className="flex items-center space-x-1 bg-white/20 hover:bg-white/30 px-2 py-2 rounded transition-colors duration-200"
-              title="Apri SitoSport in nuova scheda"
+              title="Apri MonitorQuote in nuova scheda"
             >
               <ExternalLink className="h-4 w-4" />
               <span className="hidden md:inline text-sm">Nuova scheda</span>
@@ -162,7 +162,7 @@ export default function NavigationOverlay({ bookmakerName, originalUrl, onClose 
         >
           <div className="flex items-center space-x-2">
             <Home className="h-4 w-4" />
-            <span className="text-sm font-medium">SitoSport</span>
+                          <span className="text-sm font-medium">MonitorQuote</span>
           </div>
         </div>
       )}

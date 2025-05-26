@@ -19,7 +19,7 @@ export function useNavigationOverlay() {
 
   const checkForNavigation = useCallback(() => {
     try {
-      const stored = sessionStorage.getItem('sitosport_navigation');
+      const stored = sessionStorage.getItem('monitorquote_navigation');
       if (stored) {
         const data: NavigationData = JSON.parse(stored);
         
@@ -31,19 +31,19 @@ export function useNavigationOverlay() {
           
           // Aggiorna il timestamp per mantenere la sessione attiva
           const updatedData = { ...data, timestamp: Date.now() };
-          sessionStorage.setItem('sitosport_navigation', JSON.stringify(updatedData));
+          sessionStorage.setItem('monitorquote_navigation', JSON.stringify(updatedData));
           
           console.log('Barra di navigazione attivata per:', data.bookmakerName);
         } else {
           // Rimuovi dati scaduti
-          sessionStorage.removeItem('sitosport_navigation');
+          sessionStorage.removeItem('monitorquote_navigation');
           console.log('Dati di navigazione scaduti, rimossi');
         }
       }
     } catch (error) {
       console.error('Errore nel controllo navigazione:', error);
       // In caso di errore, rimuovi i dati corrotti
-      sessionStorage.removeItem('sitosport_navigation');
+      sessionStorage.removeItem('monitorquote_navigation');
     }
   }, []);
 
@@ -83,7 +83,7 @@ export function useNavigationOverlay() {
   const closeOverlay = useCallback(() => {
     setShowOverlay(false);
     setNavigationData(null);
-    sessionStorage.removeItem('sitosport_navigation');
+    sessionStorage.removeItem('monitorquote_navigation');
     console.log('Barra di navigazione chiusa');
   }, []);
 
@@ -91,7 +91,7 @@ export function useNavigationOverlay() {
     if (navigationData) {
       const updatedData = { ...navigationData, ...newData, timestamp: Date.now() };
       setNavigationData(updatedData);
-      sessionStorage.setItem('sitosport_navigation', JSON.stringify(updatedData));
+      sessionStorage.setItem('monitorquote_navigation', JSON.stringify(updatedData));
     }
   }, [navigationData]);
 
@@ -102,7 +102,7 @@ export function useNavigationOverlay() {
       timestamp: Date.now()
     };
     
-    sessionStorage.setItem('sitosport_navigation', JSON.stringify(navigationData));
+    sessionStorage.setItem('monitorquote_navigation', JSON.stringify(navigationData));
     console.log('Dati di navigazione salvati per:', data.bookmakerName);
   }, []);
 

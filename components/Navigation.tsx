@@ -43,7 +43,7 @@ export default function Navigation() {
               <TrendingUp className="h-6 w-6 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-white to-primary-300 bg-clip-text text-transparent">
-              SitoSport
+              MonitorQuote
             </span>
           </Link>
 

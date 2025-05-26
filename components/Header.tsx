@@ -58,7 +58,7 @@ export default function Header({ onSearch, onSearchChange, searchQuery = '', onF
                 <div className="w-8 h-8 bg-gradient-to-r from-primary-600 to-blue-600 rounded-lg flex items-center justify-center">
                   <TrendingUp className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-gray-900">SitoSport</span>
+                <span className="text-xl font-bold text-gray-900">MonitorQuote</span>
               </Link>
             </div>
 

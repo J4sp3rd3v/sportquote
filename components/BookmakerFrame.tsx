@@ -76,7 +76,7 @@ export default function BookmakerFrame({
               className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-colors duration-200"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Torna a SitoSport</span>
+              <span className="hidden sm:inline">Torna a MonitorQuote</span>
               <span className="sm:hidden">Indietro</span>
             </button>
             
@@ -164,7 +164,7 @@ export default function BookmakerFrame({
                   onClick={onClose}
                   className="w-full btn-secondary"
                 >
-                  Torna a SitoSport
+                  Torna a MonitorQuote
                 </button>
               </div>
             </div>
@@ -186,7 +186,7 @@ export default function BookmakerFrame({
       <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white text-xs p-2 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span>🔒</span>
-          <span>Stai navigando su {bookmakerName} tramite SitoSport</span>
+          <span>Stai navigando su {bookmakerName} tramite MonitorQuote</span>
         </div>
         <div className="flex items-center space-x-4">
           <span className="text-gray-300">Scommetti responsabilmente</span>

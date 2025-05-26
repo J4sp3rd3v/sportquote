@@ -471,7 +471,7 @@ export default function HomePage() {
               <div className="flex items-center mb-4">
                 <TrendingUp className="h-8 w-8 text-primary-400 mr-2" />
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-primary-300 bg-clip-text text-transparent">
-                  SitoSport
+                  MonitorQuote
                 </h3>
               </div>
               <p className="text-dark-300 mb-6">
@@ -519,7 +519,7 @@ export default function HomePage() {
           <div className="border-t border-dark-800 mt-8 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-dark-400 text-sm">
-                &copy; 2025 SitoSport. Tutti i diritti riservati. | Gioco responsabile +18
+                &copy; 2025 MonitorQuote. Tutti i diritti riservati. | Gioco responsabile +18
               </p>
               <div className="flex items-center space-x-4 mt-4 md:mt-0">
                 <span className="text-xs text-dark-500">Powered by</span>

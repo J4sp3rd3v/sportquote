@@ -6,19 +6,19 @@ import Navigation from '@/components/Navigation'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'SitoSport - Quote Live in Tempo Reale',
+  title: 'MonitorQuote - Quote Live in Tempo Reale',
   description: 'La piattaforma più avanzata per il confronto delle quote sportive. 54+ bookmaker verificati, aggiornamenti ogni minuto, API professionali.',
   keywords: 'quote sportive, scommesse, bookmaker, calcio, tennis, basket, confronto quote, odds comparison',
-  authors: [{ name: 'SitoSport Team' }],
+  authors: [{ name: 'MonitorQuote Team' }],
   openGraph: {
-    title: 'SitoSport - Quote Live in Tempo Reale',
+    title: 'MonitorQuote - Quote Live in Tempo Reale',
     description: 'Confronta le migliori quote tra 54+ bookmaker verificati. Aggiornamenti ogni minuto.',
     type: 'website',
     locale: 'it_IT',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SitoSport - Quote Live in Tempo Reale',
+    title: 'MonitorQuote - Quote Live in Tempo Reale',
     description: 'Confronta le migliori quote tra 54+ bookmaker verificati.',
   },
   robots: {

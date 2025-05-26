@@ -60,7 +60,7 @@ const testimonials = [
   {
     name: 'Marco R.',
     role: 'Trader Sportivo',
-    content: 'Con SitoSport Premium ho aumentato i miei profitti del 40%. Le quote in tempo reale sono fondamentali.',
+            content: 'Con MonitorQuote Premium ho aumentato i miei profitti del 40%. Le quote in tempo reale sono fondamentali.',
     rating: 5
   },
   {
@@ -243,7 +243,7 @@ export default function PremiumPage() {
             Pronto a Iniziare?
           </h2>
           <p className="text-xl text-dark-300 mb-8">
-            Unisciti a migliaia di trader che già utilizzano SitoSport per massimizzare i loro profitti.
+            Unisciti a migliaia di trader che già utilizzano MonitorQuote per massimizzare i loro profitti.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

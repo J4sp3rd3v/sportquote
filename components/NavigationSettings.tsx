@@ -30,7 +30,7 @@ export default function NavigationSettings({ isOpen, onClose }: NavigationSettin
   useEffect(() => {
     // Carica le preferenze salvate
     try {
-      const saved = localStorage.getItem('sitosport_navigation_preferences');
+      const saved = localStorage.getItem('monitorquote_navigation_preferences');
       if (saved) {
         setPreferences({ ...defaultPreferences, ...JSON.parse(saved) });
       }
@@ -42,7 +42,7 @@ export default function NavigationSettings({ isOpen, onClose }: NavigationSettin
   const savePreferences = (newPreferences: NavigationPreferences) => {
     setPreferences(newPreferences);
     try {
-      localStorage.setItem('sitosport_navigation_preferences', JSON.stringify(newPreferences));
+      localStorage.setItem('monitorquote_navigation_preferences', JSON.stringify(newPreferences));
     } catch (error) {
       console.warn('Errore nel salvataggio delle preferenze:', error);
     }
@@ -234,7 +234,7 @@ export function useNavigationPreferences(): NavigationPreferences {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('sitosport_navigation_preferences');
+      const saved = localStorage.getItem('monitorquote_navigation_preferences');
       if (saved) {
         setPreferences({ ...defaultPreferences, ...JSON.parse(saved) });
       }

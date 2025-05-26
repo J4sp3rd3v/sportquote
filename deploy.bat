@@ -1,5 +1,5 @@
 @echo off
-echo 🚀 SitoSport - Script di Deployment Automatico
+echo 🚀 MonitorQuote - Script di Deployment Automatico
 echo ================================================
 
 echo.

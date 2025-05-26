@@ -1,4 +1,4 @@
-# 🏆 SitoSport - Comparatore Quote Sportive Moderno
+# 🏆 MonitorQuote - Comparatore Quote Sportive Moderno
 
 Un'applicazione web moderna e responsive per il confronto delle quote sportive in tempo reale, con sistema di abbonamenti e interfaccia ottimizzata per tema scuro.
 
@@ -47,8 +47,8 @@ Un'applicazione web moderna e responsive per il confronto delle quote sportive i
 
 1. **Clona il repository**
 ```bash
-git clone https://github.com/tuousername/sitosport.git
-cd sitosport
+git clone https://github.com/tuousername/monitorquote.git
+cd monitorquote
 ```
 
 2. **Installa le dipendenze**
@@ -93,7 +93,7 @@ Il sistema gestisce automaticamente i limiti delle API:
 ## 📁 Struttura del Progetto
 
 ```
-sitosport/
+monitorquote/
 ├── app/                    # App Router (Next.js 14)
 │   ├── bookmakers/        # Pagina bookmaker
 │   ├── sports/            # Pagina sport e campionati
@@ -294,16 +294,16 @@ Questo progetto è sotto licenza MIT. Vedi il file `LICENSE` per dettagli.
 ## 🆘 Supporto
 
 Per supporto e domande:
-- 📧 Email: support@sitosport.com
+- 📧 Email: support@monitorquote.com
 - 💬 Discord: [Link server Discord]
 - 📱 Telegram: [Link canale Telegram]
 
 ## 🔗 Link Utili
 
-- [Documentazione API](https://docs.sitosport.com)
-- [Guida Utente](https://guide.sitosport.com)
-- [Status Page](https://status.sitosport.com)
-- [Roadmap](https://roadmap.sitosport.com)
+- [Documentazione API](https://docs.monitorquote.com)
+- [Guida Utente](https://guide.monitorquote.com)
+- [Status Page](https://status.monitorquote.com)
+- [Roadmap](https://roadmap.monitorquote.com)
 
 ---
 

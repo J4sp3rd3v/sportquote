@@ -17,7 +17,7 @@ function makeRequest(path, keyIndex = 0) {
       path: path,
       method: 'GET',
       headers: {
-        'User-Agent': 'SitoSport-Optimized/1.0'
+        'User-Agent': 'MonitorQuote-Optimized/1.0'
       }
     };
 

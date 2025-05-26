@@ -94,7 +94,7 @@ function getBookmakerUrl(bookmakerName) {
   if (baseUrl) {
     // Aggiungi parametri UTM per tracking
     const separator = baseUrl.includes('?') ? '&' : '?';
-    const utmParams = `utm_source=sitosport&utm_medium=referral&utm_campaign=quote_comparison`;
+    const utmParams = `utm_source=monitorquote&utm_medium=referral&utm_campaign=quote_comparison`;
     
     if (!baseUrl.includes('utm_source')) {
       return `${baseUrl}${separator}${utmParams}`;

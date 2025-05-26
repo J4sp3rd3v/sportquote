@@ -13,7 +13,7 @@ function makeRequest(path) {
       path: path,
       method: 'GET',
       headers: {
-        'User-Agent': 'SitoSport/1.0'
+        'User-Agent': 'MonitorQuote/1.0'
       }
     };
 
