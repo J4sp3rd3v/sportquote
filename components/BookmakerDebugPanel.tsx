@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bug, CheckCircle, XCircle, AlertTriangle, ExternalLink } from 'lucide-react';
 import { getBookmakerInfo, getSupportedBookmakers, validateBookmakerUrl } from '@/lib/bookmakerLinks';
-import { bookmakers } from '@/data/mockData';
+import { getSupportedBookmakers as getApiBookmakers } from '@/lib/oddsApiService';
 
 interface BookmakerDebugPanelProps {
   isOpen: boolean;
@@ -36,8 +36,9 @@ export default function BookmakerDebugPanel({ isOpen, onClose }: BookmakerDebugP
     const statuses: BookmakerStatus[] = [];
     const supportedBookmakers = getSupportedBookmakers();
     
-    // Analizza i primi 20 bookmaker dai dati mock
-    const topBookmakers = bookmakers.slice(0, 20);
+    // Analizza i bookmaker dall'API
+    const apiBookmakers = await getApiBookmakers();
+    const topBookmakers = apiBookmakers.slice(0, 20);
     
     for (const bookmaker of topBookmakers) {
       const info = getBookmakerInfo(bookmaker.name);

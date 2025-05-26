@@ -6,17 +6,35 @@ import { Match, Bookmaker } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { getBookmakerInfo as getBookmakerLinkInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
+import { getSupportedBookmakers } from '@/lib/oddsApiService';
 import SmartBookmakerHandler from './SmartBookmakerHandler';
+import { useState, useEffect } from 'react';
 
 interface MatchDetailsProps {
   match: Match;
-  bookmakers: Bookmaker[];
   isOpen: boolean;
   onClose: () => void;
   onOpenBookmaker?: (url: string, bookmakerName: string, matchInfo: any) => void;
 }
 
-export default function MatchDetails({ match, bookmakers, isOpen, onClose, onOpenBookmaker }: MatchDetailsProps) {
+export default function MatchDetails({ match, isOpen, onClose, onOpenBookmaker }: MatchDetailsProps) {
+  const [bookmakers, setBookmakers] = useState<Bookmaker[]>([]);
+
+  useEffect(() => {
+    const loadBookmakers = async () => {
+      try {
+        const data = await getSupportedBookmakers();
+        setBookmakers(data);
+      } catch (error) {
+        console.error('Errore nel caricamento bookmaker:', error);
+      }
+    };
+
+    if (isOpen) {
+      loadBookmakers();
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const formatDate = (date: Date) => {

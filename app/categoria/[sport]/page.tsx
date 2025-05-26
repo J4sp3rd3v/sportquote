@@ -10,7 +10,6 @@ import DataSourceToggle from '@/components/DataSourceToggle';
 import ApiStatusBanner from '@/components/ApiStatusBanner';
 import BestOddsHighlight from '@/components/BestOddsHighlight';
 import BookmakerFrame from '@/components/BookmakerFrame';
-import { matches as mockMatches, bookmakers } from '@/data/mockData';
 import { useRealOdds } from '@/hooks/useRealOdds';
 import { FilterOptions, BestOdds, Match } from '@/types';
 import { ArrowLeft, Filter, TrendingUp } from 'lucide-react';
@@ -50,8 +49,8 @@ export default function CategoryPage() {
     toggleDataSource
   } = useRealOdds();
 
-  // Usa i dati reali se disponibili, altrimenti quelli simulati
-  const allMatches = useRealData ? realMatches : mockMatches;
+  // Usa solo i dati reali
+  const allMatches = realMatches;
 
   // Filtra per sport specifico
   const categoryMatches = useMemo(() => {
@@ -238,7 +237,7 @@ export default function CategoryPage() {
                 <span className="ml-1">campionati</span>
               </div>
               <div className="flex items-center">
-                <span className="font-medium">{bookmakers.length}</span>
+                <span className="font-medium">35+</span>
                 <span className="ml-1">bookmakers</span>
               </div>
             </div>
@@ -367,10 +366,8 @@ export default function CategoryPage() {
       {selectedMatch && (
         <MatchDetails
           match={selectedMatch}
-          bookmakers={bookmakers}
           isOpen={!!selectedMatch}
           onClose={() => setSelectedMatch(null)}
-
         />
       )}
 

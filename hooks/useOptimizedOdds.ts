@@ -21,30 +21,18 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
   const [useRealData, setUseRealData] = useState(false);
   const [apiStats, setApiStats] = useState<any>(null);
 
-  // Determina se usare API reale in base all'ambiente
+  // Usa sempre API reale (non più supporto per dati mock)
   useEffect(() => {
-    const shouldUseRealData = () => {
-      // In produzione, usa API reale di default
-      if (process.env.NODE_ENV === 'production') {
-        const urlParams = new URLSearchParams(window.location.search);
-        return !urlParams.has('usemock'); // Usa API reale a meno che non sia specificato usemock
-      }
-      
-      // In development, usa mock di default
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.has('useapi'); // Usa API reale solo se specificato useapi
-    };
-
-    setUseRealData(shouldUseRealData());
+    setUseRealData(true);
   }, []);
 
-  // Carica dati mock come fallback
-  const loadMockData = useCallback(async () => {
+  // Carica dati di fallback statici
+  const loadFallbackData = useCallback(async () => {
     try {
-      const { matches: mockMatches } = await import('@/data/mockData');
-      return mockMatches;
+      // Dati di fallback statici quando l'API non è disponibile
+      return [];
     } catch (error) {
-      console.error('Errore nel caricamento dati mock:', error);
+      console.error('Errore nel caricamento dati di fallback:', error);
       return [];
     }
   }, []);
@@ -87,36 +75,36 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
       const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto API';
       setError(errorMessage);
       
-      // Fallback automatico ai dati mock
-      console.log('🔄 Fallback automatico ai dati simulati');
-      return await loadMockData();
+      // Fallback automatico ai dati di fallback
+      console.log('🔄 Fallback automatico ai dati di fallback');
+      return await loadFallbackData();
     }
-  }, [loadMockData]);
+  }, [loadFallbackData]);
 
-  // Carica dati in base alla modalità selezionata
+  // Carica dati dall'API reale
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = useRealData ? await loadRealData() : await loadMockData();
+      const data = await loadRealData();
       setMatches(data);
     } catch (error) {
       console.error('Errore nel caricamento dati:', error);
       setError('Errore nel caricamento dei dati');
       
-      // Fallback finale ai dati mock
+      // Fallback finale ai dati di fallback
       try {
-        const mockData = await loadMockData();
-        setMatches(mockData);
-      } catch (mockError) {
-        console.error('Errore anche nel caricamento mock:', mockError);
+        const fallbackData = await loadFallbackData();
+        setMatches(fallbackData);
+      } catch (fallbackError) {
+        console.error('Errore anche nel caricamento fallback:', fallbackError);
         setMatches([]);
       }
     } finally {
       setLoading(false);
     }
-  }, [useRealData, loadRealData, loadMockData]);
+  }, [loadRealData, loadFallbackData]);
 
   // Caricamento iniziale
   useEffect(() => {
@@ -154,13 +142,9 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
     return () => clearInterval(interval);
   }, [useRealData]);
 
-  // Toggle tra dati reali e mock
+  // Toggle disabilitato - ora usiamo sempre API reale
   const toggleDataSource = useCallback(() => {
-    setUseRealData(prev => {
-      const newValue = !prev;
-      console.log(`🔄 Cambio sorgente dati: ${newValue ? 'API Reale' : 'Dati Simulati'}`);
-      return newValue;
-    });
+    console.log('Toggle disabilitato - usiamo sempre API reale');
   }, []);
 
   // Forza aggiornamento completo

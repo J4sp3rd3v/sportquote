@@ -3,7 +3,22 @@
 import React from 'react';
 import { X, Calendar, Trophy, Globe } from 'lucide-react';
 import { FilterOptions } from '@/types';
-import { sports, leagues } from '@/data/mockData';
+// Dati statici per i filtri
+const sports = [
+  { id: 'calcio', name: 'Calcio', icon: '⚽' },
+  { id: 'tennis', name: 'Tennis', icon: '🎾' },
+  { id: 'basket', name: 'Basket', icon: '🏀' },
+  { id: 'altro', name: 'Altri Sport', icon: '🏆' }
+];
+
+const leagues = [
+  { id: 'serie-a', name: 'Serie A', country: 'Italia', sport: 'calcio' },
+  { id: 'premier-league', name: 'Premier League', country: 'Inghilterra', sport: 'calcio' },
+  { id: 'la-liga', name: 'La Liga', country: 'Spagna', sport: 'calcio' },
+  { id: 'bundesliga', name: 'Bundesliga', country: 'Germania', sport: 'calcio' },
+  { id: 'nba', name: 'NBA', country: 'USA', sport: 'basket' },
+  { id: 'atp', name: 'ATP Tour', country: 'Mondiale', sport: 'tennis' }
+];
 
 interface FilterPanelProps {
   isOpen: boolean;

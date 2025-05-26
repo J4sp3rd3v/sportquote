@@ -19,7 +19,6 @@ import SubscriptionManager from '@/components/SubscriptionManager';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 import { useApiManager } from '@/lib/apiManager';
 
-import { matches as mockMatches, bookmakers } from '@/data/mockData';
 import { useOptimizedOdds } from '@/hooks/useOptimizedOdds';
 import { FilterOptions, BestOdds, Match } from '@/types';
 import { TrendingUp, Users, Award, Clock, Filter } from 'lucide-react';
@@ -50,37 +49,8 @@ export default function HomePage() {
     refreshSport
   } = useOptimizedOdds();
 
-  // Usa i dati reali se disponibili, altrimenti quelli simulati
-  const matches = useRealData ? realMatches : mockMatches;
-
-  // Calcola statistiche per dati simulati
-  const mockCategoryStats = useMemo(() => {
-    if (useRealData) return null;
-    
-    const stats = {
-      calcio: { count: 0, leagues: new Set<string>() },
-      tennis: { count: 0, leagues: new Set<string>() },
-      basket: { count: 0, leagues: new Set<string>() },
-      altro: { count: 0, leagues: new Set<string>() }
-    };
-
-    mockMatches.forEach(match => {
-      const category = match.sport as keyof typeof stats;
-      if (stats[category]) {
-        stats[category].count++;
-        stats[category].leagues.add(match.league);
-      }
-    });
-
-    return {
-      calcio: { count: stats.calcio.count, leagues: Array.from(stats.calcio.leagues) },
-      tennis: { count: stats.tennis.count, leagues: Array.from(stats.tennis.leagues) },
-      basket: { count: stats.basket.count, leagues: Array.from(stats.basket.leagues) },
-      altro: { count: stats.altro.count, leagues: Array.from(stats.altro.leagues) }
-    };
-  }, [useRealData]);
-
-  const currentStats = mockCategoryStats;
+  // Usa solo i dati reali
+  const matches = realMatches;
 
   // Funzione per calcolare le migliori quote
   const calculateBestOdds = (match: Match): BestOdds => {
@@ -305,7 +275,7 @@ export default function HomePage() {
                 <span className="ml-1">partite</span>
               </div>
               <div className="flex items-center">
-                <span className="font-medium">{bookmakers.length}</span>
+                <span className="font-medium">35+</span>
                 <span className="ml-1">bookmakers</span>
               </div>
             </div>
@@ -340,13 +310,7 @@ export default function HomePage() {
           />
         )}
 
-        {/* Category Statistics */}
-        {currentStats && (
-          <SportCategoryStats 
-            stats={currentStats} 
-            isRealData={useRealData}
-          />
-        )}
+        {/* Category Statistics - Rimosso per ora */}
 
         {/* Results Header */}
         <div className="flex justify-between items-center mb-6">
@@ -457,10 +421,8 @@ export default function HomePage() {
       {selectedMatch && (
         <MatchDetails
           match={selectedMatch}
-          bookmakers={bookmakers}
           isOpen={!!selectedMatch}
           onClose={() => setSelectedMatch(null)}
-  
         />
       )}
 
