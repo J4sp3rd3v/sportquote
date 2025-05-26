@@ -10,6 +10,7 @@ import SportCategoryStats from '@/components/SportCategoryStats';
 import NavigationOverlay from '@/components/NavigationOverlay';
 import ApiStatusBanner from '@/components/ApiStatusBanner';
 import ApiStatusInfo from '@/components/ApiStatusInfo';
+import EmergencyApiStatus from '@/components/EmergencyApiStatus';
 import BestOddsHighlight from '@/components/BestOddsHighlight';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import BookmakerTestPanel from '@/components/BookmakerTestPanel';
@@ -294,6 +295,8 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+        {/* Emergency API Status - Priorità massima */}
+        <EmergencyApiStatus />
 
         {/* API Status Banner */}
         <ApiStatusBanner

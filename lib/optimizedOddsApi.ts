@@ -1,5 +1,6 @@
 // Servizio API ottimizzato per gestire 500 richieste mensili
 import { OddsApiEvent, OddsApiSport } from './oddsApi';
+import { emergencyApiManager } from './emergencyApiManager';
 
 // Pool di chiavi API per rotazione
 const API_KEYS = [
@@ -138,6 +139,9 @@ export class OptimizedOddsApiService {
     
     this.saveUsageStats();
 
+    // Aggiorna il sistema di emergenza
+    emergencyApiManager.updateApiUsage(requestsRemaining, requestsUsed);
+    
     // Controlla se entrare in modalità emergenza
     const totalRemaining = this.usageStats.reduce((sum, stat) => sum + stat.requestsRemaining, 0);
     this.isEmergencyMode = totalRemaining < 50; // Meno di 50 richieste rimanenti
@@ -181,6 +185,13 @@ export class OptimizedOddsApiService {
     if (cached) {
       console.log(`📦 Cache hit per ${endpoint}`);
       return cached;
+    }
+
+    // Controlla sistema di emergenza
+    if (!emergencyApiManager.canMakeApiRequest()) {
+      const timeUntilNext = emergencyApiManager.getTimeUntilNextRequest();
+      const hoursUntilNext = Math.ceil(timeUntilNext / (60 * 60 * 1000));
+      throw new Error(`EMERGENCY_MODE: Prossima richiesta consentita tra ${hoursUntilNext} ore`);
     }
 
     // Seleziona la migliore chiave API

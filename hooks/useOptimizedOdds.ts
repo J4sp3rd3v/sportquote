@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { optimizedOddsApi } from '@/lib/optimizedOddsApi';
 import { OddsApiService } from '@/lib/oddsApi';
+import { fallbackDataService } from '@/lib/fallbackDataService';
+import { emergencyApiManager } from '@/lib/emergencyApiManager';
 import { Match } from '@/types';
 
 interface UseOptimizedOddsReturn {
@@ -33,8 +35,10 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
   // Carica dati di fallback statici
   const loadFallbackData = useCallback(async () => {
     try {
-      // Dati di fallback statici quando l'API non è disponibile
-      return [];
+      console.log('🔄 Caricamento dati di fallback per modalità emergenza');
+      const fallbackMatches = fallbackDataService.getFallbackMatches();
+      console.log(`✅ Caricati ${fallbackMatches.length} match di fallback`);
+      return fallbackMatches;
     } catch (error) {
       console.error('Errore nel caricamento dati di fallback:', error);
       return [];
@@ -45,6 +49,14 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
   const loadRealData = useCallback(async () => {
     try {
       setError(null);
+      
+      // Controlla sistema di emergenza prima di fare richieste
+      const emergencyState = emergencyApiManager.getEmergencyStatus();
+      if (emergencyState.isEmergencyMode && !emergencyApiManager.canMakeApiRequest()) {
+        console.warn('🚨 Sistema in modalità emergenza - usando dati di fallback');
+        setError('Sistema in modalità emergenza - preservando richieste API');
+        return await loadFallbackData();
+      }
       
       // Ottieni statistiche API con controllo di sicurezza
       let stats = null;
@@ -77,6 +89,14 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
     } catch (error) {
       console.error('Errore API ottimizzata:', error);
       const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto API';
+      
+      // Se è un errore di emergenza, usa dati di fallback
+      if (errorMessage.includes('EMERGENCY_MODE')) {
+        console.warn('🚨 Modalità emergenza attivata - usando dati di fallback');
+        setError('Modalità emergenza: preservando richieste API rimanenti');
+        return await loadFallbackData();
+      }
+      
       setError(errorMessage);
       
       // Fallback automatico ai dati di fallback
