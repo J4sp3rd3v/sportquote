@@ -72,8 +72,8 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
         throw new Error('API non disponibile');
       }
 
-      // Ottieni eventi da API ottimizzata
-      const apiEvents = await optimizedOddsApi.getMultipleSportsOptimized();
+      // Ottieni eventi da API giornaliera
+      const apiEvents = await optimizedOddsApi.getDailySportsUpdate();
       
       if (!apiEvents || apiEvents.length === 0) {
         throw new Error('Nessun dato disponibile dall\'API');
@@ -147,14 +147,14 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
     loadData();
   }, [loadData]);
 
-  // Aggiornamento periodico per API reale (ogni 15 minuti)
+  // Aggiornamento periodico per API reale (ogni 4 ore - controllo se ci sono sport da aggiornare)
   useEffect(() => {
     if (!useRealData) return;
 
     const interval = setInterval(() => {
-      console.log('🔄 Aggiornamento periodico programmato');
+      console.log('🔄 Controllo periodico aggiornamenti giornalieri');
       loadData();
-    }, 15 * 60 * 1000); // 15 minuti
+    }, 4 * 60 * 60 * 1000); // 4 ore
 
     return () => clearInterval(interval);
   }, [useRealData, loadData]);
@@ -172,8 +172,8 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
       }
     };
 
-    // Aggiorna statistiche ogni 5 minuti
-    const interval = setInterval(updateStats, 5 * 60 * 1000);
+    // Aggiorna statistiche ogni 30 minuti
+    const interval = setInterval(updateStats, 30 * 60 * 1000);
     
     return () => clearInterval(interval);
   }, [useRealData]);

@@ -5,15 +5,17 @@
 ## 🚀 Funzionalità Principali
 
 ### 📊 Sistema di Abbonamenti a 3 Livelli
-- **🆓 Gratuito**: Aggiornamenti ogni ora, 100 richieste/mese
+- **🆓 Gratuito**: Aggiornamenti giornalieri, 500 richieste/mese (ATTUALE)
 - **👑 Pro**: Aggiornamenti ogni minuto, 1.000 richieste/mese (PIÙ POPOLARE)
 - **⭐ Premium**: Aggiornamenti ogni 30 secondi, 5.000 richieste/mese
 
-### 🔄 Aggiornamenti Automatici Intelligenti
-- Frequenza basata sul piano di abbonamento
-- Gestione automatica dei limiti e scadenze
-- Persistenza dati con localStorage
-- Pattern singleton per gestione globale
+### 🔄 Sistema API Giornaliero Ottimizzato
+- **1 richiesta per sport al giorno** (6 sport = 6 richieste/giorno)
+- **Chiave API**: `4815fd45ad14363aea162bef71a91b06`
+- **Limite mensile**: 500 richieste preservate accuratamente
+- **Cache 24 ore**: Riduce richieste duplicate
+- **Priorità sport**: Serie A > Premier League > Champions League > NBA > Tennis > NFL
+- **Monitoraggio preciso**: Conteggio richieste giornaliere e mensili
 
 ### 🏆 Copertura Sportiva Completa
 - **⚽ Calcio**: Serie A, Premier League, La Liga, Bundesliga, Ligue 1, Champions League
@@ -121,12 +123,41 @@ npm start
 
 ## 📊 API Integration
 
-### The Odds API
+### The Odds API - Sistema Giornaliero
 - **Endpoint**: `https://api.the-odds-api.com/v4`
+- **Chiave API**: `4815fd45ad14363aea162bef71a91b06`
 - **Copertura**: 54+ bookmaker verificati
 - **Mercati**: H2H, Spread, Totals
 - **Regioni**: Europa, Italia, Globale
-- **Rate Limiting**: Gestito automaticamente
+- **Frequenza**: 1 aggiornamento per sport al giorno
+- **Limite mensile**: 500 richieste (6 al giorno × 30 giorni = 180 richieste/mese)
+- **Cache TTL**: 24 ore per preservare richieste
+- **Monitoraggio**: Conteggio accurato richieste giornaliere e mensili
+
+### Sistema API Giornaliero - Dettagli Tecnici
+
+#### 🔧 Configurazione
+```typescript
+// lib/dailyApiManager.ts
+const API_KEY = '4815fd45ad14363aea162bef71a91b06';
+const DAILY_QUOTA = 6; // 1 per sport
+const MONTHLY_LIMIT = 500;
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 ore
+```
+
+#### 📅 Logica Giornaliera
+- **Reset automatico**: Ogni giorno alle 00:00
+- **Priorità sport**: Serie A → Premier League → Champions League → NBA → Tennis → NFL
+- **Prevenzione duplicati**: Ogni sport aggiornato max 1 volta al giorno
+- **Monitoraggio**: Conteggio preciso richieste giornaliere e mensili
+
+#### 🎯 Sport Supportati (6 totali)
+1. **soccer_italy_serie_a** - Serie A (priorità massima)
+2. **soccer_epl** - Premier League
+3. **soccer_uefa_champs_league** - Champions League
+4. **basketball_nba** - NBA
+5. **tennis_atp_french_open** - ATP Tennis
+6. **americanfootball_nfl** - NFL
 
 ### Bookmaker Supportati
 - **Italia**: Bet365, Sisal, Snai, Eurobet, Lottomatica, Betflag

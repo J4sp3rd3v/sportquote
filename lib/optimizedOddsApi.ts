@@ -1,156 +1,74 @@
-// Servizio API ottimizzato per gestire 500 richieste mensili
+// Servizio API ottimizzato per gestire 500 richieste mensili - 1 richiesta per sport al giorno
 import { OddsApiEvent, OddsApiSport } from './oddsApi';
 import { emergencyApiManager } from './emergencyApiManager';
-
-// Pool di chiavi API per rotazione
-const API_KEYS = [
-  'f9fddbc4c5be58bd8e9e13ad9c91a3cc'  // Chiave attiva (490 richieste rimanenti)
-];
+import { dailyApiManager } from './dailyApiManager';
 
 const BASE_URL = 'https://api.the-odds-api.com/v4';
 
-// Configurazione ottimizzazione
-const OPTIMIZATION_CONFIG = {
-  // Limiti mensili per chiave
+// Configurazione ottimizzazione giornaliera
+const DAILY_CONFIG = {
+  // Limiti mensili
   MONTHLY_LIMIT: 500,
   
-  // Soglie di utilizzo
-  WARNING_THRESHOLD: 400,  // 80% del limite
-  CRITICAL_THRESHOLD: 450, // 90% del limite
-  
-  // Intervalli di aggiornamento (in minuti)
-  UPDATE_INTERVALS: {
-    HIGH_PRIORITY: 30,    // Serie A, Premier League (ogni 30 min)
-    MEDIUM_PRIORITY: 60,  // Altri campionati principali (ogni ora)
-    LOW_PRIORITY: 120,    // Sport secondari (ogni 2 ore)
-    EMERGENCY: 180        // Modalità risparmio (ogni 3 ore)
-  },
+  // Aggiornamenti giornalieri (1 per sport)
+  DAILY_QUOTA: 6,
+  HOURS_BETWEEN_UPDATES: 24,
   
   // Cache TTL (Time To Live in millisecondi)
   CACHE_TTL: {
-    QUOTES: 30 * 60 * 1000,    // 30 minuti per le quote
-    SPORTS: 24 * 60 * 60 * 1000, // 24 ore per la lista sport
-    STATUS: 5 * 60 * 1000       // 5 minuti per lo status API
+    QUOTES: 24 * 60 * 60 * 1000,    // 24 ore per le quote (aggiornamento giornaliero)
+    SPORTS: 7 * 24 * 60 * 60 * 1000, // 7 giorni per la lista sport
+    STATUS: 60 * 60 * 1000           // 1 ora per lo status API
   }
 };
 
-// Sport prioritizzati per l'Italia
-const SPORT_PRIORITIES = {
-  HIGH: [
-    'soccer_italy_serie_a',      // Serie A - massima priorità
-    'soccer_epl',                // Premier League
-    'soccer_uefa_champs_league'  // Champions League
-  ],
-  MEDIUM: [
-    'soccer_spain_la_liga',      // La Liga
-    'soccer_germany_bundesliga', // Bundesliga
-    'soccer_france_ligue_one',   // Ligue 1
-    'basketball_nba',            // NBA
-    'tennis_atp_french_open'     // ATP
-  ],
-  LOW: [
-    'basketball_euroleague',
-    'tennis_wta_french_open',
-    'americanfootball_nfl',
-    'icehockey_nhl'
-  ]
-};
+// Sport prioritizzati per l'Italia (1 richiesta al giorno per sport)
+const SPORT_PRIORITIES = [
+  'soccer_italy_serie_a',      // Serie A - massima priorità
+  'soccer_epl',                // Premier League
+  'soccer_uefa_champs_league', // Champions League
+  'basketball_nba',            // NBA
+  'tennis_atp_french_open',    // ATP Tennis
+  'americanfootball_nfl'       // NFL
+];
 
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
   ttl: number;
+  sport?: string;
 }
 
-interface ApiUsageStats {
-  keyIndex: number;
-  requestsUsed: number;
-  requestsRemaining: number;
-  lastReset: number;
-  lastRequest: number;
+interface DailyApiStats {
+  requestsToday: number;
+  requestsThisMonth: number;
+  dailyQuota: number;
+  monthlyLimit: number;
+  lastUpdate: Date | null;
+  sportsUpdatedToday: string[];
+  nextSportToUpdate: string | null;
 }
 
 export class OptimizedOddsApiService {
   private cache = new Map<string, CacheEntry<any>>();
-  private currentKeyIndex = 0;
-  private usageStats: ApiUsageStats[] = [];
   private lastUpdateTimes = new Map<string, number>();
-  private isEmergencyMode = false;
 
   constructor() {
-    this.initializeUsageStats();
-    this.startScheduledUpdates();
-  }
-
-  private initializeUsageStats() {
-    this.usageStats = API_KEYS.map((_, index) => ({
-      keyIndex: index,
-      requestsUsed: 0,
-      requestsRemaining: OPTIMIZATION_CONFIG.MONTHLY_LIMIT,
-      lastReset: Date.now(),
-      lastRequest: 0
-    }));
-
-    // Carica statistiche salvate dal localStorage (se disponibile)
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('apiUsageStats');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          // Verifica se i dati sono del mese corrente
-          const currentMonth = new Date().getMonth();
-          const savedMonth = new Date(parsed[0]?.lastReset || 0).getMonth();
-          
-          if (currentMonth === savedMonth) {
-            this.usageStats = parsed;
-          }
-                 } catch (error) {
-           console.warn('Errore nel caricamento statistiche API:', error as Error);
-        }
-      }
-    }
-  }
-
-  private saveUsageStats() {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('apiUsageStats', JSON.stringify(this.usageStats));
-    }
+    this.startDailyUpdateScheduler();
   }
 
   private getCurrentApiKey(): string {
-    return API_KEYS[this.currentKeyIndex];
+    return dailyApiManager.getApiKey();
   }
 
-  private selectBestApiKey(): string {
-    // Trova la chiave con più richieste rimanenti
-    const bestKey = this.usageStats.reduce((best, current) => 
-      current.requestsRemaining > best.requestsRemaining ? current : best
-    );
-
-    this.currentKeyIndex = bestKey.keyIndex;
-    return API_KEYS[this.currentKeyIndex];
-  }
-
-  private updateUsageStats(requestsRemaining: number, requestsUsed: number) {
-    const stats = this.usageStats[this.currentKeyIndex];
-    stats.requestsRemaining = requestsRemaining;
-    stats.requestsUsed = requestsUsed;
-    stats.lastRequest = Date.now();
+  private updateDailyStats(sport: string, requestsRemaining: number, requestsUsed: number) {
+    dailyApiManager.recordRequest(sport, requestsRemaining, requestsUsed);
     
-    this.saveUsageStats();
-
-    // Aggiorna il sistema di emergenza
-    emergencyApiManager.updateApiUsage(requestsRemaining, requestsUsed);
-    
-    // Controlla se entrare in modalità emergenza
-    const totalRemaining = this.usageStats.reduce((sum, stat) => sum + stat.requestsRemaining, 0);
-    this.isEmergencyMode = totalRemaining < 50; // Meno di 50 richieste rimanenti
-
-    console.log(`📊 API Usage - Chiave ${this.currentKeyIndex + 1}: ${requestsUsed}/${OPTIMIZATION_CONFIG.MONTHLY_LIMIT} usate, ${requestsRemaining} rimanenti`);
-    
-    if (this.isEmergencyMode) {
-      console.warn('🚨 MODALITÀ EMERGENZA ATTIVATA - Richieste limitate');
-    }
+    console.log(`📊 Aggiornamento API giornaliero completato:`);
+    console.log(`• Sport: ${sport}`);
+    console.log(`• Richieste usate oggi: ${dailyApiManager.getDailyStats().today.used}/${DAILY_CONFIG.DAILY_QUOTA}`);
+    console.log(`• Richieste usate questo mese: ${requestsUsed}/${DAILY_CONFIG.MONTHLY_LIMIT}`);
+    console.log(`• Richieste rimanenti: ${requestsRemaining}`);
   }
 
   private getCacheKey(endpoint: string, params: any): string {
@@ -169,35 +87,38 @@ export class OptimizedOddsApiService {
     return entry.data;
   }
 
-  private setCache<T>(key: string, data: T, ttl: number) {
+  private setCache<T>(key: string, data: T, ttl: number, sport?: string) {
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
-      ttl
+      ttl,
+      sport
     });
   }
 
-  private async makeApiRequest(endpoint: string, params: any = {}): Promise<any> {
+  private async makeApiRequest(endpoint: string, params: any = {}, sport?: string): Promise<any> {
     const cacheKey = this.getCacheKey(endpoint, params);
     
-    // Controlla cache prima
+    // Controlla cache prima (priorità alla cache per ridurre richieste)
     const cached = this.getFromCache(cacheKey);
     if (cached) {
-      console.log(`📦 Cache hit per ${endpoint}`);
+      console.log(`📦 Cache hit per ${endpoint} (sport: ${sport || 'unknown'})`);
       return cached;
     }
 
-    // Controlla sistema di emergenza
-    if (!emergencyApiManager.canMakeApiRequest()) {
-      const timeUntilNext = emergencyApiManager.getTimeUntilNextRequest();
-      const hoursUntilNext = Math.ceil(timeUntilNext / (60 * 60 * 1000));
-      throw new Error(`EMERGENCY_MODE: Prossima richiesta consentita tra ${hoursUntilNext} ore`);
+    // Controlla se possiamo fare richieste oggi
+    if (!dailyApiManager.canMakeRequest()) {
+      const stats = dailyApiManager.getDailyStats();
+      throw new Error(`DAILY_LIMIT_REACHED: Quota giornaliera esaurita (${stats.today.used}/${stats.today.quota})`);
     }
 
-    // Seleziona la migliore chiave API
-    const apiKey = this.selectBestApiKey();
-    
-    // Costruisci URL
+    // Se è specificato uno sport, controlla se può essere aggiornato
+    if (sport && !dailyApiManager.canUpdateSport(sport)) {
+      throw new Error(`SPORT_ALREADY_UPDATED: Sport ${sport} già aggiornato oggi`);
+    }
+
+    // Costruisci URL con la nuova chiave API
+    const apiKey = this.getCurrentApiKey();
     const queryParams = new URLSearchParams({
       apiKey,
       ...params
@@ -206,18 +127,20 @@ export class OptimizedOddsApiService {
     const url = `${BASE_URL}${endpoint}?${queryParams}`;
 
     try {
+      console.log(`🔄 Richiesta API per ${sport || endpoint}...`);
       const response = await fetch(url);
       
       // Aggiorna statistiche utilizzo
       const remaining = parseInt(response.headers.get('x-requests-remaining') || '0');
       const used = parseInt(response.headers.get('x-requests-used') || '0');
-      this.updateUsageStats(remaining, used);
+      
+      if (sport) {
+        this.updateDailyStats(sport, remaining, used);
+      }
 
       if (!response.ok) {
         if (response.status === 401) {
           console.error('🔑 Chiave API non valida o limite raggiunto');
-          // Prova con la prossima chiave
-          this.currentKeyIndex = (this.currentKeyIndex + 1) % API_KEYS.length;
           throw new Error('API_LIMIT_REACHED');
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -225,12 +148,12 @@ export class OptimizedOddsApiService {
 
       const data = await response.json();
       
-      // Salva in cache
+      // Salva in cache con TTL esteso (24 ore per aggiornamenti giornalieri)
       const ttl = endpoint.includes('/odds') 
-        ? OPTIMIZATION_CONFIG.CACHE_TTL.QUOTES 
-        : OPTIMIZATION_CONFIG.CACHE_TTL.SPORTS;
+        ? DAILY_CONFIG.CACHE_TTL.QUOTES 
+        : DAILY_CONFIG.CACHE_TTL.SPORTS;
       
-      this.setCache(cacheKey, data, ttl);
+      this.setCache(cacheKey, data, ttl, sport);
       
       return data;
     } catch (error) {
@@ -245,114 +168,67 @@ export class OptimizedOddsApiService {
         regions: 'eu',
         markets: 'h2h',
         oddsFormat: 'decimal'
-      });
+      }, sport);
     } catch (error) {
       console.error(`Errore nel recupero quote per ${sport}:`, error);
       return [];
     }
   }
 
-  async getMultipleSportsOptimized(): Promise<OddsApiEvent[]> {
+  async getDailySportsUpdate(): Promise<OddsApiEvent[]> {
     const allEvents: OddsApiEvent[] = [];
-    const now = Date.now();
+    const stats = dailyApiManager.getDailyStats();
 
-    // Determina quali sport aggiornare in base alla priorità e al tempo trascorso
-    const sportsToUpdate = this.getSportsToUpdate(now);
+    console.log(`🔄 Aggiornamento giornaliero programmato:`);
+    console.log(`• Richieste oggi: ${stats.today.used}/${stats.today.quota}`);
+    console.log(`• Sport da aggiornare: ${stats.sports.remaining}`);
 
-    console.log(`🔄 Aggiornamento programmato: ${sportsToUpdate.length} sport da aggiornare`);
+    // Ottieni il prossimo sport da aggiornare
+    const nextSport = dailyApiManager.getNextSportToUpdate();
+    
+    if (!nextSport) {
+      console.log('✅ Tutti gli sport sono stati aggiornati oggi');
+      return allEvents;
+    }
 
-    for (const sport of sportsToUpdate) {
-      try {
-        const events = await this.getOddsOptimized(sport);
-        if (events.length > 0) {
-          allEvents.push(...events);
-          this.lastUpdateTimes.set(sport, now);
-          console.log(`✅ ${sport}: ${events.length} eventi aggiornati`);
-        }
-
-        // Pausa tra richieste per evitare rate limiting
-        await new Promise(resolve => setTimeout(resolve, 1000));
-             } catch (error) {
-         console.error(`❌ Errore per ${sport}:`, error as Error);
-        
-                 if ((error as Error).message === 'API_LIMIT_REACHED') {
-          console.log('🛑 Limite API raggiunto, interrompo aggiornamenti');
-          break;
-        }
+    try {
+      console.log(`🎯 Aggiornamento sport prioritario: ${nextSport}`);
+      const events = await this.getOddsOptimized(nextSport);
+      
+      if (events.length > 0) {
+        allEvents.push(...events);
+        this.lastUpdateTimes.set(nextSport, Date.now());
+        console.log(`✅ ${nextSport}: ${events.length} eventi aggiornati`);
+      }
+    } catch (error) {
+      console.error(`❌ Errore per ${nextSport}:`, error);
+      
+      if ((error as Error).message.includes('DAILY_LIMIT_REACHED')) {
+        console.log('🛑 Limite giornaliero raggiunto, stop aggiornamenti');
       }
     }
 
     return allEvents;
   }
 
-  private getSportsToUpdate(now: number): string[] {
-    const sportsToUpdate: string[] = [];
-    
-    // Determina intervallo in base alla modalità
-    const getInterval = (priority: 'HIGH' | 'MEDIUM' | 'LOW') => {
-      if (this.isEmergencyMode) {
-        return OPTIMIZATION_CONFIG.UPDATE_INTERVALS.EMERGENCY;
-      }
-      
-      switch (priority) {
-        case 'HIGH': return OPTIMIZATION_CONFIG.UPDATE_INTERVALS.HIGH_PRIORITY;
-        case 'MEDIUM': return OPTIMIZATION_CONFIG.UPDATE_INTERVALS.MEDIUM_PRIORITY;
-        case 'LOW': return OPTIMIZATION_CONFIG.UPDATE_INTERVALS.LOW_PRIORITY;
-      }
-    };
-
-    // Controlla sport ad alta priorità
-    for (const sport of SPORT_PRIORITIES.HIGH) {
-      const lastUpdate = this.lastUpdateTimes.get(sport) || 0;
-      const interval = getInterval('HIGH') * 60 * 1000; // Converti in ms
-      
-      if (now - lastUpdate >= interval) {
-        sportsToUpdate.push(sport);
-      }
-    }
-
-    // Se non siamo in modalità emergenza, aggiungi sport a media priorità
-    if (!this.isEmergencyMode) {
-      for (const sport of SPORT_PRIORITIES.MEDIUM) {
-        const lastUpdate = this.lastUpdateTimes.get(sport) || 0;
-        const interval = getInterval('MEDIUM') * 60 * 1000;
-        
-        if (now - lastUpdate >= interval) {
-          sportsToUpdate.push(sport);
-        }
-      }
-    }
-
-    // Solo se abbiamo molte richieste rimanenti, aggiungi sport a bassa priorità
-    const totalRemaining = this.usageStats.reduce((sum, stat) => sum + stat.requestsRemaining, 0);
-    if (totalRemaining > 100) {
-      for (const sport of SPORT_PRIORITIES.LOW) {
-        const lastUpdate = this.lastUpdateTimes.get(sport) || 0;
-        const interval = getInterval('LOW') * 60 * 1000;
-        
-        if (now - lastUpdate >= interval) {
-          sportsToUpdate.push(sport);
-        }
-      }
-    }
-
-    return sportsToUpdate;
-  }
-
-  private startScheduledUpdates() {
-    // Aggiornamento ogni 15 minuti
+  private startDailyUpdateScheduler() {
+    // Controlla ogni ora se ci sono sport da aggiornare
     setInterval(() => {
-      this.getMultipleSportsOptimized().catch(console.error);
-    }, 15 * 60 * 1000);
+      const nextSport = dailyApiManager.getNextSportToUpdate();
+      if (nextSport) {
+        console.log(`⏰ Controllo programmato: sport ${nextSport} disponibile per aggiornamento`);
+        this.getDailySportsUpdate().catch(console.error);
+      }
+    }, 60 * 60 * 1000); // Ogni ora
 
-    // Primo aggiornamento dopo 5 secondi
+    // Primo controllo dopo 10 secondi
     setTimeout(() => {
-      this.getMultipleSportsOptimized().catch(console.error);
-    }, 5000);
+      this.getDailySportsUpdate().catch(console.error);
+    }, 10000);
   }
 
   async getApiStatus() {
-    const cacheKey = 'api_status';
+    const cacheKey = 'daily_api_status';
     const cached = this.getFromCache(cacheKey);
     
     if (cached) {
@@ -360,34 +236,36 @@ export class OptimizedOddsApiService {
     }
 
     try {
-      const response = await fetch(`${BASE_URL}/sports/?apiKey=${this.getCurrentApiKey()}`);
+      const dailyStats = dailyApiManager.getDailyStats();
       
       const status = {
-        isActive: response.ok,
-        currentKey: this.currentKeyIndex + 1,
-        totalKeys: API_KEYS.length,
-        usageStats: this.usageStats,
-        isEmergencyMode: this.isEmergencyMode,
-        cacheSize: this.cache.size
+        isActive: true,
+        apiKey: this.getCurrentApiKey().substring(0, 8) + '...',
+        dailyStats,
+        cacheSize: this.cache.size,
+        supportedSports: SPORT_PRIORITIES,
+        updateFrequency: 'Giornaliera (1 richiesta per sport)',
+        nextUpdate: dailyStats.nextUpdate
       };
 
-      this.setCache(cacheKey, status, OPTIMIZATION_CONFIG.CACHE_TTL.STATUS);
+      this.setCache(cacheKey, status, DAILY_CONFIG.CACHE_TTL.STATUS);
       return status;
-         } catch (error) {
-       return {
-         isActive: false,
-         error: (error as Error).message,
-        currentKey: this.currentKeyIndex + 1,
-        totalKeys: API_KEYS.length,
-        usageStats: this.usageStats,
-        isEmergencyMode: this.isEmergencyMode,
+    } catch (error) {
+      return {
+        isActive: false,
+        error: (error as Error).message,
+        dailyStats: dailyApiManager.getDailyStats(),
         cacheSize: this.cache.size
       };
     }
   }
 
-  // Metodo per forzare aggiornamento di uno sport specifico
+  // Metodo per forzare aggiornamento di uno sport specifico (solo se non aggiornato oggi)
   async forceUpdateSport(sport: string): Promise<OddsApiEvent[]> {
+    if (!dailyApiManager.canUpdateSport(sport)) {
+      throw new Error(`Sport ${sport} già aggiornato oggi. Prossimo aggiornamento domani.`);
+    }
+
     console.log(`🔄 Aggiornamento forzato per ${sport}`);
     
     // Rimuovi dalla cache
@@ -416,28 +294,29 @@ export class OptimizedOddsApiService {
     console.log(`🧹 Cache pulita, ${this.cache.size} elementi rimanenti`);
   }
 
-  // Ottieni statistiche dettagliate
+  // Ottieni statistiche dettagliate giornaliere
   getDetailedStats() {
-    const totalUsed = this.usageStats.reduce((sum, stat) => sum + stat.requestsUsed, 0);
-    const totalRemaining = this.usageStats.reduce((sum, stat) => sum + stat.requestsRemaining, 0);
-    const totalLimit = API_KEYS.length * OPTIMIZATION_CONFIG.MONTHLY_LIMIT;
-
+    const dailyStats = dailyApiManager.getDailyStats();
+    
     return {
-      totalRequests: {
-        used: totalUsed,
-        remaining: totalRemaining,
-        limit: totalLimit,
-        percentage: Math.round((totalUsed / totalLimit) * 100)
-      },
-      keyStats: this.usageStats,
+      daily: dailyStats.today,
+      monthly: dailyStats.month,
+      sports: dailyStats.sports,
+      lastUpdate: dailyStats.lastUpdate,
+      nextUpdate: dailyStats.nextUpdate,
       cacheStats: {
         size: this.cache.size,
-        hitRate: 0 // TODO: implementare tracking hit rate
+        entries: Array.from(this.cache.entries()).map(([key, entry]) => ({
+          key,
+          sport: entry.sport,
+          age: Math.round((Date.now() - entry.timestamp) / (60 * 1000)), // minuti
+          ttl: Math.round(entry.ttl / (60 * 60 * 1000)) // ore
+        }))
       },
       systemStatus: {
-        isEmergencyMode: this.isEmergencyMode,
-        currentKey: this.currentKeyIndex + 1,
-        lastUpdates: Object.fromEntries(this.lastUpdateTimes)
+        updateFrequency: 'Giornaliera',
+        apiKey: this.getCurrentApiKey().substring(0, 8) + '...',
+        supportedSports: SPORT_PRIORITIES.length
       }
     };
   }
@@ -456,7 +335,7 @@ export function getOptimizedOddsApi(): OptimizedOddsApiService {
 // Esporta l'istanza per compatibilità
 export const optimizedOddsApi = {
   getApiStatus: () => getOptimizedOddsApi().getApiStatus(),
-  getMultipleSportsOptimized: () => getOptimizedOddsApi().getMultipleSportsOptimized(),
+  getDailySportsUpdate: () => getOptimizedOddsApi().getDailySportsUpdate(),
   forceUpdateSport: (sport: string) => getOptimizedOddsApi().forceUpdateSport(sport),
   cleanExpiredCache: () => getOptimizedOddsApi().cleanExpiredCache(),
   getDetailedStats: () => getOptimizedOddsApi().getDetailedStats()

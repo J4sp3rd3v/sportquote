@@ -67,7 +67,7 @@ export default function CountdownTimer({ className = '', showDetails = true, onO
           </div>
           <div>
             <h3 className="text-sm font-medium text-white">
-              {isUpdating ? 'Aggiornamento in corso...' : 'Prossimo aggiornamento'}
+                              {isUpdating ? 'Aggiornamento in corso...' : 'Prossimo aggiornamento giornaliero'}
             </h3>
             {showDetails && subscriptionPlan && (
               <p className="text-xs text-dark-400">
