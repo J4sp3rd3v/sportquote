@@ -13,6 +13,8 @@ import ApiStatusInfo from '@/components/ApiStatusInfo';
 import EmergencyApiStatus from '@/components/EmergencyApiStatus';
 import BestOddsHighlight from '@/components/BestOddsHighlight';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import ArbitrageOpportunities from '@/components/ArbitrageOpportunities';
+import ArbitrageSystemInfo from '@/components/ArbitrageSystemInfo';
 import BookmakerTestPanel from '@/components/BookmakerTestPanel';
 import OptimizedApiStats from '@/components/OptimizedApiStats';
 import DebugPanel from '@/components/DebugPanel';
@@ -475,6 +477,16 @@ export default function HomePage() {
                 handleViewDetails(match.id);
               }}
             />
+          </div>
+        )}
+
+        {/* Sistema di Arbitraggio - Info e Opportunità */}
+        <ArbitrageSystemInfo />
+        
+        {/* Arbitrage Opportunities - Priorità massima */}
+        {filteredMatches.length > 0 && (
+          <div className="mb-8">
+            <ArbitrageOpportunities matches={filteredMatches} />
           </div>
         )}
 

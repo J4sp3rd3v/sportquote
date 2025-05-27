@@ -69,6 +69,37 @@ export class FallbackDataService {
           { bookmaker: 'Bet365', home: 1.90, away: 1.95, lastUpdated: new Date() },
           { bookmaker: 'William Hill', home: 1.88, away: 1.97, lastUpdated: new Date() }
         ]
+      },
+      // Partita con opportunità di arbitraggio (tennis)
+      {
+        id: 'arbitrage-tennis-1',
+        homeTeam: 'Novak Djokovic',
+        awayTeam: 'Rafael Nadal',
+        sport: 'tennis',
+        league: 'ATP Masters 1000',
+        date: new Date(today.getTime() + 2 * 60 * 60 * 1000),
+        status: 'upcoming',
+        odds: [
+          { bookmaker: 'Bet365', home: 2.20, away: 1.75, lastUpdated: new Date() },
+          { bookmaker: 'William Hill', home: 1.80, away: 2.10, lastUpdated: new Date() },
+          { bookmaker: 'Betfair', home: 2.15, away: 1.78, lastUpdated: new Date() }
+        ]
+      },
+      // Partita con opportunità di arbitraggio (calcio)
+      {
+        id: 'arbitrage-football-1',
+        homeTeam: 'Real Madrid',
+        awayTeam: 'Barcelona',
+        sport: 'calcio',
+        league: 'La Liga',
+        date: new Date(today.getTime() + 4 * 60 * 60 * 1000),
+        status: 'upcoming',
+        odds: [
+          { bookmaker: 'Bet365', home: 2.80, away: 2.60, draw: 3.40, lastUpdated: new Date() },
+          { bookmaker: 'William Hill', home: 2.75, away: 2.65, draw: 3.45, lastUpdated: new Date() },
+          { bookmaker: 'Betfair', home: 2.85, away: 2.55, draw: 3.35, lastUpdated: new Date() },
+          { bookmaker: 'Unibet', home: 2.70, away: 2.70, draw: 3.50, lastUpdated: new Date() }
+        ]
       }
     ];
   }
