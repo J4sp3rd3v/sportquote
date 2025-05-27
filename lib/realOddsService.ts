@@ -108,15 +108,15 @@ export class RealOddsService {
     console.log(`🕐 Debug aggiornamento: Ora corrente: ${currentHour}:${now.getMinutes()}, Ora aggiornamento: ${this.DAILY_UPDATE_HOUR}:00`);
     console.log(`📅 Debug aggiornamento: Oggi: ${today}, Ultimo aggiornamento: ${this.lastDailyUpdate}`);
     
-    // Se non è ancora l'ora dell'aggiornamento (12:00), non aggiornare
-    if (currentHour < this.DAILY_UPDATE_HOUR) {
-      console.log(`⏰ Non è ancora ora di aggiornare (${currentHour} < ${this.DAILY_UPDATE_HOUR})`);
-      return false;
-    }
-    
     // Se già aggiornato oggi, non aggiornare di nuovo
     if (this.lastDailyUpdate === today) {
       console.log(`✅ Già aggiornato oggi (${this.lastDailyUpdate})`);
+      return false;
+    }
+    
+    // Se non è ancora l'ora dell'aggiornamento (12:00), non aggiornare
+    if (currentHour < this.DAILY_UPDATE_HOUR) {
+      console.log(`⏰ Non è ancora ora di aggiornare (${currentHour} < ${this.DAILY_UPDATE_HOUR})`);
       return false;
     }
     
@@ -322,6 +322,13 @@ export class RealOddsService {
     });
     
     return allMatches;
+  }
+
+  // Funzione pubblica per ottenere sempre i dati dalla cache (per caricamento iniziale)
+  getCachedMatchesOnly(): Match[] {
+    const cachedMatches = this.getCachedMatches();
+    console.log(`📦 Caricamento dalla cache: ${cachedMatches.length} partite disponibili`);
+    return cachedMatches;
   }
 
   // Converte dati API in formato Match (estratto per riuso)
