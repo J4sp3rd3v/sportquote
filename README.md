@@ -174,9 +174,6 @@ node scripts/test-global-daily-system.js
 
 # Test bookmaker
 node scripts/test-bookmaker-normalization.js
-
-# Test emergenza
-node scripts/test-emergency-system.js
 ```
 
 ### Debug Mode
