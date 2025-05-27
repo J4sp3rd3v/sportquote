@@ -19,6 +19,7 @@ import BettingStrategies from '@/components/BettingStrategies';
 import BettingGuide from '@/components/BettingGuide';
 import GlobalDailyMonitor from '@/components/GlobalDailyMonitor';
 import AdvancedOddsAnalyzer from '@/components/AdvancedOddsAnalyzer';
+import ActiveSeasonsMonitor from '@/components/ActiveSeasonsMonitor';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 import { useApiManager } from '@/lib/apiManager';
 import { useRealOdds } from '@/hooks/useRealOdds';
@@ -406,6 +407,11 @@ export default function HomePage() {
         {/* Sistema Giornaliero Globale */}
         <div className="mb-8">
           <GlobalDailyMonitor />
+        </div>
+
+        {/* Monitor Stagioni Attive */}
+        <div className="mb-8">
+          <ActiveSeasonsMonitor />
         </div>
 
         {/* Sistema di Arbitraggio Intelligente */}

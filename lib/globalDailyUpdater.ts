@@ -3,6 +3,7 @@
 
 import { unifiedApiManager } from './unifiedApiManager';
 import { optimizedOddsService } from './optimizedOddsService';
+import { activeSeasonsManager } from './activeSeasonsManager';
 
 interface GlobalDailyState {
   lastGlobalUpdate: string; // YYYY-MM-DD
@@ -35,15 +36,13 @@ export class GlobalDailyUpdater {
   private readonly CHECK_INTERVAL = 60000; // Controlla ogni minuto
   private readonly STORAGE_KEY = 'monitorquote_global_daily';
   
-  // Sport da aggiornare quotidianamente
-  private readonly DAILY_SPORTS = [
-    'soccer_italy_serie_a',
-    'soccer_epl', 
-    'soccer_uefa_champs_league',
-    'basketball_nba',
-    'tennis_atp_french_open',
-    'americanfootball_nfl'
-  ];
+  // Sport da aggiornare quotidianamente (ora dinamici basati su stagioni attive)
+  private getDailySports(): string[] {
+    const activeLeagues = activeSeasonsManager.getActiveLeagues();
+    const sportKeys = activeLeagues.map(league => league.key);
+    console.log(`[GLOBAL] 📅 Campionati attivi: ${sportKeys.join(', ')}`);
+    return sportKeys;
+  }
 
   private constructor() {
     this.state = this.loadGlobalState();
@@ -113,8 +112,9 @@ export class GlobalDailyUpdater {
   private initializeGlobalSystem(): void {
     const today = new Date().toISOString().split('T')[0];
     
-    // Inizializza dati globali per ogni sport se non esistono
-    this.DAILY_SPORTS.forEach(sportKey => {
+    // Inizializza dati globali per ogni sport attivo se non esistono
+    const dailySports = this.getDailySports();
+    dailySports.forEach((sportKey: string) => {
       if (!this.state.globalQuotesData[sportKey]) {
         this.state.globalQuotesData[sportKey] = {
           lastUpdate: '',
@@ -185,16 +185,17 @@ export class GlobalDailyUpdater {
     
     console.log(`[GLOBAL] 🔄 AGGIORNAMENTO GIORNALIERO GLOBALE - ${today}`);
     
-    // Marca tutti gli sport come "updating"
-    this.DAILY_SPORTS.forEach(sportKey => {
+    // Marca tutti gli sport attivi come "updating"
+    const dailySports = this.getDailySports();
+    dailySports.forEach((sportKey: string) => {
       this.state.globalQuotesData[sportKey].status = 'updating';
     });
     
     let successCount = 0;
     let failCount = 0;
     
-    // Aggiorna tutti gli sport in sequenza
-    for (const sportKey of this.DAILY_SPORTS) {
+    // Aggiorna tutti gli sport attivi in sequenza
+    for (const sportKey of dailySports) {
       try {
         console.log(`[GLOBAL] 📊 Aggiornamento ${sportKey}...`);
         
@@ -299,22 +300,22 @@ export class GlobalDailyUpdater {
       hoursUntilNext: hoursUntilNext > 0 ? hoursUntilNext : 0,
       dailyUpdateHour: this.state.dailyUpdateHour,
       systemStats: this.state.systemStats,
-      sportsStatus: this.DAILY_SPORTS.map(sportKey => ({
+      sportsStatus: this.getDailySports().map((sportKey: string) => ({
         sport: sportKey,
         status: this.state.globalQuotesData[sportKey]?.status || 'stale',
         lastUpdate: this.state.globalQuotesData[sportKey]?.lastUpdate || '',
         isToday: this.state.globalQuotesData[sportKey]?.lastUpdate?.startsWith(new Date().toISOString().split('T')[0]) || false
       })),
       summary: {
-        totalSports: this.DAILY_SPORTS.length,
-        freshToday: this.DAILY_SPORTS.filter(sport => 
+        totalSports: this.getDailySports().length,
+        freshToday: this.getDailySports().filter((sport: string) => 
           this.state.globalQuotesData[sport]?.status === 'fresh' &&
           this.state.globalQuotesData[sport]?.lastUpdate?.startsWith(new Date().toISOString().split('T')[0])
         ).length,
-        stale: this.DAILY_SPORTS.filter(sport => 
+        stale: this.getDailySports().filter((sport: string) => 
           this.state.globalQuotesData[sport]?.status === 'stale'
         ).length,
-        updating: this.DAILY_SPORTS.filter(sport => 
+        updating: this.getDailySports().filter((sport: string) => 
           this.state.globalQuotesData[sport]?.status === 'updating'
         ).length
       }

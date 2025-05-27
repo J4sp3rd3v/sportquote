@@ -2,6 +2,7 @@
 // Simula quote realistiche per testare il sistema
 
 import { Match, Odds, HandicapOdds } from '@/types';
+import { activeSeasonsManager } from './activeSeasonsManager';
 
 interface TestMatch {
   id: string;
@@ -23,8 +24,9 @@ export class TestDataGenerator {
     'William Hill', 'Betfair', 'Unibet', 'Bwin', 'Betway'
   ];
 
-  // Squadre per sport
+  // Squadre per sport (aggiornato con campionati attivi 2024/25)
   private readonly TEAMS = {
+    // SERIE A - FINITA (disabilitata)
     'soccer_italy_serie_a': {
       league: 'Serie A',
       teams: [
@@ -33,6 +35,7 @@ export class TestDataGenerator {
         'Sassuolo', 'Verona', 'Genoa', 'Cagliari', 'Lecce'
       ]
     },
+    // PREMIER LEAGUE - ATTIVA 2024/25
     'soccer_epl': {
       league: 'Premier League',
       teams: [
@@ -41,6 +44,33 @@ export class TestDataGenerator {
         'West Ham', 'Crystal Palace', 'Bournemouth', 'Fulham', 'Wolves'
       ]
     },
+    // LA LIGA - ATTIVA 2024/25
+    'soccer_spain_la_liga': {
+      league: 'La Liga',
+      teams: [
+        'Real Madrid', 'Barcelona', 'Atletico Madrid', 'Athletic Bilbao',
+        'Real Sociedad', 'Villarreal', 'Valencia', 'Sevilla', 'Betis',
+        'Celta Vigo', 'Osasuna', 'Getafe', 'Girona', 'Mallorca'
+      ]
+    },
+    // BUNDESLIGA - ATTIVA 2024/25
+    'soccer_germany_bundesliga': {
+      league: 'Bundesliga',
+      teams: [
+        'Bayern Munich', 'Borussia Dortmund', 'RB Leipzig', 'Bayer Leverkusen',
+        'Union Berlin', 'Freiburg', 'Eintracht Frankfurt', 'Wolfsburg',
+        'Borussia Monchengladbach', 'Mainz', 'Hoffenheim', 'Augsburg'
+      ]
+    },
+    // LIGUE 1 - ATTIVA 2024/25
+    'soccer_france_ligue_one': {
+      league: 'Ligue 1',
+      teams: [
+        'PSG', 'Monaco', 'Marseille', 'Lyon', 'Lille', 'Nice',
+        'Rennes', 'Lens', 'Nantes', 'Montpellier', 'Strasbourg', 'Reims'
+      ]
+    },
+    // CHAMPIONS LEAGUE - ATTIVA 2024/25
     'soccer_uefa_champs_league': {
       league: 'Champions League',
       teams: [
@@ -49,6 +79,7 @@ export class TestDataGenerator {
         'Atletico Madrid', 'Borussia Dortmund', 'Ajax', 'Porto'
       ]
     },
+    // NBA - ATTIVA 2024/25
     'basketball_nba': {
       league: 'NBA',
       teams: [
@@ -57,14 +88,16 @@ export class TestDataGenerator {
         'Clippers', 'Kings', 'Grizzlies', 'Pelicans'
       ]
     },
-    'tennis_atp_french_open': {
-      league: 'ATP French Open',
+    // TENNIS - ATTIVO tutto l'anno
+    'tennis_atp_wimbledon': {
+      league: 'Wimbledon ATP',
       teams: [
         'Novak Djokovic', 'Rafael Nadal', 'Carlos Alcaraz', 'Daniil Medvedev',
         'Stefanos Tsitsipas', 'Alexander Zverev', 'Andrey Rublev', 'Casper Ruud',
         'Taylor Fritz', 'Jannik Sinner', 'Matteo Berrettini', 'Felix Auger-Aliassime'
       ]
     },
+    // NFL - ATTIVA 2024/25
     'americanfootball_nfl': {
       league: 'NFL',
       teams: [
@@ -214,16 +247,28 @@ export class TestDataGenerator {
     return matches;
   }
 
-  // Genera tutte le partite per tutti gli sport
+  // Genera tutte le partite solo per campionati attivi
   generateAllMatches(): TestMatch[] {
     const allMatches: TestMatch[] = [];
     
-    Object.keys(this.TEAMS).forEach(sportKey => {
-      const matchCount = Math.floor(Math.random() * 6) + 5; // 5-10 partite per sport
-      const sportMatches = this.generateMatchesForSport(sportKey, matchCount);
-      allMatches.push(...sportMatches);
+    // Ottieni solo i campionati attivi
+    const activeLeagues = activeSeasonsManager.getActiveLeagues();
+    const activeSportKeys = activeLeagues.map(league => league.key);
+    
+    console.log(`[TEST] 📅 Campionati attivi: ${activeSportKeys.join(', ')}`);
+    
+    // Genera partite solo per sport attivi
+    activeSportKeys.forEach(sportKey => {
+      if (this.TEAMS[sportKey as keyof typeof this.TEAMS]) {
+        const matchCount = Math.floor(Math.random() * 6) + 5; // 5-10 partite per sport
+        const sportMatches = this.generateMatchesForSport(sportKey, matchCount);
+        allMatches.push(...sportMatches);
+      } else {
+        console.warn(`[TEST] ⚠️ Sport ${sportKey} non trovato nei dati di test`);
+      }
     });
-
+    
+    console.log(`[TEST] 🎲 Generati ${allMatches.length} match di test per ${activeSportKeys.length} campionati attivi`);
     return allMatches;
   }
 
@@ -232,9 +277,12 @@ export class TestDataGenerator {
     const mapping: { [key: string]: string } = {
       'soccer_italy_serie_a': 'Calcio',
       'soccer_epl': 'Calcio',
+      'soccer_spain_la_liga': 'Calcio',
+      'soccer_germany_bundesliga': 'Calcio',
+      'soccer_france_ligue_one': 'Calcio',
       'soccer_uefa_champs_league': 'Calcio',
       'basketball_nba': 'Basket',
-      'tennis_atp_french_open': 'Tennis',
+      'tennis_atp_wimbledon': 'Tennis',
       'americanfootball_nfl': 'Football Americano'
     };
     return mapping[sportKey] || 'Sport';
