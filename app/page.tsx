@@ -7,14 +7,10 @@ import FilterPanel from '@/components/FilterPanel';
 import MatchDetails from '@/components/MatchDetails';
 import SportCategoryStats from '@/components/SportCategoryStats';
 import NavigationOverlay from '@/components/NavigationOverlay';
-import ApiStatusBanner from '@/components/ApiStatusBanner';
-import ApiStatusInfo from '@/components/ApiStatusInfo';
-import EmergencyApiStatus from '@/components/EmergencyApiStatus';
 import BestOddsHighlight from '@/components/BestOddsHighlight';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ArbitrageOpportunities from '@/components/ArbitrageOpportunities';
 import ArbitrageSystemInfo from '@/components/ArbitrageSystemInfo';
-import UnifiedApiMonitor from '@/components/UnifiedApiMonitor';
 import BookmakerTestPanel from '@/components/BookmakerTestPanel';
 import DebugPanel from '@/components/DebugPanel';
 import CountdownTimer from '@/components/CountdownTimer';
@@ -308,30 +304,21 @@ export default function HomePage() {
 
           {/* Status e Statistiche */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Countdown e Status */}
+            {/* Ultimo Aggiornamento */}
             <div className="bg-dark-800/50 border border-dark-700 rounded-xl p-6">
               <div className="flex items-center mb-4">
-                <Calendar className="h-5 w-5 text-primary-400 mr-2" />
-                <h3 className="text-lg font-semibold text-white">Aggiornamenti Giornalieri</h3>
+                <Clock className="h-5 w-5 text-primary-400 mr-2" />
+                <h3 className="text-lg font-semibold text-white">Ultimo Aggiornamento Quote</h3>
               </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-dark-300">Richieste oggi</span>
-                  <span className="text-white font-medium">{usage.requests}/6</span>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary-400 mb-2">
+                  {lastUpdate ? new Date(lastUpdate).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '--:--'}
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-dark-300">Richieste mese</span>
-                  <span className="text-primary-400 font-medium">{usage.requests}/500</span>
+                <div className="text-sm text-dark-300">
+                  {lastUpdate ? new Date(lastUpdate).toLocaleDateString('it-IT') : 'Nessun aggiornamento'}
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-dark-300">Sport aggiornati</span>
-                  <span className="text-accent-400 font-medium">6/6</span>
-                </div>
-                <div className="pt-2 border-t border-dark-700">
-                  <div className="flex items-center justify-between">
-                    <span className="text-dark-300 text-sm">Prossimo reset</span>
-                    <span className="text-white text-sm">Domani alle 00:00</span>
-                  </div>
+                <div className="mt-3 text-xs text-dark-400">
+                  Prossimo aggiornamento: Domani alle 00:00
                 </div>
               </div>
             </div>
@@ -357,9 +344,9 @@ export default function HomePage() {
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-success-400">
-                    {lastUpdate ? new Date(lastUpdate).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '--:--'}
+                    {todaysBestOpportunities?.valueMatches.length || 0}
                   </div>
-                  <div className="text-xs text-dark-400">Ultimo Aggiornamento</div>
+                  <div className="text-xs text-dark-400">Opportunità Valore</div>
                 </div>
               </div>
             </div>
@@ -369,28 +356,6 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        {/* Emergency API Status - Priorità massima */}
-        <EmergencyApiStatus />
-
-        {/* Daily API Monitor - Sistema giornaliero */}
-        <div className="mb-8">
-                          <UnifiedApiMonitor />
-        </div>
-
-        {/* Sistema di Arbitraggio - Opportunità del giorno */}
-        <div className="mb-8">
-          <div className="bg-gradient-to-r from-purple-900/20 to-pink-900/20 border border-purple-500/30 rounded-xl p-6 mb-6">
-            <div className="flex items-center mb-4">
-              <Zap className="h-6 w-6 text-purple-400 mr-3" />
-              <h2 className="text-2xl font-bold text-white">🎯 Opportunità di Arbitraggio del Giorno</h2>
-            </div>
-            <p className="text-dark-300 mb-4">
-              Analisi automatica delle migliori opportunità di scommessa sicura con le quote aggiornate oggi.
-            </p>
-            <ArbitrageOpportunities matches={filteredMatches} />
-          </div>
-        </div>
 
         {/* Best Opportunities Section Migliorata */}
         {filteredMatches.length > 0 && todaysBestOpportunities && (
@@ -414,14 +379,28 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Strategie e Guide */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div>
-            <BettingStrategies matches={filteredMatches} />
+        {/* Strategie di Scommessa */}
+        <div className="mb-8">
+          <BettingStrategies matches={filteredMatches} />
+        </div>
+
+        {/* Sistema di Arbitraggio Intelligente */}
+        <div className="mb-8">
+          <div className="bg-gradient-to-r from-purple-900/20 to-pink-900/20 border border-purple-500/30 rounded-xl p-6">
+            <div className="flex items-center mb-4">
+              <Zap className="h-6 w-6 text-purple-400 mr-3" />
+              <h2 className="text-2xl font-bold text-white">🎯 Sistema di Arbitraggio Intelligente</h2>
+            </div>
+            <p className="text-dark-300 mb-6">
+              Analisi automatica delle migliori opportunità di scommessa sicura con le quote aggiornate oggi.
+            </p>
+            <ArbitrageOpportunities matches={filteredMatches} />
           </div>
-          <div>
-            <ArbitrageSystemInfo />
-          </div>
+        </div>
+
+        {/* Guide e Info Arbitraggio */}
+        <div className="mb-8">
+          <ArbitrageSystemInfo />
         </div>
 
         {/* Betting Guide */}
