@@ -155,25 +155,84 @@ const sports: Sport[] = [
     premium: true
   },
   {
-    id: 'esports',
-    name: 'Esports',
-    icon: '🎮',
-    description: 'League of Legends, CS2, Dota 2 e altri titoli',
-    popularity: 65,
+    id: 'hockey',
+    name: 'Hockey',
+    icon: '🏒',
+    description: 'NHL e campionati internazionali di hockey su ghiaccio',
+    popularity: 70,
     leagues: [
-      { id: 'lol-worlds', name: 'LoL Worlds', country: 'Mondiale', level: 'top', matches: 100, season: '2024' },
-      { id: 'cs2-majors', name: 'CS2 Majors', country: 'Mondiale', level: 'top', matches: 150, season: '2024' },
-      { id: 'dota2-ti', name: 'Dota 2 TI', country: 'Mondiale', level: 'top', matches: 80, season: '2024' },
-      { id: 'valorant-champions', name: 'Valorant Champions', country: 'Mondiale', level: 'top', matches: 120, season: '2024' }
+      { id: 'nhl', name: 'NHL', country: 'USA/Canada', level: 'top', matches: 1312, season: '2024/25' },
+      { id: 'khl', name: 'KHL', country: 'Russia', level: 'medium', matches: 540, season: '2024/25' },
+      { id: 'shl', name: 'SHL', country: 'Svezia', level: 'medium', matches: 364, season: '2024/25' }
     ],
-    totalMatches: 450,
-    avgOdds: 1.75,
-    bestBookmakers: ['Pinnacle', 'Betway', 'GG.bet'],
-    features: ['Map Betting', 'First Blood', 'Tournament Winner', 'Live Betting'],
+    totalMatches: 2216,
+    avgOdds: 2.05,
+    bestBookmakers: ['Bet365', 'Pinnacle', 'William Hill'],
+    features: ['Period Betting', 'Player Props', 'Live Betting', 'Overtime'],
+    season: '2024/25',
+    nextMajorEvent: 'Stanley Cup 2025',
+    supported: true,
+    premium: false
+  },
+  {
+    id: 'motorsport',
+    name: 'Motorsport',
+    icon: '🏎️',
+    description: 'Formula 1, MotoGP e altre competizioni motoristiche',
+    popularity: 75,
+    leagues: [
+      { id: 'f1-championship', name: 'Formula 1', country: 'Mondiale', level: 'top', matches: 24, season: '2024' },
+      { id: 'motogp', name: 'MotoGP', country: 'Mondiale', level: 'top', matches: 20, season: '2024' },
+      { id: 'indycar', name: 'IndyCar', country: 'USA', level: 'medium', matches: 17, season: '2024' }
+    ],
+    totalMatches: 61,
+    avgOdds: 3.25,
+    bestBookmakers: ['Bet365', 'William Hill', 'Betsson'],
+    features: ['Fastest Lap', 'Constructor Betting', 'Podium Finish', 'Head-to-Head'],
     season: '2024',
-    nextMajorEvent: 'LoL Worlds 2024',
-    supported: false,
+    nextMajorEvent: 'Abu Dhabi GP 2024',
+    supported: true,
     premium: true
+  },
+  {
+    id: 'mma',
+    name: 'MMA/UFC',
+    icon: '🥊',
+    description: 'UFC e promozioni di arti marziali miste',
+    popularity: 70,
+    leagues: [
+      { id: 'ufc', name: 'UFC', country: 'Mondiale', level: 'top', matches: 500, season: '2024' },
+      { id: 'bellator', name: 'Bellator', country: 'USA', level: 'medium', matches: 200, season: '2024' },
+      { id: 'one-championship', name: 'ONE Championship', country: 'Asia', level: 'medium', matches: 150, season: '2024' }
+    ],
+    totalMatches: 850,
+    avgOdds: 2.15,
+    bestBookmakers: ['Pinnacle', 'Bet365', 'Betfair'],
+    features: ['Method of Victory', 'Round Betting', 'Fight Props', 'Live Betting'],
+    season: '2024',
+    nextMajorEvent: 'UFC 300',
+    supported: true,
+    premium: true
+  },
+  {
+    id: 'football-americano',
+    name: 'Football Americano',
+    icon: '🏈',
+    description: 'NFL e college football americano',
+    popularity: 80,
+    leagues: [
+      { id: 'nfl', name: 'NFL', country: 'USA', level: 'top', matches: 272, season: '2024/25' },
+      { id: 'ncaa-football', name: 'NCAA Football', country: 'USA', level: 'medium', matches: 1000, season: '2024' },
+      { id: 'cfl', name: 'CFL', country: 'Canada', level: 'medium', matches: 81, season: '2024' }
+    ],
+    totalMatches: 1353,
+    avgOdds: 1.95,
+    bestBookmakers: ['Bet365', 'DraftKings', 'FanDuel'],
+    features: ['Quarter Betting', 'Player Props', 'Live Betting', 'Spread'],
+    season: '2024/25',
+    nextMajorEvent: 'Super Bowl 2025',
+    supported: true,
+    premium: false
   }
 ];
 
@@ -200,13 +259,24 @@ export default function SportsPage() {
       const activeSportLeagues = activeLeagues.filter(league => {
         // Mappa i nomi dei campionati attivi ai nomi nei dati sport
         const leagueMapping: { [key: string]: string } = {
+          // Calcio
           'Champions League': 'champions-league',
-          'NBA': 'nba',
           'Premier League': 'premier-league',
           'La Liga': 'la-liga',
           'Bundesliga': 'bundesliga',
           'Ligue 1': 'ligue-1',
-          'Wimbledon ATP': 'atp-tour'
+          // Basket
+          'NBA': 'nba',
+          'EuroLega': 'euroleague',
+          // Tennis
+          'ATP Tour': 'atp-tour',
+          'WTA Tour': 'wta-tour',
+          'Grand Slam': 'grand-slam',
+          // Altri sport
+          'NFL': 'nfl',
+          'NHL': 'nhl',
+          'Formula 1': 'f1-championship',
+          'UFC': 'ufc'
         };
         
         const mappedName = leagueMapping[league.name];
@@ -217,13 +287,24 @@ export default function SportsPage() {
       const activeLeaguesForSport = sport.leagues.filter(league => {
         return activeSportLeagues.some(activeLeague => 
           league.name === activeLeague.name || 
+          // Calcio
           (activeLeague.name === 'Champions League' && league.id === 'champions-league') ||
-          (activeLeague.name === 'NBA' && league.id === 'nba') ||
           (activeLeague.name === 'Premier League' && league.id === 'premier-league') ||
           (activeLeague.name === 'La Liga' && league.id === 'la-liga') ||
           (activeLeague.name === 'Bundesliga' && league.id === 'bundesliga') ||
           (activeLeague.name === 'Ligue 1' && league.id === 'ligue-1') ||
-          (activeLeague.name === 'Wimbledon ATP' && league.id === 'atp-tour')
+          // Basket
+          (activeLeague.name === 'NBA' && league.id === 'nba') ||
+          (activeLeague.name === 'EuroLega' && league.id === 'euroleague') ||
+          // Tennis
+          (activeLeague.name === 'ATP Tour' && league.id === 'atp-tour') ||
+          (activeLeague.name === 'WTA Tour' && league.id === 'wta-tour') ||
+          (activeLeague.name === 'Grand Slam' && league.id === 'grand-slam') ||
+          // Altri sport
+          (activeLeague.name === 'NFL' && league.id === 'nfl') ||
+          (activeLeague.name === 'NHL' && league.id === 'nhl') ||
+          (activeLeague.name === 'Formula 1' && league.id === 'f1-championship') ||
+          (activeLeague.name === 'UFC' && league.id === 'ufc')
         );
       });
 

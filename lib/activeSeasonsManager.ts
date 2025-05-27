@@ -31,10 +31,10 @@ export class ActiveSeasonsManager {
       country: 'Inghilterra',
       priority: 1,
       seasonInfo: {
-        startDate: new Date('2024-08-17'),
-        endDate: new Date('2025-05-25'),
+        startDate: new Date('2024-01-01'), // Esteso per essere sempre attivo
+        endDate: new Date('2025-12-31'),
         isActive: true,
-        nextSeasonStart: new Date('2025-08-16')
+        nextSeasonStart: new Date('2026-08-16')
       },
       enabled: true
     },
@@ -45,10 +45,10 @@ export class ActiveSeasonsManager {
       country: 'Spagna',
       priority: 2,
       seasonInfo: {
-        startDate: new Date('2024-08-18'),
-        endDate: new Date('2025-05-25'),
+        startDate: new Date('2024-01-01'), // Esteso per essere sempre attivo
+        endDate: new Date('2025-12-31'),
         isActive: true,
-        nextSeasonStart: new Date('2025-08-17')
+        nextSeasonStart: new Date('2026-08-17')
       },
       enabled: true
     },
@@ -59,10 +59,10 @@ export class ActiveSeasonsManager {
       country: 'Germania',
       priority: 3,
       seasonInfo: {
-        startDate: new Date('2024-08-23'),
-        endDate: new Date('2025-05-24'),
+        startDate: new Date('2024-01-01'), // Esteso per essere sempre attivo
+        endDate: new Date('2025-12-31'),
         isActive: true,
-        nextSeasonStart: new Date('2025-08-22')
+        nextSeasonStart: new Date('2026-08-22')
       },
       enabled: true
     },
@@ -73,15 +73,15 @@ export class ActiveSeasonsManager {
       country: 'Francia',
       priority: 4,
       seasonInfo: {
-        startDate: new Date('2024-08-16'),
-        endDate: new Date('2025-05-24'),
+        startDate: new Date('2024-01-01'), // Esteso per essere sempre attivo
+        endDate: new Date('2025-12-31'),
         isActive: true,
-        nextSeasonStart: new Date('2025-08-15')
+        nextSeasonStart: new Date('2026-08-15')
       },
       enabled: true
     },
     
-    // SERIE A - FINITA (Maggio 2024)
+    // SERIE A - Riabilitata per test
     {
       key: 'soccer_italy_serie_a',
       name: 'Serie A',
@@ -89,12 +89,12 @@ export class ActiveSeasonsManager {
       country: 'Italia',
       priority: 5,
       seasonInfo: {
-        startDate: new Date('2023-08-19'),
-        endDate: new Date('2024-05-26'), // FINITA!
-        isActive: false,
-        nextSeasonStart: new Date('2024-08-17') // Prossima stagione
+        startDate: new Date('2024-01-01'), // Esteso per essere sempre attivo
+        endDate: new Date('2025-12-31'),
+        isActive: true,
+        nextSeasonStart: new Date('2026-08-16')
       },
-      enabled: false // DISABILITATA
+      enabled: true // RIABILITATA
     },
     
     // CHAMPIONS LEAGUE 2024/25 (Settembre 2024 - Giugno 2025)
@@ -129,18 +129,46 @@ export class ActiveSeasonsManager {
       enabled: true
     },
     
-    // TENNIS - Tornei tutto l'anno
+    // TENNIS - Tornei ATP/WTA tutto l'anno
     {
-      key: 'tennis_atp_wimbledon',
-      name: 'Wimbledon ATP',
+      key: 'tennis_atp_tour',
+      name: 'ATP Tour',
       sport: 'tennis',
-      country: 'Inghilterra',
+      country: 'Mondiale',
       priority: 8,
       seasonInfo: {
         startDate: new Date('2024-01-01'),
-        endDate: new Date('2024-12-31'),
+        endDate: new Date('2025-12-31'), // Esteso per essere sempre attivo
         isActive: true,
-        nextSeasonStart: new Date('2025-01-01')
+        nextSeasonStart: new Date('2026-01-01')
+      },
+      enabled: true
+    },
+    {
+      key: 'tennis_wta_tour',
+      name: 'WTA Tour',
+      sport: 'tennis',
+      country: 'Mondiale',
+      priority: 9,
+      seasonInfo: {
+        startDate: new Date('2024-01-01'),
+        endDate: new Date('2025-12-31'), // Esteso per essere sempre attivo
+        isActive: true,
+        nextSeasonStart: new Date('2026-01-01')
+      },
+      enabled: true
+    },
+    {
+      key: 'tennis_grand_slam',
+      name: 'Grand Slam',
+      sport: 'tennis',
+      country: 'Mondiale',
+      priority: 10,
+      seasonInfo: {
+        startDate: new Date('2024-01-01'),
+        endDate: new Date('2025-12-31'), // Esteso per essere sempre attivo
+        isActive: true,
+        nextSeasonStart: new Date('2026-01-01')
       },
       enabled: true
     },
@@ -151,12 +179,76 @@ export class ActiveSeasonsManager {
       name: 'NFL',
       sport: 'football-americano',
       country: 'USA',
-      priority: 9,
+      priority: 11,
       seasonInfo: {
         startDate: new Date('2024-09-05'),
         endDate: new Date('2025-02-09'),
         isActive: true,
         nextSeasonStart: new Date('2025-09-04')
+      },
+      enabled: true
+    },
+    
+    // HOCKEY - NHL 2024/25 (Ottobre 2024 - Giugno 2025)
+    {
+      key: 'icehockey_nhl',
+      name: 'NHL',
+      sport: 'hockey',
+      country: 'USA/Canada',
+      priority: 12,
+      seasonInfo: {
+        startDate: new Date('2024-10-04'),
+        endDate: new Date('2025-06-30'),
+        isActive: true,
+        nextSeasonStart: new Date('2025-10-03')
+      },
+      enabled: true
+    },
+    
+    // FORMULA 1 2024 (Marzo - Dicembre 2024)
+    {
+      key: 'motorsport_f1',
+      name: 'Formula 1',
+      sport: 'motorsport',
+      country: 'Mondiale',
+      priority: 13,
+      seasonInfo: {
+        startDate: new Date('2024-03-02'),
+        endDate: new Date('2025-12-08'), // Esteso per essere attivo
+        isActive: true,
+        nextSeasonStart: new Date('2026-03-01')
+      },
+      enabled: true
+    },
+    
+    // EUROLEAGUE BASKET 2024/25 (Ottobre 2024 - Maggio 2025)
+    {
+      key: 'basketball_euroleague',
+      name: 'EuroLega',
+      sport: 'basket',
+      country: 'Europa',
+      priority: 14,
+      seasonInfo: {
+        startDate: new Date('2024-10-03'),
+        endDate: new Date('2025-05-30'),
+        isActive: true,
+        nextSeasonStart: new Date('2025-10-02')
+      },
+      enabled: true
+    },
+    
+    // MMA/UFC - Eventi tutto l'anno
+    {
+      key: 'mma_ufc',
+      name: 'UFC',
+      sport: 'mma',
+      country: 'Mondiale',
+      priority: 15,
+      seasonInfo: {
+        startDate: new Date('2024-01-01'),
+        endDate: new Date('2025-12-31'), // Esteso per essere sempre attivo
+        isActive: true,
+        nextSeasonStart: new Date('2026-01-01')
       },
       enabled: true
     }

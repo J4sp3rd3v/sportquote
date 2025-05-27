@@ -89,12 +89,28 @@ export class TestDataGenerator {
       ]
     },
     // TENNIS - ATTIVO tutto l'anno
-    'tennis_atp_wimbledon': {
-      league: 'Wimbledon ATP',
+    'tennis_atp_tour': {
+      league: 'ATP Tour',
       teams: [
         'Novak Djokovic', 'Rafael Nadal', 'Carlos Alcaraz', 'Daniil Medvedev',
         'Stefanos Tsitsipas', 'Alexander Zverev', 'Andrey Rublev', 'Casper Ruud',
         'Taylor Fritz', 'Jannik Sinner', 'Matteo Berrettini', 'Felix Auger-Aliassime'
+      ]
+    },
+    'tennis_wta_tour': {
+      league: 'WTA Tour',
+      teams: [
+        'Iga Swiatek', 'Aryna Sabalenka', 'Coco Gauff', 'Elena Rybakina',
+        'Jessica Pegula', 'Ons Jabeur', 'Maria Sakkari', 'Petra Kvitova',
+        'Karolina Pliskova', 'Belinda Bencic', 'Victoria Azarenka', 'Elise Mertens'
+      ]
+    },
+    'tennis_grand_slam': {
+      league: 'Grand Slam',
+      teams: [
+        'Novak Djokovic', 'Carlos Alcaraz', 'Daniil Medvedev', 'Jannik Sinner',
+        'Iga Swiatek', 'Aryna Sabalenka', 'Coco Gauff', 'Elena Rybakina',
+        'Alexander Zverev', 'Stefanos Tsitsipas', 'Jessica Pegula', 'Ons Jabeur'
       ]
     },
     // NFL - ATTIVA 2024/25
@@ -104,6 +120,42 @@ export class TestDataGenerator {
         'Chiefs', 'Bills', 'Bengals', 'Cowboys', 'Eagles', '49ers',
         'Dolphins', 'Ravens', 'Chargers', 'Jets', 'Titans', 'Colts',
         'Broncos', 'Raiders', 'Steelers', 'Browns'
+      ]
+    },
+    // NHL - ATTIVA 2024/25
+    'icehockey_nhl': {
+      league: 'NHL',
+      teams: [
+        'Bruins', 'Rangers', 'Panthers', 'Oilers', 'Avalanche', 'Stars',
+        'Hurricanes', 'Devils', 'Maple Leafs', 'Lightning', 'Golden Knights',
+        'Kraken', 'Wild', 'Kings', 'Flames', 'Canucks'
+      ]
+    },
+    // FORMULA 1 - ATTIVA 2024
+    'motorsport_f1': {
+      league: 'Formula 1',
+      teams: [
+        'Max Verstappen', 'Lewis Hamilton', 'Charles Leclerc', 'Lando Norris',
+        'George Russell', 'Carlos Sainz', 'Oscar Piastri', 'Fernando Alonso',
+        'Sergio Perez', 'Pierre Gasly', 'Esteban Ocon', 'Alexander Albon'
+      ]
+    },
+    // EUROLEAGUE - ATTIVA 2024/25
+    'basketball_euroleague': {
+      league: 'EuroLega',
+      teams: [
+        'Real Madrid', 'Barcelona', 'Fenerbahce', 'Panathinaikos', 'Olympiacos',
+        'CSKA Moscow', 'Zalgiris', 'Maccabi Tel Aviv', 'Bayern Munich',
+        'Virtus Bologna', 'Milano', 'Baskonia', 'ASVEL', 'Alba Berlin'
+      ]
+    },
+    // UFC - ATTIVO tutto l'anno
+    'mma_ufc': {
+      league: 'UFC',
+      teams: [
+        'Jon Jones', 'Islam Makhachev', 'Alexander Volkanovski', 'Leon Edwards',
+        'Aljamain Sterling', 'Charles Oliveira', 'Kamaru Usman', 'Israel Adesanya',
+        'Francis Ngannou', 'Stipe Miocic', 'Amanda Nunes', 'Valentina Shevchenko'
       ]
     }
   };
