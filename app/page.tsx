@@ -20,9 +20,10 @@ import BettingGuide from '@/components/BettingGuide';
 import GlobalDailyMonitor from '@/components/GlobalDailyMonitor';
 import AdvancedOddsAnalyzer from '@/components/AdvancedOddsAnalyzer';
 import ActiveSeasonsMonitor from '@/components/ActiveSeasonsMonitor';
+import RealDataStatus from '@/components/RealDataStatus';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 import { useApiManager } from '@/lib/apiManager';
-import { useRealOdds } from '@/hooks/useRealOdds';
+import { useOnlyRealOdds } from '@/hooks/useOnlyRealOdds';
 import { globalDailyUpdater } from '@/lib/globalDailyUpdater';
 import { activeSeasonsManager } from '@/lib/activeSeasonsManager';
 import { FilterOptions, BestOdds, Match } from '@/types';
@@ -42,14 +43,16 @@ export default function HomePage() {
   // Hook per gestire API e abbonamenti
   const { isSubscribed, subscriptionPlan, usage } = useApiManager();
   
-  // Hook per gestire le quote reali
+  // Hook per gestire SOLO le quote reali
   const {
     matches: realMatches,
     isLoading,
     error,
     lastUpdate,
-    refreshOdds
-  } = useRealOdds();
+    stats,
+    refreshOdds,
+    hasRealData
+  } = useOnlyRealOdds();
 
   // Avvia il sistema giornaliero globale al mount
   React.useEffect(() => {
@@ -329,6 +332,18 @@ export default function HomePage() {
             </div>
           )}
 
+          {/* Status Dati Reali */}
+          <div className="mb-6">
+            <RealDataStatus
+              hasRealData={hasRealData}
+              isLoading={isLoading}
+              error={error}
+              lastUpdate={lastUpdate}
+              stats={stats}
+              onRefresh={refreshOdds}
+            />
+          </div>
+
           {/* Status e Statistiche */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Ultimo Aggiornamento */}
@@ -381,8 +396,37 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Main Content */}
+              {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {/* Messaggio quando non ci sono dati reali */}
+        {!hasRealData && !isLoading && (
+          <div className="mb-8 bg-yellow-900/20 border border-yellow-500/50 rounded-xl p-6 text-center">
+            <div className="text-yellow-400 text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-white mb-3">Nessun Dato Reale Disponibile</h2>
+            <p className="text-dark-300 mb-4">
+              Il sistema è configurato per mostrare SOLO partite e quote reali da API verificate.
+              <br />
+              Al momento non ci sono partite disponibili o il limite API è stato raggiunto.
+            </p>
+            <div className="bg-dark-800/50 rounded-lg p-4 text-left max-w-md mx-auto">
+              <h3 className="font-bold text-white mb-2">🔍 Possibili Cause:</h3>
+              <ul className="text-sm text-dark-300 space-y-1">
+                <li>• Nessuna partita programmata nei campionati attivi</li>
+                <li>• Limite mensile API raggiunto (500 richieste/mese)</li>
+                <li>• Problemi temporanei con l'API esterna</li>
+                <li>• Campionati in pausa stagionale</li>
+              </ul>
+            </div>
+            <button
+              onClick={refreshOdds}
+              disabled={isLoading || !stats.canMakeRequests}
+              className="mt-4 px-6 py-2 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+            >
+              {isLoading ? 'Caricamento...' : 'Riprova Caricamento'}
+            </button>
+          </div>
+        )}
 
         {/* Best Opportunities Section Migliorata */}
         {filteredMatches.length > 0 && todaysBestOpportunities && (
