@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Menu, X, TrendingUp, Activity, Database, RefreshCw } from 'lucide-react';
-import { OddsApiService } from '@/lib/oddsApi';
 import { useAutoUpdate } from '@/hooks/useAutoUpdate';
 import BookmakerDebugPanel from './BookmakerDebugPanel';
 import ApiTestPanel from './ApiTestPanel';

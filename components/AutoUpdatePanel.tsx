@@ -90,11 +90,11 @@ export default function AutoUpdatePanel({ isOpen, onClose }: AutoUpdatePanelProp
               </div>
               <div>
                 <p className="text-sm text-gray-600">Intervallo</p>
-                <p className="font-medium text-gray-900">{autoUpdate.stats.updateInterval} minuti</p>
+                <p className="font-medium text-gray-900">4 ore</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Aggiornamenti Totali</p>
-                <p className="font-medium text-gray-900">{autoUpdate.stats.totalUpdates}</p>
+                <p className="font-medium text-gray-900">{autoUpdate.stats.sportsUpdatedToday}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Prossimo Aggiornamento</p>

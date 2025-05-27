@@ -239,15 +239,12 @@ export class UnifiedApiManager {
 
   // Ottieni quote per uno sport
   async getSportOdds(sportKey: string): Promise<any> {
-    return this.makeApiRequest(
-      `/sports/${sportKey}/odds`,
-      {
-        regions: 'eu',
-        markets: 'h2h',
-        oddsFormat: 'decimal'
-      },
-      sportKey
-    );
+    return this.makeApiRequest('/odds', {
+      sport: sportKey,
+      regions: 'eu',
+      markets: 'h2h',
+      oddsFormat: 'decimal'
+    }, sportKey);
   }
 
   // Ottieni lista sport
@@ -325,6 +322,29 @@ export class UnifiedApiManager {
     if (sport) {
       sport.enabled = enabled;
       this.saveState();
+    }
+  }
+
+  // Aggiorna uno sport specifico
+  async updateSport(sportKey: string): Promise<{ success: boolean; sport?: string; matches?: number; error?: string }> {
+    try {
+      const data = await this.getSportOdds(sportKey);
+      
+      // Trova la configurazione dello sport
+      const sportConfig = this.SPORTS_CONFIG.find(s => s.key === sportKey);
+      const sportName = sportConfig?.name || sportKey;
+      
+      return {
+        success: true,
+        sport: sportName,
+        matches: data?.length || 0
+      };
+    } catch (error) {
+      return {
+        success: false,
+        sport: sportKey,
+        error: error instanceof Error ? error.message : 'Errore sconosciuto'
+      };
     }
   }
 }

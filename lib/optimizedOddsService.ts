@@ -349,6 +349,54 @@ export class OptimizedOddsService {
     unifiedApiManager.forceReset();
     console.log('🔄 Sistema quote ottimizzato resettato');
   }
+
+  // Aggiorna sport specifico
+  async updateSportOdds(sport: string): Promise<{ success: boolean; matches?: OptimizedMatch[]; error?: string }> {
+    try {
+      const matches = await this.getSportOdds(sport);
+      return {
+        success: true,
+        matches
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Errore sconosciuto'
+      };
+    }
+  }
+
+  // Aggiorna tutti gli sport
+  async updateAllSports(): Promise<{ success: boolean; allMatches?: OptimizedMatch[]; error?: string }> {
+    try {
+      const categories = await this.getAllSportsOdds();
+      const allMatches = categories.flatMap(category => category.matches);
+      
+      return {
+        success: true,
+        allMatches
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Errore sconosciuto'
+      };
+    }
+  }
+
+  // Ottieni partite dalla cache per uno sport
+  getCachedMatches(sport: string): OptimizedMatch[] {
+    // Per ora ritorna array vuoto - implementazione cache futura
+    console.log(`Cache richiesta per sport: ${sport}`);
+    return [];
+  }
+
+  // Ottieni tutte le partite dalla cache
+  getAllCachedMatches(): OptimizedMatch[] {
+    // Per ora ritorna array vuoto - implementazione cache futura
+    console.log('Cache richiesta per tutti gli sport');
+    return [];
+  }
 }
 
 // Istanza singleton

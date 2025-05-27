@@ -99,16 +99,7 @@ export default function PremiumPage() {
 
           {/* Live Demo */}
           <div className="max-w-2xl mx-auto mb-12">
-            <CountdownTimer 
-              showDetails={true} 
-              onOpenSubscriptionModal={() => {
-                // Scroll to subscription plans section
-                const plansSection = document.getElementById('subscription-plans');
-                if (plansSection) {
-                  plansSection.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-            />
+            <CountdownTimer />
           </div>
         </div>
 

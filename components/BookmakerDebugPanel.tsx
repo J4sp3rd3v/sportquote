@@ -1,99 +1,65 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Bug, CheckCircle, XCircle, AlertTriangle, ExternalLink } from 'lucide-react';
-import { getBookmakerInfo, getSupportedBookmakers, validateBookmakerUrl } from '@/lib/bookmakerLinks';
-import { getSupportedBookmakers as getApiBookmakers } from '@/lib/oddsApiService';
+import { Search, ExternalLink, CheckCircle, XCircle, AlertTriangle, X } from 'lucide-react';
+import { optimizedBookmakerManager } from '@/lib/optimizedBookmakerManager';
+
+interface BookmakerTestResult {
+  name: string;
+  isSupported: boolean;
+  normalizedName: string;
+  config?: any;
+  url?: string;
+  verified?: boolean;
+  category?: string;
+}
 
 interface BookmakerDebugPanelProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-interface BookmakerStatus {
-  name: string;
-  isSupported: boolean;
-  hasDirectLink: boolean;
-  baseUrl: string;
-  isValidUrl: boolean;
-  normalizedName: string;
-  status: 'ok' | 'warning' | 'error';
-}
-
 export default function BookmakerDebugPanel({ isOpen, onClose }: BookmakerDebugPanelProps) {
-  const [bookmakerStatuses, setBookmakerStatuses] = useState<BookmakerStatus[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [testResults, setTestResults] = useState<BookmakerTestResult[]>([]);
+  const [allBookmakers, setAllBookmakers] = useState<any[]>([]);
 
   useEffect(() => {
     if (isOpen) {
-      analyzeBookmakers();
+      // Carica tutti i bookmaker configurati
+      const premiumBookmakers = optimizedBookmakerManager.getBookmakersByCategory('premium');
+      const standardBookmakers = optimizedBookmakerManager.getBookmakersByCategory('standard');
+      const internationalBookmakers = optimizedBookmakerManager.getBookmakersByCategory('international');
+      
+      const allBookmakersList = [
+        ...premiumBookmakers,
+        ...standardBookmakers,
+        ...internationalBookmakers
+      ];
+      setAllBookmakers(allBookmakersList);
     }
   }, [isOpen]);
 
-  const analyzeBookmakers = async () => {
-    setLoading(true);
+  const testBookmaker = (bookmakerName: string) => {
+    const info = optimizedBookmakerManager.getBookmakerInfo(bookmakerName);
     
-    const statuses: BookmakerStatus[] = [];
-    const supportedBookmakers = getSupportedBookmakers();
-    
-    // Analizza i bookmaker dall'API
-    const apiBookmakers = await getApiBookmakers();
-    const topBookmakers = apiBookmakers.slice(0, 20);
-    
-    for (const bookmaker of topBookmakers) {
-      const info = getBookmakerInfo(bookmaker.name);
-      const isValidUrl = validateBookmakerUrl(info.baseUrl);
-      
-      let status: 'ok' | 'warning' | 'error' = 'ok';
-      
-      if (!info.isSupported) {
-        status = 'error';
-      } else if (!isValidUrl || info.baseUrl.includes('google.com')) {
-        status = 'warning';
-      }
-      
-      statuses.push({
-        name: bookmaker.name,
-        isSupported: info.isSupported,
-        hasDirectLink: info.hasDirectLink,
-        baseUrl: info.baseUrl,
-        isValidUrl,
-        normalizedName: info.normalizedName,
-        status
-      });
-    }
-    
-    setBookmakerStatuses(statuses);
-    setLoading(false);
+    const result: BookmakerTestResult = {
+      name: bookmakerName,
+      isSupported: info.isSupported,
+      normalizedName: info.config?.displayName || bookmakerName,
+      config: info.config,
+      url: info.config?.baseUrl,
+      verified: info.config?.verified,
+      category: info.config?.category
+    };
+
+    setTestResults(prev => [result, ...prev.slice(0, 9)]);
   };
 
-  const getStatusIcon = (status: 'ok' | 'warning' | 'error') => {
-    switch (status) {
-      case 'ok':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case 'error':
-        return <XCircle className="h-5 w-5 text-red-500" />;
-    }
-  };
-
-  const getStatusText = (bookmaker: BookmakerStatus) => {
-    if (!bookmaker.isSupported) {
-      return 'Non supportato - URL mancante';
-    }
-    if (bookmaker.baseUrl.includes('google.com')) {
-      return 'Fallback Google - URL non configurato';
-    }
-    if (!bookmaker.isValidUrl) {
-      return 'URL non valido';
-    }
-    return 'Configurato correttamente';
-  };
-
-  const testBookmakerUrl = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
+  const filteredBookmakers = allBookmakers.filter(bookmaker =>
+    bookmaker.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    bookmaker.key.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (!isOpen) return null;
 
@@ -105,122 +71,110 @@ export default function BookmakerDebugPanel({ isOpen, onClose }: BookmakerDebugP
         <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
           <div className="bg-white px-4 pt-5 pb-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <Bug className="h-6 w-6 text-gray-400 mr-2" />
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  Debug Bookmaker
-                </h3>
-              </div>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <XCircle className="h-5 w-5" />
+              <h3 className="text-lg leading-6 font-medium text-gray-900">
+                Debug Bookmaker
+              </h3>
+              <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+                <X className="h-6 w-6" />
               </button>
             </div>
 
-            {loading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-                <p className="mt-2 text-gray-600">Analizzando bookmaker...</p>
+            {/* Search */}
+            <div className="mb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Cerca bookmaker..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
               </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-blue-900 mb-2">Statistiche</h4>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="text-green-600 font-medium">
-                        {bookmakerStatuses.filter(b => b.status === 'ok').length}
-                      </span>
-                      <span className="text-gray-600"> Funzionanti</span>
-                    </div>
-                    <div>
-                      <span className="text-yellow-600 font-medium">
-                        {bookmakerStatuses.filter(b => b.status === 'warning').length}
-                      </span>
-                      <span className="text-gray-600"> Con problemi</span>
-                    </div>
-                    <div>
-                      <span className="text-red-600 font-medium">
-                        {bookmakerStatuses.filter(b => b.status === 'error').length}
-                      </span>
-                      <span className="text-gray-600"> Non supportati</span>
+            </div>
+
+            {/* Bookmaker List */}
+            <div className="mb-6">
+              <h4 className="text-md font-medium text-gray-900 mb-3">
+                Bookmaker Configurati ({filteredBookmakers.length})
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-60 overflow-y-auto">
+                {filteredBookmakers.map((bookmaker, index) => (
+                  <div
+                    key={index}
+                    className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+                    onClick={() => testBookmaker(bookmaker.key)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium text-sm">{bookmaker.displayName}</div>
+                        <div className="text-xs text-gray-500">{bookmaker.key}</div>
+                        <div className={`text-xs px-2 py-1 rounded mt-1 inline-block ${
+                          bookmaker.category === 'premium' ? 'bg-purple-100 text-purple-800' :
+                          bookmaker.category === 'standard' ? 'bg-blue-100 text-blue-800' :
+                          'bg-green-100 text-green-800'
+                        }`}>
+                          {bookmaker.category}
+                        </div>
+                      </div>
+                      {bookmaker.verified && (
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                      )}
                     </div>
                   </div>
-                </div>
+                ))}
+              </div>
+            </div>
 
-                <div className="max-h-96 overflow-y-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Bookmaker
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          URL
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Azioni
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {bookmakerStatuses.map((bookmaker, index) => (
-                        <tr key={index} className={bookmaker.status === 'error' ? 'bg-red-50' : bookmaker.status === 'warning' ? 'bg-yellow-50' : ''}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              {getStatusIcon(bookmaker.status)}
-                              <div className="ml-3">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {bookmaker.name}
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  {bookmaker.normalizedName}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
-                              {getStatusText(bookmaker)}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900 break-all">
-                              {bookmaker.baseUrl.length > 50 
-                                ? `${bookmaker.baseUrl.substring(0, 50)}...` 
-                                : bookmaker.baseUrl
-                              }
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button
-                              onClick={() => testBookmakerUrl(bookmaker.baseUrl)}
-                              className="text-indigo-600 hover:text-indigo-900 flex items-center"
-                              title="Testa URL"
-                            >
-                              <ExternalLink className="h-4 w-4 mr-1" />
-                              Testa
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900 mb-2">Suggerimenti per risolvere i problemi:</h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• <strong>Non supportato:</strong> Aggiungi l'URL del bookmaker in lib/bookmakerLinks.ts</li>
-                    <li>• <strong>Fallback Google:</strong> L'URL non è configurato correttamente</li>
-                    <li>• <strong>URL non valido:</strong> Controlla che l'URL sia corretto e usi HTTPS</li>
-                    <li>• <strong>Iframe bloccato:</strong> Alcuni bookmaker bloccano iframe per sicurezza</li>
-                  </ul>
+            {/* Test Results */}
+            {testResults.length > 0 && (
+              <div>
+                <h4 className="text-md font-medium text-gray-900 mb-3">
+                  Risultati Test ({testResults.length})
+                </h4>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {testResults.map((result, index) => (
+                    <div
+                      key={index}
+                      className={`p-3 rounded-lg border ${
+                        result.isSupported ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            {result.isSupported ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-500" />
+                            )}
+                            <span className="font-medium text-sm">{result.normalizedName}</span>
+                            {result.verified && (
+                              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                Verificato
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-600 mt-1">
+                            {result.category && (
+                              <span className="mr-2 capitalize">{result.category}</span>
+                            )}
+                            {result.url && (
+                              <span className="text-blue-600">{result.url}</span>
+                            )}
+                          </div>
+                        </div>
+                        {result.url && (
+                          <button
+                            onClick={() => window.open(result.url, '_blank')}
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -233,13 +187,6 @@ export default function BookmakerDebugPanel({ isOpen, onClose }: BookmakerDebugP
               onClick={onClose}
             >
               Chiudi
-            </button>
-            <button
-              type="button"
-              className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
-              onClick={analyzeBookmakers}
-            >
-              Rianalizza
             </button>
           </div>
         </div>

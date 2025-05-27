@@ -17,69 +17,72 @@ export interface UseAutoUpdateReturn {
 }
 
 export function useAutoUpdate(): UseAutoUpdateReturn {
-  const [stats, setStats] = useState<AutoUpdateStats>(() => autoUpdateService.getStats());
-  const [timeToNextUpdate, setTimeToNextUpdate] = useState<string>('');
+  const [stats, setStats] = useState<AutoUpdateStats>({
+    isRunning: false,
+    lastUpdate: null,
+    nextUpdate: null,
+    apiRequestsUsed: 0,
+    maxApiRequests: 500,
+    timeToNextUpdate: 'Non programmato',
+    currentSport: null,
+    sportsUpdatedToday: 0,
+    totalSports: 6
+  });
 
   // Aggiorna le statistiche
   const refreshStats = useCallback(() => {
-    const newStats = autoUpdateService.getStats();
-    setStats(newStats);
+    const currentStats = autoUpdateService.getStats();
+    setStats(currentStats);
   }, []);
 
-  // Aggiorna il countdown
-  const updateCountdown = useCallback(() => {
-    const formattedTime = autoUpdateService.getFormattedTimeToNextUpdate();
-    setTimeToNextUpdate(formattedTime);
-  }, []);
-
-  // Avvia l'aggiornamento automatico
+  // Avvia aggiornamento automatico
   const startAutoUpdate = useCallback(() => {
-    autoUpdateService.startAutoUpdate();
+    autoUpdateService.start();
     refreshStats();
   }, [refreshStats]);
 
-  // Ferma l'aggiornamento automatico
+  // Ferma aggiornamento automatico
   const stopAutoUpdate = useCallback(() => {
-    autoUpdateService.stopAutoUpdate();
+    autoUpdateService.stop();
     refreshStats();
   }, [refreshStats]);
 
-  // Forza un aggiornamento manuale
+  // Forza aggiornamento
   const forceUpdate = useCallback(async () => {
-    try {
-      await autoUpdateService.forceUpdate();
-      refreshStats();
-    } catch (error) {
-      console.error('Errore nell\'aggiornamento forzato:', error);
-      throw error;
-    }
+    await autoUpdateService.forceUpdate();
+    refreshStats();
   }, [refreshStats]);
 
-  // Effetto per aggiornare le statistiche periodicamente
+  // Calcola se possiamo fare aggiornamenti manuali
+  const canRequestManualUpdate = stats.apiRequestsUsed < (stats.maxApiRequests * 0.9);
+
+  // Messaggio sui limiti
+  const limitMessage = canRequestManualUpdate
+    ? `Puoi richiedere aggiornamenti manuali. Utilizzo API: ${Math.round((stats.apiRequestsUsed / stats.maxApiRequests) * 100)}%`
+    : 'Limite API quasi raggiunto. Aggiornamenti manuali disabilitati per preservare il servizio automatico.';
+
+  // Formatta ultimo aggiornamento
+  const formattedLastUpdate = stats.lastUpdate
+    ? stats.lastUpdate.toLocaleString('it-IT')
+    : 'Mai';
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      refreshStats();
-      updateCountdown();
-    }, 1000); // Aggiorna ogni secondo
+    // Carica statistiche iniziali
+    refreshStats();
+
+    // Aggiorna statistiche ogni 30 secondi
+    const interval = setInterval(refreshStats, 30000);
 
     return () => clearInterval(interval);
-  }, [refreshStats, updateCountdown]);
-
-  // Avvia automaticamente il servizio al mount
-  useEffect(() => {
-    if (!stats.isRunning) {
-      autoUpdateService.startAutoUpdate();
-      refreshStats();
-    }
-  }, [refreshStats, stats.isRunning]);
+  }, [refreshStats]);
 
   return {
     stats,
     isRunning: stats.isRunning,
-    timeToNextUpdate,
-    formattedLastUpdate: autoUpdateService.getFormattedLastUpdate(),
-    canRequestManualUpdate: autoUpdateService.canRequestManualUpdate(),
-    limitMessage: autoUpdateService.getUpdateLimitMessage(),
+    timeToNextUpdate: stats.timeToNextUpdate,
+    formattedLastUpdate,
+    canRequestManualUpdate,
+    limitMessage,
     startAutoUpdate,
     stopAutoUpdate,
     forceUpdate,
@@ -87,31 +90,4 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
   };
 }
 
-export interface UseAutoUpdateDataReturn {
-  data: any[];
-  lastUpdate: Date | null;
-  isLoading: boolean;
-}
-
-export function useAutoUpdateData(): UseAutoUpdateDataReturn {
-  const [data, setData] = useState<any[]>([]);
-  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    // Sottoscrivi agli aggiornamenti del servizio
-    const unsubscribe = autoUpdateService.subscribe((newData) => {
-      setData(newData);
-      setLastUpdate(new Date());
-      setIsLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  return {
-    data,
-    lastUpdate,
-    isLoading
-  };
-} 
+ 

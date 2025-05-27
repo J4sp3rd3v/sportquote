@@ -1,80 +1,85 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import BookmakerLinkHandler from './BookmakerLinkHandler';
-import { getBookmakerInfo, isBookmakerSupported } from '@/lib/bookmakerLinks';
+import React from 'react';
+import { ExternalLink } from 'lucide-react';
+import { optimizedBookmakerManager } from '@/lib/optimizedBookmakerManager';
+
+interface MatchInfo {
+  homeTeam: string;
+  awayTeam: string;
+  sport: string;
+  league?: string;
+}
 
 interface SmartBookmakerHandlerProps {
   bookmakerName: string;
-  matchInfo?: {
-    homeTeam: string;
-    awayTeam: string;
-    sport: string;
-  };
-  children: React.ReactNode;
+  matchInfo: MatchInfo;
+  onBookmakerOpen?: (url: string, bookmakerName: string, matchInfo: MatchInfo) => void;
   className?: string;
-  preferredMethod?: 'iframe' | 'redirect' | 'auto';
+  children?: React.ReactNode;
 }
 
-export default function SmartBookmakerHandler({ 
-  bookmakerName, 
-  matchInfo, 
-  children, 
+export default function SmartBookmakerHandler({
+  bookmakerName,
+  matchInfo,
+  onBookmakerOpen,
   className = '',
-  preferredMethod = 'auto'
+  children
 }: SmartBookmakerHandlerProps) {
-  const [bookmakerInfo, setBookmakerInfo] = useState<any>(null);
-
-  useEffect(() => {
-    // Ottieni informazioni sul bookmaker
-    const info = getBookmakerInfo(bookmakerName);
-    setBookmakerInfo(info);
+  
+  const handleClick = () => {
+    const info = optimizedBookmakerManager.getBookmakerInfo(bookmakerName);
     
-    console.log(`SmartBookmakerHandler - Bookmaker: "${bookmakerName}"`, {
-      isSupported: info.isSupported,
-      hasDirectLink: info.hasDirectLink,
-      baseUrl: info.baseUrl,
-      normalizedName: info.normalizedName,
-      originalName: bookmakerName
-    });
-    
-    // Debug aggiuntivo per bookmaker non supportati
-    if (!info.isSupported) {
-      console.warn(`⚠️ Bookmaker non supportato: "${bookmakerName}"`);
-      console.warn('URL generato:', info.baseUrl);
-      console.warn('Controlla se il nome è presente in BOOKMAKER_BASE_URLS');
+    if (info.isSupported && info.config) {
+      // Chiama il callback se fornito
+      if (onBookmakerOpen) {
+        onBookmakerOpen(info.config.baseUrl, info.config.displayName, matchInfo);
+      }
+      
+      // Apri il bookmaker
+      optimizedBookmakerManager.openBookmaker(bookmakerName, matchInfo);
+    } else {
+      console.warn(`Bookmaker ${bookmakerName} non supportato`);
+      
+      // Fallback: cerca su Google
+      const searchQuery = `${bookmakerName} scommesse ${matchInfo.homeTeam} ${matchInfo.awayTeam}`;
+      const fallbackUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+      
+      if (onBookmakerOpen) {
+        onBookmakerOpen(fallbackUrl, bookmakerName, matchInfo);
+      }
+      
+      window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
     }
-  }, [bookmakerName, preferredMethod]);
+  };
 
-  // Se il bookmaker non è supportato, mostra un avviso
-  if (bookmakerInfo && !bookmakerInfo.isSupported) {
-    console.error(`🚨 SmartBookmakerHandler: Bookmaker "${bookmakerName}" non supportato!`);
-    console.error('URL fallback generato:', bookmakerInfo.baseUrl);
-    
-    return (
-      <div 
-        className={`cursor-pointer opacity-50 ${className}`}
-        onClick={(e) => {
-          e.preventDefault();
-          console.error(`Click su bookmaker non supportato: "${bookmakerName}"`);
-          alert(`ERRORE: ${bookmakerName} non è configurato nel sistema. Contatta il supporto.`);
-        }}
-        title={`${bookmakerName} - Non ancora supportato`}
-      >
-        {children}
-      </div>
-    );
-  }
+  const info = optimizedBookmakerManager.getBookmakerInfo(bookmakerName);
+  const isSupported = info.isSupported;
+  const isVerified = info.config?.verified || false;
 
-  // Usa sempre BookmakerLinkHandler per massima compatibilità
   return (
-    <BookmakerLinkHandler
-      bookmakerName={bookmakerName}
-      bookmakerUrl={bookmakerInfo?.baseUrl || ''}
-      matchInfo={matchInfo}
-      className={className}
+    <button
+      onClick={handleClick}
+      className={`${className} ${
+        isSupported 
+          ? 'hover:opacity-90 transition-opacity' 
+          : 'opacity-75 hover:opacity-60'
+      }`}
+      title={
+        isSupported 
+          ? `Apri ${info.config?.displayName || bookmakerName}${isVerified ? ' (Verificato)' : ''}`
+          : `Cerca ${bookmakerName} su Google`
+      }
     >
-      {children}
-    </BookmakerLinkHandler>
+      {children || (
+        <div className="flex items-center">
+          <ExternalLink className="w-4 h-4 mr-2" />
+          <span>{info.config?.displayName || bookmakerName}</span>
+          {isVerified && (
+            <span className="ml-1 text-green-500" title="Verificato">✓</span>
+          )}
+        </div>
+      )}
+    </button>
   );
 } 

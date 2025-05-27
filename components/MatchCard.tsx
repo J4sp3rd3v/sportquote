@@ -5,7 +5,7 @@ import { Clock, TrendingUp, Star, ExternalLink } from 'lucide-react';
 import { Match, BestOdds } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { getBookmakerInfo, BookmakerInfo } from '@/lib/bookmakerLinks';
+import { optimizedBookmakerManager } from '@/lib/optimizedBookmakerManager';
 import SmartBookmakerHandler from './SmartBookmakerHandler';
 
 interface MatchCardProps {
@@ -16,212 +16,184 @@ interface MatchCardProps {
 }
 
 export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookmaker }: MatchCardProps) {
-  const formatDate = (date: Date) => {
-    return format(date, 'dd MMM yyyy - HH:mm', { locale: it });
+  // Calcola se c'è un'opportunità di arbitraggio
+  const calculateArbitrage = () => {
+    if (bestOdds.draw) {
+      const totalImplied = (1 / bestOdds.home.odds) + (1 / bestOdds.away.odds) + (1 / bestOdds.draw.odds);
+      if (totalImplied < 1) {
+        const profit = ((1 / totalImplied) - 1) * 100;
+        return profit > 0.5 ? profit : null;
+      }
+    } else {
+      const totalImplied = (1 / bestOdds.home.odds) + (1 / bestOdds.away.odds);
+      if (totalImplied < 1) {
+        const profit = ((1 / totalImplied) - 1) * 100;
+        return profit > 0.5 ? profit : null;
+      }
+    }
+    return null;
   };
 
+  const arbitrageProfit = calculateArbitrage();
 
+  const handleBookmakerClick = (bookmakerName: string) => {
+    const matchInfo = {
+      homeTeam: match.homeTeam,
+      awayTeam: match.awayTeam,
+      sport: match.sport,
+      league: match.league
+    };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'live':
-        return 'bg-red-100 text-red-800';
-      case 'upcoming':
-        return 'bg-blue-100 text-blue-800';
-      case 'finished':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+    optimizedBookmakerManager.openBookmaker(bookmakerName, matchInfo);
+  };
+
+  const getCategoryColor = (bookmakerName: string) => {
+    const info = optimizedBookmakerManager.getBookmakerInfo(bookmakerName);
+    if (!info.isSupported) return 'bg-gray-100 text-gray-800';
+    
+    switch (info.config?.category) {
+      case 'premium': return 'bg-purple-100 text-purple-800';
+      case 'standard': return 'bg-blue-100 text-blue-800';
+      case 'international': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'live':
-        return 'LIVE';
-      case 'upcoming':
-        return 'Prossima';
-      case 'finished':
-        return 'Finita';
-      default:
-        return status;
-    }
+  const isBookmakerVerified = (bookmakerName: string) => {
+    const info = optimizedBookmakerManager.getBookmakerInfo(bookmakerName);
+    return info.isSupported && info.config?.verified;
   };
 
   return (
-    <div className="card hover:shadow-lg transition-all duration-300 border-l-4 border-l-primary-500">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 space-y-2 sm:space-y-0">
-        <div className="flex items-center space-x-2 flex-wrap">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(match.status)}`}>
-            {getStatusText(match.status)}
-          </span>
-          <span className="text-xs sm:text-sm text-gray-500 truncate">{match.league}</span>
-        </div>
-        <div className="flex items-center text-gray-500 text-xs sm:text-sm">
-          <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-          <span className="truncate">{formatDate(match.date)}</span>
-        </div>
-      </div>
-
-      {/* Teams */}
-      <div className="mb-4 sm:mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-xs font-bold">{match.homeTeam.charAt(0)}</span>
+    <div className={`bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border ${
+      arbitrageProfit ? 'border-green-300 ring-2 ring-green-100' : 'border-gray-200'
+    }`}>
+      {/* Header con arbitraggio */}
+      {arbitrageProfit && (
+        <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Star className="w-4 h-4 mr-2" />
+              <span className="text-sm font-medium">Arbitraggio</span>
             </div>
-            <span className="font-semibold text-gray-900 text-sm sm:text-base truncate">{match.homeTeam}</span>
-          </div>
-          <span className="text-gray-400 font-medium text-center text-sm sm:text-base px-2">VS</span>
-          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 sm:justify-end">
-            <span className="font-semibold text-gray-900 text-sm sm:text-base truncate order-2 sm:order-1">{match.awayTeam}</span>
-            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0 order-1 sm:order-2">
-              <span className="text-xs font-bold">{match.awayTeam.charAt(0)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Best Odds */}
-      <div className="mb-4">
-        <h4 className="text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3 flex items-center">
-          <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-primary-600" />
-          Migliori Quote 1X2
-        </h4>
-        <div className={`grid gap-2 sm:gap-3 ${bestOdds.draw ? 'grid-cols-3' : 'grid-cols-2'}`}>
-          {/* Home Win */}
-          <SmartBookmakerHandler
-            bookmakerName={bestOdds.home.bookmaker}
-            matchInfo={{
-              homeTeam: match.homeTeam,
-              awayTeam: match.awayTeam,
-              sport: match.sport
-            }}
-            className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-primary-50 hover:border-primary-200 border border-transparent transition-all duration-200 group"
-          >
-            <div className="text-xs text-gray-500 mb-1 group-hover:text-primary-600">1</div>
-            <div className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-primary-700">{bestOdds.home.odds}</div>
-            <div className="text-xs text-primary-600 font-medium truncate flex items-center justify-center">
-              {bestOdds.home.bookmaker}
-              <ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          </SmartBookmakerHandler>
-
-          {/* Draw (if available) */}
-          {bestOdds.draw && (
-            <SmartBookmakerHandler
-              bookmakerName={bestOdds.draw!.bookmaker}
-              matchInfo={{
-                homeTeam: match.homeTeam,
-                awayTeam: match.awayTeam,
-                sport: match.sport
-              }}
-              className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-primary-50 hover:border-primary-200 border border-transparent transition-all duration-200 group"
-            >
-              <div className="text-xs text-gray-500 mb-1 group-hover:text-primary-600">X</div>
-              <div className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-primary-700">{bestOdds.draw.odds}</div>
-              <div className="text-xs text-primary-600 font-medium truncate flex items-center justify-center">
-                {bestOdds.draw.bookmaker}
-                <ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </SmartBookmakerHandler>
-          )}
-
-          {/* Away Win */}
-          <SmartBookmakerHandler
-            bookmakerName={bestOdds.away.bookmaker}
-            matchInfo={{
-              homeTeam: match.homeTeam,
-              awayTeam: match.awayTeam,
-              sport: match.sport
-            }}
-            className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-primary-50 hover:border-primary-200 border border-transparent transition-all duration-200 group"
-          >
-            <div className="text-xs text-gray-500 mb-1 group-hover:text-primary-600">2</div>
-            <div className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-primary-700">{bestOdds.away.odds}</div>
-            <div className="text-xs text-primary-600 font-medium truncate flex items-center justify-center">
-              {bestOdds.away.bookmaker}
-              <ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          </SmartBookmakerHandler>
-        </div>
-      </div>
-
-      {/* Handicap Odds */}
-      {bestOdds.bestHandicap && (
-        <div className="mb-4">
-          <h4 className="text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3 flex items-center">
-            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-accent-600" />
-            Quote Handicap ({bestOdds.bestHandicap.handicap > 0 ? '+' : ''}{bestOdds.bestHandicap.handicap})
-          </h4>
-          <div className="grid gap-2 sm:gap-3 grid-cols-2">
-            {/* Home Handicap */}
-            <SmartBookmakerHandler
-              bookmakerName={bestOdds.bestHandicap.home.bookmaker}
-              matchInfo={{
-                homeTeam: match.homeTeam,
-                awayTeam: match.awayTeam,
-                sport: match.sport
-              }}
-              className="bg-accent-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-accent-100 hover:border-accent-200 border border-transparent transition-all duration-200 group"
-            >
-              <div className="text-xs text-gray-500 mb-1 group-hover:text-accent-600">
-                {match.homeTeam.substring(0, 8)}... {bestOdds.bestHandicap.handicap > 0 ? '+' : ''}{bestOdds.bestHandicap.handicap}
-              </div>
-              <div className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-accent-700">{bestOdds.bestHandicap.home.odds}</div>
-              <div className="text-xs text-accent-600 font-medium truncate flex items-center justify-center">
-                {bestOdds.bestHandicap.home.bookmaker}
-                <ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </SmartBookmakerHandler>
-
-            {/* Away Handicap */}
-            <SmartBookmakerHandler
-              bookmakerName={bestOdds.bestHandicap.away.bookmaker}
-              matchInfo={{
-                homeTeam: match.homeTeam,
-                awayTeam: match.awayTeam,
-                sport: match.sport
-              }}
-              className="bg-accent-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-accent-100 hover:border-accent-200 border border-transparent transition-all duration-200 group"
-            >
-              <div className="text-xs text-gray-500 mb-1 group-hover:text-accent-600">
-                {match.awayTeam.substring(0, 8)}... {-bestOdds.bestHandicap.handicap > 0 ? '+' : ''}{-bestOdds.bestHandicap.handicap}
-              </div>
-              <div className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-accent-700">{bestOdds.bestHandicap.away.odds}</div>
-              <div className="text-xs text-accent-600 font-medium truncate flex items-center justify-center">
-                {bestOdds.bestHandicap.away.bookmaker}
-                <ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </SmartBookmakerHandler>
+            <span className="text-sm font-bold">+{arbitrageProfit.toFixed(2)}%</span>
           </div>
         </div>
       )}
 
-      {/* Stats */}
-      <div className="flex justify-between items-center mb-3 sm:mb-4 text-xs sm:text-sm text-gray-600">
-        <span>{match.odds.length} bookmakers</span>
-        <span className="flex items-center">
-          <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-yellow-500" />
-          <span className="hidden sm:inline">Quote aggiornate</span>
-          <span className="sm:hidden">Aggiornate</span>
-        </span>
-      </div>
+      <div className="p-6">
+        {/* Match Info */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-2">
+              <span className={`px-2 py-1 text-xs rounded-full ${getCategoryColor(match.sport)}`}>
+                {match.sport}
+              </span>
+              <span className="text-xs text-gray-500">{match.league}</span>
+            </div>
+            <div className="flex items-center text-xs text-gray-500">
+              <Clock className="w-3 h-3 mr-1" />
+              {format(match.date, 'HH:mm', { locale: it })}
+            </div>
+          </div>
+          
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            {match.homeTeam} vs {match.awayTeam}
+          </h3>
+          
+          <p className="text-sm text-gray-600">
+            {format(match.date, 'EEEE dd MMMM', { locale: it })}
+          </p>
+        </div>
 
-      {/* Actions */}
-      <div className="flex space-x-2 sm:space-x-3">
-        <button
-          onClick={() => onViewDetails(match.id)}
-          className="flex-1 btn-primary flex items-center justify-center text-sm"
-        >
-          <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-          <span className="hidden sm:inline">Confronta Tutte</span>
-          <span className="sm:hidden">Confronta</span>
-        </button>
-        <button className="btn-secondary p-2 sm:p-3">
-          <Star className="h-3 w-3 sm:h-4 sm:w-4" />
-        </button>
+        {/* Best Odds */}
+        <div className="mb-4">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-1">Casa</div>
+              <div className="text-lg font-bold text-blue-600">{bestOdds.home.odds.toFixed(2)}</div>
+              <div className="text-xs text-gray-600 truncate flex items-center justify-center">
+                {isBookmakerVerified(bestOdds.home.bookmaker) && (
+                  <span className="text-green-500 mr-1" title="Verificato">✓</span>
+                )}
+                {bestOdds.home.bookmaker}
+              </div>
+            </div>
+            
+            {bestOdds.draw && (
+              <div className="text-center">
+                <div className="text-xs text-gray-500 mb-1">X</div>
+                <div className="text-lg font-bold text-gray-600">{bestOdds.draw.odds.toFixed(2)}</div>
+                <div className="text-xs text-gray-600 truncate flex items-center justify-center">
+                  {isBookmakerVerified(bestOdds.draw.bookmaker) && (
+                    <span className="text-green-500 mr-1" title="Verificato">✓</span>
+                  )}
+                  {bestOdds.draw.bookmaker}
+                </div>
+              </div>
+            )}
+            
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-1">Ospite</div>
+              <div className="text-lg font-bold text-red-600">{bestOdds.away.odds.toFixed(2)}</div>
+              <div className="text-xs text-gray-600 truncate flex items-center justify-center">
+                {isBookmakerVerified(bestOdds.away.bookmaker) && (
+                  <span className="text-green-500 mr-1" title="Verificato">✓</span>
+                )}
+                {bestOdds.away.bookmaker}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="flex space-x-2 mb-4">
+          <button
+            onClick={() => handleBookmakerClick(bestOdds.home.bookmaker)}
+            className="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+          >
+            Scommetti Casa
+          </button>
+          <button
+            onClick={() => handleBookmakerClick(bestOdds.away.bookmaker)}
+            className="flex-1 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
+          >
+            Scommetti Ospite
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+          <span>{match.odds.length} bookmaker</span>
+          <div className="flex items-center">
+            <TrendingUp className="w-4 h-4 mr-1" />
+            <span>Quote aggiornate</span>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex space-x-2">
+          <button
+            onClick={() => onViewDetails(match.id)}
+            className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+          >
+            Vedi Dettagli
+          </button>
+          <SmartBookmakerHandler 
+            bookmakerName={bestOdds.home.bookmaker}
+            matchInfo={{
+              homeTeam: match.homeTeam,
+              awayTeam: match.awayTeam,
+              sport: match.sport,
+              league: match.league
+            }}
+            onBookmakerOpen={onOpenBookmaker}
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium flex items-center justify-center"
+          >
+            <ExternalLink className="w-4 h-4 mr-2" />
+            Migliore
+          </SmartBookmakerHandler>
+        </div>
       </div>
     </div>
   );

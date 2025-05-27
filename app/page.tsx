@@ -16,7 +16,6 @@ import ArbitrageOpportunities from '@/components/ArbitrageOpportunities';
 import ArbitrageSystemInfo from '@/components/ArbitrageSystemInfo';
 import UnifiedApiMonitor from '@/components/UnifiedApiMonitor';
 import BookmakerTestPanel from '@/components/BookmakerTestPanel';
-import OptimizedApiStats from '@/components/OptimizedApiStats';
 import DebugPanel from '@/components/DebugPanel';
 import CountdownTimer from '@/components/CountdownTimer';
 import SubscriptionManager from '@/components/SubscriptionManager';
@@ -24,7 +23,7 @@ import BettingStrategies from '@/components/BettingStrategies';
 import BettingGuide from '@/components/BettingGuide';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 import { useApiManager } from '@/lib/apiManager';
-import { useOptimizedOdds } from '@/hooks/useOptimizedOdds';
+import { useRealOdds } from '@/hooks/useRealOdds';
 import { FilterOptions, BestOdds, Match } from '@/types';
 import { TrendingUp, Users, Award, Clock, Filter, BarChart3, Star, Zap, Target, Calendar, Trophy, Sparkles } from 'lucide-react';
 
@@ -42,19 +41,14 @@ export default function HomePage() {
   // Hook per gestire API e abbonamenti
   const { isSubscribed, subscriptionPlan, usage } = useApiManager();
   
-  // Hook per gestire le quote ottimizzate
+  // Hook per gestire le quote reali
   const {
     matches: realMatches,
-    loading,
+    isLoading,
     error,
-    useRealData,
-    apiStats,
     lastUpdate,
-    categoryStats,
-    toggleDataSource,
-    forceRefresh,
-    refreshSport
-  } = useOptimizedOdds();
+    refreshOdds
+  } = useRealOdds();
 
   // Usa solo i dati reali
   const matches = realMatches;
@@ -459,7 +453,7 @@ export default function HomePage() {
         </div>
 
         {/* Loading State per API */}
-        {useRealData && loading && matches.length === 0 && (
+        {isLoading && matches.length === 0 && (
           <LoadingSpinner 
             isApiLoading={true}
             showProgress={true}
@@ -467,7 +461,7 @@ export default function HomePage() {
         )}
 
         {/* All Matches */}
-        {!loading && filteredMatches.length > 0 ? (
+        {!isLoading && filteredMatches.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
             {filteredMatches.map((match) => (
               <MatchCard
@@ -478,22 +472,22 @@ export default function HomePage() {
               />
             ))}
           </div>
-        ) : !loading ? (
+        ) : !isLoading ? (
           <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-semibold text-dark-50 mb-2">
-              {useRealData && matches.length === 0 ? 'Nessuna partita disponibile oggi' : 'Nessuna partita trovata'}
+              {matches.length === 0 ? 'Nessuna partita disponibile oggi' : 'Nessuna partita trovata'}
             </h3>
             <p className="text-dark-300 mb-6">
-              {useRealData && matches.length === 0 
+              {matches.length === 0 
                 ? 'Le quote vengono aggiornate giornalmente. Il prossimo aggiornamento sarà domani.'
                 : 'Prova a modificare i filtri di ricerca o la query'
               }
             </p>
             <button
               onClick={() => {
-                if (useRealData && matches.length === 0) {
-                  forceRefresh();
+                if (matches.length === 0) {
+                  refreshOdds();
                 } else {
                   setSearchQuery('');
                   setFilters({});
@@ -501,20 +495,10 @@ export default function HomePage() {
               }}
               className="btn-primary"
             >
-              {useRealData && matches.length === 0 ? 'Controlla Aggiornamenti' : 'Cancella Filtri'}
+              {matches.length === 0 ? 'Controlla Aggiornamenti' : 'Cancella Filtri'}
             </button>
           </div>
         ) : null}
-
-        {/* API Status Info - Dettagli tecnici */}
-        <div className="mt-8">
-          <ApiStatusInfo
-            apiStatus={apiStats}
-            lastUpdate={lastUpdate}
-            categoryStats={categoryStats}
-            useRealData={useRealData}
-          />
-        </div>
 
         {/* Bookmaker Test Panel - Solo in development */}
         {process.env.NODE_ENV === 'development' && (

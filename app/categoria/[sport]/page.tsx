@@ -6,13 +6,11 @@ import Header from '@/components/Header';
 import MatchCard from '@/components/MatchCard';
 import FilterPanel from '@/components/FilterPanel';
 import MatchDetails from '@/components/MatchDetails';
-import DataSourceToggle from '@/components/DataSourceToggle';
-import ApiStatusBanner from '@/components/ApiStatusBanner';
 import BestOddsHighlight from '@/components/BestOddsHighlight';
 
 import { useRealOdds } from '@/hooks/useRealOdds';
 import { FilterOptions, BestOdds, Match } from '@/types';
-import { ArrowLeft, Filter, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Filter, TrendingUp, Database, Activity, RefreshCw } from 'lucide-react';
 
 export default function CategoryPage() {
   const params = useParams();
@@ -29,14 +27,11 @@ export default function CategoryPage() {
   // Hook per gestire le quote reali
   const {
     matches: realMatches,
-    loading,
+    isLoading,
     error,
     lastUpdate,
-    apiStatus,
-    refreshData,
-    useRealData,
-    toggleDataSource
-  } = useRealOdds();
+    refreshOdds
+  } = useRealOdds(sport);
 
   // Usa solo i dati reali
   const allMatches = realMatches;
@@ -214,7 +209,7 @@ export default function CategoryPage() {
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 text-primary-600" />
               <span className="text-center sm:text-left">
                 Ultimo aggiornamento: {
-                  useRealData && lastUpdate 
+                  lastUpdate 
                     ? lastUpdate.toLocaleTimeString('it-IT')
                     : new Date().toLocaleTimeString('it-IT')
                 }
@@ -222,13 +217,21 @@ export default function CategoryPage() {
             </div>
             <div className="flex items-center space-x-4 sm:space-x-6">
               <div className="flex items-center">
-                <span className="font-medium">{Object.keys(matchesByLeague).length}</span>
-                <span className="ml-1">campionati</span>
+                <Database className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-blue-600" />
+                <span>{filteredMatches.length} partite</span>
               </div>
               <div className="flex items-center">
-                <span className="font-medium">35+</span>
-                <span className="ml-1">bookmakers</span>
+                <Activity className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-green-600" />
+                <span>Quote live</span>
               </div>
+              <button
+                onClick={refreshOdds}
+                disabled={isLoading}
+                className="flex items-center text-primary-600 hover:text-primary-700 disabled:opacity-50"
+              >
+                <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Aggiorna</span>
+              </button>
             </div>
           </div>
         </div>
@@ -236,20 +239,22 @@ export default function CategoryPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Data Source Toggle - Fixed TypeScript props */}
-        <DataSourceToggle
-          useRealData={useRealData}
-          onToggle={toggleDataSource}
-          loading={loading}
-        />
-
-        {/* API Status Banner */}
-        <ApiStatusBanner
-          useRealData={useRealData}
-          error={error}
-          loading={loading}
-          onToggle={toggleDataSource}
-        />
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center">
+              <div className="text-red-600 text-sm">
+                Errore: {error}
+              </div>
+              <button
+                onClick={refreshOdds}
+                className="ml-4 text-red-600 hover:text-red-800 text-sm underline"
+              >
+                Riprova
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Best Odds Highlight */}
         {filteredMatches.length > 0 && (
@@ -265,11 +270,9 @@ export default function CategoryPage() {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900">
             Partite {getSportName(sport)}
-            {useRealData && (
-              <span className="ml-2 text-sm font-normal text-primary-600">
-                (Quote Reali)
-              </span>
-            )}
+            <span className="ml-2 text-sm font-normal text-primary-600">
+              (Quote Live)
+            </span>
           </h2>
           <div className="flex items-center space-x-4">
             <button

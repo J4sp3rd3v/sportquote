@@ -1,8 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Play, RefreshCw, CheckCircle, XCircle, AlertTriangle, Database } from 'lucide-react';
-import { oddsApi } from '@/lib/oddsApi';
+import { Play, AlertCircle, CheckCircle, Clock, X } from 'lucide-react';
+import { unifiedApiManager } from '@/lib/unifiedApiManager';
+
+interface ApiTestResult {
+  success: boolean;
+  data?: any;
+  error?: string;
+  timestamp: number;
+  requestsUsed?: number;
+}
 
 interface ApiTestPanelProps {
   isOpen: boolean;
@@ -11,280 +19,174 @@ interface ApiTestPanelProps {
 
 export default function ApiTestPanel({ isOpen, onClose }: ApiTestPanelProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [apiStatus, setApiStatus] = useState<any>(null);
-  const [testResults, setTestResults] = useState<any>(null);
-  const [bookmakerAnalysis, setBookmakerAnalysis] = useState<any[]>([]);
+  const [results, setResults] = useState<ApiTestResult[]>([]);
 
-  const runApiTest = async () => {
+  const testApiCall = async () => {
     setIsLoading(true);
-    setTestResults(null);
-    setBookmakerAnalysis([]);
-
+    
     try {
-      // 1. Verifica stato API
-      console.log('🔄 Verificando stato API...');
-      const status = await oddsApi.checkApiStatus();
-      setApiStatus(status);
-
-      if (status.status === 'error') {
-        throw new Error('API non disponibile');
+      const stats = unifiedApiManager.getDetailedStats();
+      
+      // Test chiamata API
+      const nextSport = unifiedApiManager.getNextSportToUpdate();
+      
+      if (!nextSport) {
+        setResults(prev => [...prev, {
+          success: false,
+          error: 'Nessuno sport da aggiornare disponibile',
+          timestamp: Date.now()
+        }]);
+        return;
       }
 
-      // 2. Recupera dati di test (solo Serie A per velocità)
-      console.log('🔄 Recuperando dati Serie A...');
-      const serieAEvents = await oddsApi.getOdds('soccer_italy_serie_a');
+      // Simula una chiamata API
+      const result = await unifiedApiManager.updateSport(nextSport.key);
       
-      if (serieAEvents.length === 0) {
-        throw new Error('Nessun evento Serie A disponibile');
-      }
-
-      // 3. Analizza i bookmaker
-      const bookmakerMap = new Map();
-      serieAEvents.forEach(event => {
-        event.bookmakers.forEach(bookmaker => {
-          const key = bookmaker.key;
-          const title = bookmaker.title;
-          
-          if (!bookmakerMap.has(key)) {
-            bookmakerMap.set(key, {
-              key,
-              title,
-              count: 0,
-              normalizedName: '', // Verrà calcolato
-              hasMapping: false
-            });
-          }
-          bookmakerMap.get(key).count++;
-        });
-      });
-
-      // 4. Converti e analizza
-      const convertedMatches = oddsApi.convertToAppFormat(serieAEvents);
+      setResults(prev => [...prev, {
+        success: result.success,
+        data: result.success ? { sport: nextSport.name, matches: result.matches } : undefined,
+        error: result.success ? undefined : result.error,
+        timestamp: Date.now(),
+        requestsUsed: stats.daily.used + 1
+      }]);
       
-      // 5. Analizza i nomi normalizzati
-      const analysis = Array.from(bookmakerMap.values()).map(bm => {
-        // Simula la normalizzazione
-        const normalizedName = normalizeBookmakerNameTest(bm.key, bm.title);
-        const hasMapping = normalizedName !== bm.title.replace(/[^a-zA-Z0-9\s]/g, '').trim();
-        
-        return {
-          ...bm,
-          normalizedName,
-          hasMapping,
-          status: hasMapping ? 'mapped' : 'unmapped'
-        };
-      });
-
-      setBookmakerAnalysis(analysis);
-      setTestResults({
-        eventsCount: serieAEvents.length,
-        convertedCount: convertedMatches.length,
-        bookmakerCount: bookmakerMap.size,
-        mappedCount: analysis.filter(a => a.hasMapping).length,
-        unmappedCount: analysis.filter(a => !a.hasMapping).length
-      });
-
     } catch (error) {
-      console.error('❌ Errore test API:', error);
-      setTestResults({ error: error instanceof Error ? error.message : 'Errore sconosciuto' });
+      setResults(prev => [...prev, {
+        success: false,
+        error: error instanceof Error ? error.message : 'Errore sconosciuto',
+        timestamp: Date.now()
+      }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Funzione di test per la normalizzazione (copia della logica)
-  const normalizeBookmakerNameTest = (key: string, title: string): string => {
-    const BOOKMAKER_MAPPING: { [key: string]: string } = {
-      'bet365': 'Bet365',
-      'williamhill': 'William Hill',
-      'betfair': 'Betfair',
-      'unibet': 'Unibet',
-      'bwin': 'Bwin',
-      'marathonbet': 'Marathonbet',
-      'sisal': 'Sisal',
-      'snai': 'Snai',
-      'eurobet': 'Eurobet',
-      'lottomatica': 'Lottomatica',
-      'betclic': 'Betclic',
-      'netbet': 'NetBet',
-      'leovegas': 'LeoVegas',
-      'pokerstars': 'Pokerstars',
-      'betway': 'Betway',
-      'pinnacle': 'Pinnacle'
-    };
+  const clearResults = () => {
+    setResults([]);
+  };
 
-    const normalizedFromKey = BOOKMAKER_MAPPING[key.toLowerCase()];
-    if (normalizedFromKey) return normalizedFromKey;
-
-    const normalizedFromTitle = BOOKMAKER_MAPPING[title.toLowerCase()];
-    if (normalizedFromTitle) return normalizedFromTitle;
-
-    return title.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+  const getStats = () => {
+    return unifiedApiManager.getDetailedStats();
   };
 
   if (!isOpen) return null;
+
+  const stats = getStats();
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose}></div>
 
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
+        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
           <div className="bg-white px-4 pt-5 pb-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <Database className="h-6 w-6 text-blue-500 mr-2" />
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  Test API Reale - Analisi Bookmaker
-                </h3>
-              </div>
+              <h3 className="text-lg leading-6 font-medium text-gray-900">
+                Test API Sistema Unificato
+              </h3>
               <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-                <XCircle className="h-5 w-5" />
+                <X className="h-6 w-6" />
               </button>
             </div>
 
-            {/* Stato API */}
-            {apiStatus && (
-              <div className={`p-4 rounded-lg mb-4 ${
-                apiStatus.status === 'active' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
-              } border`}>
-                <h4 className="font-medium mb-2">Stato API</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Status:</span>
-                    <span className={`ml-2 font-medium ${
-                      apiStatus.status === 'active' ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {apiStatus.status === 'active' ? 'Attiva' : 'Errore'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Richieste rimanenti:</span>
-                    <span className="ml-2 font-medium">{apiStatus.remainingRequests || 'N/A'}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Richieste usate:</span>
-                    <span className="ml-2 font-medium">{apiStatus.usedRequests || 'N/A'}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Rate limit:</span>
-                    <span className="ml-2 font-medium">{apiStatus.rateLimit || 'N/A'}</span>
-                  </div>
+            {/* Stats */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <h4 className="font-medium text-gray-700 mb-2">Statistiche API</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-500">Oggi:</span>
+                  <div className="font-semibold">{stats.daily.used}/{stats.daily.quota}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">Mese:</span>
+                  <div className="font-semibold">{stats.monthly.used}/{stats.monthly.limit}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">Sport aggiornati:</span>
+                  <div className="font-semibold">{stats.sports.updatedToday}/{stats.sports.total}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">Cache:</span>
+                  <div className="font-semibold">{stats.cache.size} entries</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Test Controls */}
+            <div className="mb-6">
+              <div className="flex space-x-3">
+                <button
+                  onClick={testApiCall}
+                  disabled={isLoading}
+                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isLoading ? (
+                    <Clock className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Play className="w-4 h-4 mr-2" />
+                  )}
+                  {isLoading ? 'Testing...' : 'Test Prossimo Sport'}
+                </button>
+                <button
+                  onClick={clearResults}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                >
+                  Pulisci Risultati
+                </button>
+              </div>
+            </div>
+
+            {/* Results */}
+            {results.length > 0 && (
+              <div>
+                <h4 className="font-medium text-gray-700 mb-3">
+                  Risultati Test ({results.length})
+                </h4>
+                <div className="space-y-3 max-h-60 overflow-y-auto">
+                  {results.map((result, index) => (
+                    <div
+                      key={index}
+                      className={`p-3 rounded-lg border ${
+                        result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-2">
+                          {result.success ? (
+                            <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                          ) : (
+                            <AlertCircle className="w-5 h-5 text-red-500 mt-0.5" />
+                          )}
+                          <div>
+                            <div className="font-medium text-sm">
+                              {result.success ? 'Test Riuscito' : 'Test Fallito'}
+                            </div>
+                            {result.data && (
+                              <div className="text-sm text-gray-600 mt-1">
+                                Sport: {result.data.sport} | Partite: {result.data.matches}
+                              </div>
+                            )}
+                            {result.error && (
+                              <div className="text-sm text-red-600 mt-1">
+                                Errore: {result.error}
+                              </div>
+                            )}
+                            {result.requestsUsed && (
+                              <div className="text-xs text-gray-500 mt-1">
+                                Richieste utilizzate: {result.requestsUsed}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(result.timestamp).toLocaleTimeString('it-IT')}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
-
-            {/* Pulsante test */}
-            <div className="mb-4">
-              <button
-                onClick={runApiTest}
-                disabled={isLoading}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {isLoading ? (
-                  <RefreshCw className="animate-spin h-4 w-4 mr-2" />
-                ) : (
-                  <Play className="h-4 w-4 mr-2" />
-                )}
-                {isLoading ? 'Testando...' : 'Testa API Serie A'}
-              </button>
-            </div>
-
-            {/* Risultati test */}
-            {testResults && (
-              <div className="space-y-4">
-                {testResults.error ? (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <div className="flex items-center">
-                      <XCircle className="h-5 w-5 text-red-500 mr-2" />
-                      <span className="font-medium text-red-900">Errore: {testResults.error}</span>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    {/* Statistiche generali */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <h4 className="font-medium text-blue-900 mb-2">Risultati Test</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-                        <div>
-                          <span className="text-blue-600 font-medium">{testResults.eventsCount}</span>
-                          <span className="text-gray-600 ml-1">Eventi API</span>
-                        </div>
-                        <div>
-                          <span className="text-blue-600 font-medium">{testResults.convertedCount}</span>
-                          <span className="text-gray-600 ml-1">Convertiti</span>
-                        </div>
-                        <div>
-                          <span className="text-blue-600 font-medium">{testResults.bookmakerCount}</span>
-                          <span className="text-gray-600 ml-1">Bookmaker</span>
-                        </div>
-                        <div>
-                          <span className="text-green-600 font-medium">{testResults.mappedCount}</span>
-                          <span className="text-gray-600 ml-1">Mappati</span>
-                        </div>
-                        <div>
-                          <span className="text-red-600 font-medium">{testResults.unmappedCount}</span>
-                          <span className="text-gray-600 ml-1">Non mappati</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Analisi bookmaker */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="font-medium text-gray-900 mb-3">Analisi Bookmaker</h4>
-                      <div className="max-h-64 overflow-y-auto">
-                        <div className="space-y-2">
-                          {bookmakerAnalysis.map((bm, index) => (
-                            <div 
-                              key={index}
-                              className={`p-3 rounded border ${
-                                bm.status === 'mapped' ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center">
-                                  {bm.status === 'mapped' ? (
-                                    <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                                  ) : (
-                                    <AlertTriangle className="h-4 w-4 text-yellow-500 mr-2" />
-                                  )}
-                                  <div>
-                                    <div className="font-medium text-gray-900">
-                                      {bm.key} → {bm.normalizedName}
-                                    </div>
-                                    <div className="text-sm text-gray-600">
-                                      Title API: "{bm.title}" | Eventi: {bm.count}
-                                    </div>
-                                  </div>
-                                </div>
-                                <span className={`px-2 py-1 text-xs rounded ${
-                                  bm.status === 'mapped' 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : 'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                  {bm.status === 'mapped' ? 'Mappato' : 'Da mappare'}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* Suggerimenti */}
-            <div className="bg-gray-50 p-4 rounded-lg mt-4">
-              <h4 className="font-medium text-gray-900 mb-2">Come risolvere i problemi:</h4>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>• <strong>Bookmaker non mappati:</strong> Aggiungi la mappatura in BOOKMAKER_NAME_MAPPING</li>
-                <li>• <strong>Nomi generici:</strong> L'API restituisce key come "marathonbet" invece di "Marathonbet"</li>
-                <li>• <strong>Test locale:</strong> Questo test usa dati reali dall'API per verificare la mappatura</li>
-                <li>• <strong>Versione live:</strong> Assicurati che useRealData sia false o che la mappatura sia corretta</li>
-              </ul>
-            </div>
           </div>
 
           <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
