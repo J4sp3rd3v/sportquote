@@ -141,22 +141,51 @@ export default function AdvancedOddsAnalyzer({ matches }: AdvancedOddsAnalyzerPr
     return Math.min(10, Math.max(1, Math.round(rating * 10) / 10));
   }
 
-  // Controlla opportunità di arbitraggio
+  // Controlla opportunità di arbitraggio con calcolo corretto per il calcio
   function checkArbitrageOpportunity(bestOdds: BestOdds): boolean {
-    const totalImpliedProb = (1 / bestOdds.home.odds) + (1 / bestOdds.away.odds) + (bestOdds.draw ? (1 / bestOdds.draw.odds) : 0);
-    return totalImpliedProb < 0.98; // Margine per arbitraggio
+    // Per il calcio: (100÷quota1)+(100÷quotaX)+(100÷quota2)+(100÷quota1X)+(100÷quotaX2)+(100÷quota12)
+    // Calcolo base per 1X2
+    let totalPercentage = (100 / bestOdds.home.odds) + (100 / bestOdds.away.odds);
+    if (bestOdds.draw) {
+      totalPercentage += (100 / bestOdds.draw.odds);
+    }
+    
+    // TODO: Aggiungere calcolo per doppia chance (1X, X2, 12) quando disponibili
+    // Per ora usiamo il calcolo base 1X2
+    
+    return totalPercentage < 98; // Margine per arbitraggio (sotto 100% = profitto garantito)
+  }
+
+  // Calcola percentuali per il calcio
+  function calculateFootballPercentages(bestOdds: BestOdds): { total: number; home: number; draw?: number; away: number } {
+    const homePercentage = 100 / bestOdds.home.odds;
+    const awayPercentage = 100 / bestOdds.away.odds;
+    const drawPercentage = bestOdds.draw ? 100 / bestOdds.draw.odds : undefined;
+    
+    let total = homePercentage + awayPercentage;
+    if (drawPercentage) {
+      total += drawPercentage;
+    }
+    
+    return {
+      total: Math.round(total * 100) / 100,
+      home: Math.round(homePercentage * 100) / 100,
+      draw: drawPercentage ? Math.round(drawPercentage * 100) / 100 : undefined,
+      away: Math.round(awayPercentage * 100) / 100
+    };
   }
 
   // Genera raccomandazioni
   function generateRecommendations(match: Match, bestOdds: BestOdds, handicapAnalysis: HandicapAnalysis[]): string[] {
     const recommendations: string[] = [];
+    const percentages = calculateFootballPercentages(bestOdds);
     
     // Raccomandazione quote principali
     if (bestOdds.home.odds > 2.5) {
-      recommendations.push(`🏠 Casa vincente a quota ${bestOdds.home.odds.toFixed(2)} (${bestOdds.home.bookmaker})`);
+      recommendations.push(`🏠 Casa vincente a quota ${bestOdds.home.odds.toFixed(2)} (${bestOdds.home.bookmaker}) - ${percentages.home}%`);
     }
     if (bestOdds.away.odds > 2.5) {
-      recommendations.push(`✈️ Trasferta vincente a quota ${bestOdds.away.odds.toFixed(2)} (${bestOdds.away.bookmaker})`);
+      recommendations.push(`✈️ Trasferta vincente a quota ${bestOdds.away.odds.toFixed(2)} (${bestOdds.away.bookmaker}) - ${percentages.away}%`);
     }
     
     // Raccomandazione handicap
@@ -167,9 +196,9 @@ export default function AdvancedOddsAnalyzer({ matches }: AdvancedOddsAnalyzerPr
       }
     }
     
-    // Raccomandazione arbitraggio
+    // Raccomandazione arbitraggio con percentuali
     if (checkArbitrageOpportunity(bestOdds)) {
-      recommendations.push(`💰 Opportunità di arbitraggio rilevata!`);
+      recommendations.push(`💰 Arbitraggio rilevato! Totale: ${percentages.total}% (Profitto: ${(100 - percentages.total).toFixed(2)}%)`);
     }
     
     return recommendations;
@@ -271,26 +300,53 @@ export default function AdvancedOddsAnalyzer({ matches }: AdvancedOddsAnalyzerPr
               </div>
             </div>
 
-            {/* Quote Principali */}
+            {/* Quote Principali con Percentuali */}
             <div className="grid grid-cols-3 gap-3 mb-3">
               <div className="text-center p-2 bg-dark-600/50 rounded">
                 <div className="text-xs text-dark-400">Casa</div>
                 <div className="font-bold text-white">{analysis.bestOdds.home.odds.toFixed(2)}</div>
+                <div className="text-xs text-green-400">{(100 / analysis.bestOdds.home.odds).toFixed(1)}%</div>
                 <div className="text-xs text-primary-400 truncate">{analysis.bestOdds.home.bookmaker}</div>
               </div>
               {analysis.bestOdds.draw && (
                 <div className="text-center p-2 bg-dark-600/50 rounded">
                   <div className="text-xs text-dark-400">Pareggio</div>
                   <div className="font-bold text-white">{analysis.bestOdds.draw.odds.toFixed(2)}</div>
+                  <div className="text-xs text-yellow-400">{(100 / analysis.bestOdds.draw.odds).toFixed(1)}%</div>
                   <div className="text-xs text-primary-400 truncate">{analysis.bestOdds.draw.bookmaker}</div>
                 </div>
               )}
               <div className="text-center p-2 bg-dark-600/50 rounded">
                 <div className="text-xs text-dark-400">Trasferta</div>
                 <div className="font-bold text-white">{analysis.bestOdds.away.odds.toFixed(2)}</div>
+                <div className="text-xs text-blue-400">{(100 / analysis.bestOdds.away.odds).toFixed(1)}%</div>
                 <div className="text-xs text-primary-400 truncate">{analysis.bestOdds.away.bookmaker}</div>
               </div>
             </div>
+
+            {/* Totale Percentuali per Arbitraggio */}
+            {(() => {
+              const totalPercentage = (100 / analysis.bestOdds.home.odds) + 
+                                    (100 / analysis.bestOdds.away.odds) + 
+                                    (analysis.bestOdds.draw ? (100 / analysis.bestOdds.draw.odds) : 0);
+              const profit = 100 - totalPercentage;
+              
+              return (
+                <div className={`text-center p-2 rounded mb-3 ${
+                  totalPercentage < 98 ? 'bg-green-900/30 border border-green-500/50' : 'bg-dark-600/30'
+                }`}>
+                  <div className="text-xs text-dark-400">Totale Percentuali</div>
+                  <div className={`font-bold ${totalPercentage < 98 ? 'text-green-400' : 'text-white'}`}>
+                    {totalPercentage.toFixed(2)}%
+                  </div>
+                  {totalPercentage < 98 && (
+                    <div className="text-xs text-green-300">
+                      💰 Profitto garantito: {profit.toFixed(2)}%
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Migliori Handicap */}
             {analysis.handicapAnalysis.length > 0 && (
