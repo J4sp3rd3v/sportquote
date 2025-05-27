@@ -17,9 +17,11 @@ import CountdownTimer from '@/components/CountdownTimer';
 import SubscriptionManager from '@/components/SubscriptionManager';
 import BettingStrategies from '@/components/BettingStrategies';
 import BettingGuide from '@/components/BettingGuide';
+import DailyUpdateMonitor from '@/components/DailyUpdateMonitor';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 import { useApiManager } from '@/lib/apiManager';
 import { useRealOdds } from '@/hooks/useRealOdds';
+import { dailyUpdateScheduler } from '@/lib/dailyUpdateScheduler';
 import { FilterOptions, BestOdds, Match } from '@/types';
 import { TrendingUp, Users, Award, Clock, Filter, BarChart3, Star, Zap, Target, Calendar, Trophy, Sparkles } from 'lucide-react';
 
@@ -45,6 +47,17 @@ export default function HomePage() {
     lastUpdate,
     refreshOdds
   } = useRealOdds();
+
+  // Avvia il sistema di aggiornamento automatico al mount
+  React.useEffect(() => {
+    // Avvia il scheduler automatico
+    dailyUpdateScheduler.start();
+    
+    return () => {
+      // Cleanup se necessario (opzionale, il scheduler può rimanere attivo)
+      // dailyUpdateScheduler.stop();
+    };
+  }, []);
 
   // Usa solo i dati reali
   const matches = realMatches;
@@ -382,6 +395,11 @@ export default function HomePage() {
         {/* Strategie di Scommessa */}
         <div className="mb-8">
           <BettingStrategies matches={filteredMatches} />
+        </div>
+
+        {/* Sistema di Aggiornamento Giornaliero */}
+        <div className="mb-8">
+          <DailyUpdateMonitor />
         </div>
 
         {/* Sistema di Arbitraggio Intelligente */}

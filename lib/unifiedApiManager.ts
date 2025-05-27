@@ -337,13 +337,16 @@ export class UnifiedApiManager {
       return {
         success: true,
         sport: sportName,
-        matches: data?.length || 0
+        matches: Array.isArray(data) ? data.length : 0
       };
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto';
+      console.error(`Errore aggiornamento sport ${sportKey}:`, errorMessage);
+      
       return {
         success: false,
         sport: sportKey,
-        error: error instanceof Error ? error.message : 'Errore sconosciuto'
+        error: errorMessage
       };
     }
   }

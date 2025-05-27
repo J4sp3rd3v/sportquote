@@ -5,8 +5,10 @@
 ## 🚀 SISTEMA API UNIFICATO - NOVITÀ 2025
 
 ### ✅ Caratteristiche Principali
+- **Aggiornamento Automatico Giornaliero**: Sistema scheduler che aggiorna le quote automaticamente
 - **1 Richiesta per Sport al Giorno**: Sistema ottimizzato che preserva le 500 richieste mensili
 - **6 Sport Prioritari**: Serie A, Premier League, Champions League, NBA, ATP Tennis, NFL
+- **Orari Distribuiti**: Aggiornamenti dalle 8:00 alle 13:00 per distribuire il carico
 - **Cache Intelligente 24h**: Riduce drasticamente le richieste API
 - **Reset Automatico Giornaliero**: Gestione automatica dei limiti
 - **Conteggio Preciso**: Monitoraggio accurato dell'utilizzo API
@@ -48,6 +50,7 @@ const stats = unifiedApiManager.getDetailedStats();
 ```
 lib/
 ├── unifiedApiManager.ts      # Gestione API centralizzata
+├── dailyUpdateScheduler.ts   # Scheduler aggiornamenti automatici
 ├── optimizedBookmakerManager.ts  # Bookmaker verificati
 ├── optimizedOddsService.ts   # Servizio quote ottimizzato
 └── optimizedOddsApi.ts       # API wrapper ottimizzato
@@ -56,6 +59,7 @@ lib/
 ### Componenti Principali
 ```
 components/
+├── DailyUpdateMonitor.tsx    # Monitoraggio aggiornamenti automatici
 ├── UnifiedApiMonitor.tsx     # Monitoraggio sistema unificato
 ├── ArbitrageOpportunities.tsx # Calcolo arbitraggi
 ├── BestOddsHighlight.tsx     # Migliori quote del giorno
@@ -63,6 +67,24 @@ components/
 ```
 
 ## 🎮 FUNZIONALITÀ AVANZATE
+
+### ⏰ Sistema di Aggiornamento Automatico
+- **Scheduler Intelligente**: Aggiornamenti programmati automaticamente ogni giorno
+- **Orari Ottimizzati**: Distribuzione dalle 8:00 alle 13:00 per evitare sovraccarichi
+- **Controllo Real-time**: Dashboard con status live di ogni sport
+- **Gestione Errori**: Retry automatico e fallback in caso di problemi
+- **Reset Giornaliero**: Automatico a mezzanotte per il giorno successivo
+- **Controlli Manuali**: Possibilità di forzare aggiornamenti o fermare il sistema
+
+#### Programma Giornaliero
+```
+08:00 - Serie A (soccer_italy_serie_a)
+09:00 - Premier League (soccer_epl)
+10:00 - Champions League (soccer_uefa_champs_league)
+11:00 - NBA (basketball_nba)
+12:00 - ATP Tennis (tennis_atp_french_open)
+13:00 - NFL (americanfootball_nfl)
+```
 
 ### 💰 Sistema di Arbitraggio
 - **Calcolo Automatico**: Identifica opportunità di scommessa sicura
@@ -75,9 +97,12 @@ components/
 - **Opportunità di Valore**: Quote mediamente alte (>2.50)
 
 ### 🔄 Aggiornamenti Intelligenti
-- **Priorità Sport**: Serie A > Premier > Champions > NBA > Tennis > NFL
+- **Scheduler Automatico**: Aggiornamenti programmati ogni giorno
+- **Orari Fissi**: Serie A (8:00), Premier (9:00), Champions (10:00), NBA (11:00), Tennis (12:00), NFL (13:00)
+- **Controllo Ogni Minuto**: Verifica automatica degli aggiornamenti programmati
 - **Cache 24h**: Evita richieste ridondanti
 - **Fallback Automatico**: Gestione errori robusta
+- **Dashboard Controllo**: Monitoraggio real-time con possibilità di controllo manuale
 
 ## 🛠️ INSTALLAZIONE E SETUP
 
@@ -119,10 +144,17 @@ npm run dev
 
 ## 📊 MONITORAGGIO SISTEMA
 
+### Dashboard Aggiornamenti Automatici
+- **Sistema Scheduler**: Attivo/Inattivo con controllo manuale
+- **Sport Programmati**: 6 sport con orari fissi (8:00-13:00)
+- **Status Real-time**: Completati, In Attesa, Falliti
+- **Controlli Manuali**: Avvio/Stop, Aggiornamento Forzato, Reset
+- **Tempo Rimanente**: Countdown per prossimo aggiornamento
+
 ### Dashboard API
 - **Utilizzo Giornaliero**: 6/6 richieste (1 per sport)
 - **Utilizzo Mensile**: X/500 richieste
-- **Sport Aggiornati**: 6/6 oggi
+- **Sport Aggiornati**: 6/6 oggi automaticamente
 - **Cache Attiva**: Entries con TTL 24h
 
 ### Statistiche Bookmaker
@@ -134,6 +166,9 @@ npm run dev
 
 ### Test Sistema API
 ```bash
+# Test scheduler aggiornamenti automatici
+node scripts/test-daily-scheduler.js
+
 # Test sistema giornaliero
 node scripts/test-daily-api-system.js
 
@@ -176,7 +211,9 @@ NEXT_PUBLIC_ENVIRONMENT=production
 ## 📈 PERFORMANCE
 
 ### Ottimizzazioni 2025
+- **Sistema Automatico**: Aggiornamenti programmati senza intervento manuale
 - **-90% Richieste API**: Da continue a 6 al giorno
+- **Distribuzione Carico**: Aggiornamenti distribuiti dalle 8:00 alle 13:00
 - **Cache Intelligente**: 24h TTL per quote
 - **Lazy Loading**: Componenti caricati on-demand
 - **Bundle Splitting**: Codice ottimizzato per performance

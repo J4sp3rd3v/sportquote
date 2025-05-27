@@ -98,7 +98,24 @@ export function useRealOdds(sport?: string): UseRealOddsReturn {
       }
     };
 
+    // Ascolta eventi di aggiornamento automatico
+    const handleDailyUpdate = (event: CustomEvent) => {
+      console.log('Aggiornamento automatico ricevuto:', event.detail);
+      // Ricarica i dati dopo un aggiornamento automatico
+      setTimeout(() => {
+        refreshOdds();
+      }, 1000);
+    };
+
     loadCachedData();
+
+    // Aggiungi listener per aggiornamenti automatici
+    if (typeof window !== 'undefined') {
+      window.addEventListener('dailyUpdate:completed', handleDailyUpdate as EventListener);
+      return () => {
+        window.removeEventListener('dailyUpdate:completed', handleDailyUpdate as EventListener);
+      };
+    }
   }, [sport]);
 
   return {
