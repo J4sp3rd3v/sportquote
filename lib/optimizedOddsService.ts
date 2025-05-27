@@ -36,6 +36,16 @@ export interface OptimizedBookmaker {
     away: number;
     draw?: number;
   };
+  handicapOdds?: {
+    home: number;
+    away: number;
+    handicap: number;
+  }[];
+  overUnder?: {
+    over: number;
+    under: number;
+    total: number;
+  }[];
   lastUpdate: string;
 }
 
@@ -211,8 +221,14 @@ export class OptimizedOddsService {
       if (!homeOutcome || !awayOutcome) {
         continue;
       }
+
+      // Processa quote handicap
+      const handicapOdds = this.processHandicapMarkets(apiBookmaker.markets || []);
       
-      processedBookmakers.push({
+      // Processa quote over/under
+      const overUnderOdds = this.processOverUnderMarkets(apiBookmaker.markets || []);
+      
+      const bookmaker: OptimizedBookmaker = {
         id: config.id,
         name: config.name,
         displayName: config.displayName,
@@ -224,7 +240,19 @@ export class OptimizedOddsService {
           draw: drawOutcome?.price
         },
         lastUpdate: apiBookmaker.last_update || new Date().toISOString()
-      });
+      };
+
+      // Aggiungi handicap se disponibili
+      if (handicapOdds.length > 0) {
+        bookmaker.handicapOdds = handicapOdds;
+      }
+
+      // Aggiungi over/under se disponibili
+      if (overUnderOdds.length > 0) {
+        bookmaker.overUnder = overUnderOdds;
+      }
+      
+      processedBookmakers.push(bookmaker);
     }
     
     // Ordina per priorità (premium prima)
@@ -415,11 +443,79 @@ export class OptimizedOddsService {
     }
   }
 
+  // Processa mercati handicap
+  private processHandicapMarkets(markets: any[]): { home: number; away: number; handicap: number }[] {
+    const handicapOdds: { home: number; away: number; handicap: number }[] = [];
+    
+    // Cerca mercati handicap (spread, point_spread, handicap)
+    const handicapMarkets = markets.filter(m => 
+      m.key === 'spreads' || 
+      m.key === 'point_spreads' || 
+      m.key === 'handicap' ||
+      m.key === 'asian_handicap'
+    );
+    
+    for (const market of handicapMarkets) {
+      if (!market.outcomes || market.outcomes.length < 2) continue;
+      
+      const homeOutcome = market.outcomes.find((o: any) => 
+        o.name.includes('Home') || o.point < 0
+      );
+      const awayOutcome = market.outcomes.find((o: any) => 
+        o.name.includes('Away') || o.point > 0
+      );
+      
+      if (homeOutcome && awayOutcome) {
+        handicapOdds.push({
+          home: homeOutcome.price,
+          away: awayOutcome.price,
+          handicap: homeOutcome.point || 0
+        });
+      }
+    }
+    
+    return handicapOdds;
+  }
+
+  // Processa mercati over/under
+  private processOverUnderMarkets(markets: any[]): { over: number; under: number; total: number }[] {
+    const overUnderOdds: { over: number; under: number; total: number }[] = [];
+    
+    // Cerca mercati totali (totals, over_under)
+    const totalMarkets = markets.filter(m => 
+      m.key === 'totals' || 
+      m.key === 'over_under' ||
+      m.key === 'total_goals'
+    );
+    
+    for (const market of totalMarkets) {
+      if (!market.outcomes || market.outcomes.length < 2) continue;
+      
+      const overOutcome = market.outcomes.find((o: any) => 
+        o.name === 'Over' || o.name.includes('Over')
+      );
+      const underOutcome = market.outcomes.find((o: any) => 
+        o.name === 'Under' || o.name.includes('Under')
+      );
+      
+      if (overOutcome && underOutcome) {
+        overUnderOdds.push({
+          over: overOutcome.price,
+          under: underOutcome.price,
+          total: overOutcome.point || underOutcome.point || 2.5
+        });
+      }
+    }
+    
+    return overUnderOdds;
+  }
+
   // Converte Match in OptimizedMatch
   private convertMatchToOptimized(match: Match, sportKey: string): OptimizedMatch {
     const optimizedBookmakers: OptimizedBookmaker[] = match.odds.map(odd => {
       const config = optimizedBookmakerManager.getBookmakerConfig(odd.bookmaker);
-      return {
+      
+      const bookmaker: OptimizedBookmaker = {
         id: config?.id || odd.bookmaker.toLowerCase().replace(/\s+/g, '-'),
         name: config?.name || odd.bookmaker,
         displayName: config?.displayName || odd.bookmaker,
@@ -432,6 +528,17 @@ export class OptimizedOddsService {
         },
         lastUpdate: odd.lastUpdated.toISOString()
       };
+
+      // Aggiungi handicap se disponibili
+      if (odd.handicap && odd.handicap.length > 0) {
+        bookmaker.handicapOdds = odd.handicap.map(h => ({
+          home: h.home,
+          away: h.away,
+          handicap: h.handicap
+        }));
+      }
+
+      return bookmaker;
     });
 
     const bestOdds = this.calculateBestOdds(optimizedBookmakers);

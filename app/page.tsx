@@ -18,6 +18,7 @@ import SubscriptionManager from '@/components/SubscriptionManager';
 import BettingStrategies from '@/components/BettingStrategies';
 import BettingGuide from '@/components/BettingGuide';
 import GlobalDailyMonitor from '@/components/GlobalDailyMonitor';
+import AdvancedOddsAnalyzer from '@/components/AdvancedOddsAnalyzer';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 import { useApiManager } from '@/lib/apiManager';
 import { useRealOdds } from '@/hooks/useRealOdds';
@@ -395,6 +396,11 @@ export default function HomePage() {
         {/* Strategie di Scommessa */}
         <div className="mb-8">
           <BettingStrategies matches={filteredMatches} />
+        </div>
+
+        {/* Analisi Avanzata Quote con Handicap */}
+        <div className="mb-8">
+          <AdvancedOddsAnalyzer matches={filteredMatches} />
         </div>
 
         {/* Sistema Giornaliero Globale */}

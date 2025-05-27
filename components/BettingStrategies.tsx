@@ -79,7 +79,7 @@ export default function BettingStrategies({ matches }: BettingStrategiesProps) {
   const [stake, setStake] = useState<number>(10);
   const [simulations, setSimulations] = useState<BettingSimulation[]>([]);
 
-  // Calcola le migliori quote per ogni partita
+  // Calcola le migliori quote per ogni partita (inclusi handicap)
   const calculateBestOdds = (match: Match): BestOdds => {
     const homeOdds = match.odds.map(odd => ({ odds: odd.home, bookmaker: odd.bookmaker }));
     const awayOdds = match.odds.map(odd => ({ odds: odd.away, bookmaker: odd.bookmaker }));
@@ -89,10 +89,46 @@ export default function BettingStrategies({ matches }: BettingStrategiesProps) {
     const bestAway = awayOdds.reduce((best, current) => current.odds > best.odds ? current : best);
     const bestDraw = drawOdds.length > 0 ? drawOdds.reduce((best, current) => current.odds > best.odds ? current : best) : undefined;
 
+    // Calcola migliori quote handicap
+    const allHandicapOdds: Array<{
+      home: { odds: number; bookmaker: string };
+      away: { odds: number; bookmaker: string };
+      handicap: number;
+    }> = [];
+
+    match.odds.forEach(odd => {
+      if (odd.handicap && odd.handicap.length > 0) {
+        odd.handicap.forEach(h => {
+          allHandicapOdds.push({
+            home: { odds: h.home, bookmaker: h.bookmaker },
+            away: { odds: h.away, bookmaker: h.bookmaker },
+            handicap: h.handicap
+          });
+        });
+      }
+    });
+
+    // Trova il miglior handicap (quello con le quote più equilibrate e vantaggiose)
+    let bestHandicap = undefined;
+    if (allHandicapOdds.length > 0) {
+      const bestHandicapData = allHandicapOdds.reduce((best, current) => {
+        const currentAvg = (current.home.odds + current.away.odds) / 2;
+        const bestAvg = (best.home.odds + best.away.odds) / 2;
+        return currentAvg > bestAvg ? current : best;
+      });
+
+      bestHandicap = {
+        home: bestHandicapData.home,
+        away: bestHandicapData.away,
+        handicap: bestHandicapData.handicap
+      };
+    }
+
     return {
       home: bestHome,
       away: bestAway,
-      draw: bestDraw
+      draw: bestDraw,
+      bestHandicap
     };
   };
 
@@ -276,7 +312,8 @@ export default function BettingStrategies({ matches }: BettingStrategiesProps) {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-3">
+                  {/* Quote Principali 1X2 */}
+                  <div className="grid grid-cols-3 gap-3 mb-3">
                     <div className="text-center p-3 bg-dark-600/50 rounded-lg hover:bg-dark-600/70 transition-colors">
                       <div className="text-xs text-dark-400 mb-1">Casa (1)</div>
                       <div className="font-bold text-white text-lg">{bestOdds.home.odds.toFixed(2)}</div>
@@ -295,6 +332,31 @@ export default function BettingStrategies({ matches }: BettingStrategiesProps) {
                       <div className="text-xs text-primary-400 truncate">{bestOdds.away.bookmaker}</div>
                     </div>
                   </div>
+
+                  {/* Quote Handicap (se disponibili) */}
+                  {bestOdds.bestHandicap && (
+                    <div className="border-t border-dark-600 pt-3">
+                      <div className="text-xs text-accent-400 mb-2 font-medium">
+                        🎯 Miglior Handicap: {bestOdds.bestHandicap.handicap > 0 ? '+' : ''}{bestOdds.bestHandicap.handicap}
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="text-center p-2 bg-accent-900/20 border border-accent-500/30 rounded-lg">
+                          <div className="text-xs text-accent-300 mb-1">
+                            {match.homeTeam} ({bestOdds.bestHandicap.handicap > 0 ? '+' : ''}{bestOdds.bestHandicap.handicap})
+                          </div>
+                          <div className="font-bold text-accent-400 text-sm">{bestOdds.bestHandicap.home.odds.toFixed(2)}</div>
+                          <div className="text-xs text-accent-300 truncate">{bestOdds.bestHandicap.home.bookmaker}</div>
+                        </div>
+                        <div className="text-center p-2 bg-accent-900/20 border border-accent-500/30 rounded-lg">
+                          <div className="text-xs text-accent-300 mb-1">
+                            {match.awayTeam} ({bestOdds.bestHandicap.handicap < 0 ? '+' : ''}{-bestOdds.bestHandicap.handicap})
+                          </div>
+                          <div className="font-bold text-accent-400 text-sm">{bestOdds.bestHandicap.away.odds.toFixed(2)}</div>
+                          <div className="text-xs text-accent-300 truncate">{bestOdds.bestHandicap.away.bookmaker}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   
                   {/* Strategy Recommendation */}
                   <div className="mt-3 p-2 bg-dark-800/50 rounded-lg">

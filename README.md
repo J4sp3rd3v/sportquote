@@ -77,6 +77,26 @@
 - **Distribuzione stake** ottimizzata
 - **Soglia minima**: 0.5% di profitto
 
+## ⚖️ Analisi Avanzata Quote con Handicap
+
+### Quote Handicap Supportate
+- **Handicap Asiatici**: -2.5, -1.5, -1, -0.5, 0, +0.5, +1, +1.5, +2.5
+- **Analisi automatica** del valore per ogni handicap
+- **Migliori quote** per ogni linea handicap
+- **Rating intelligente** (1-10) per ogni partita
+
+### Funzionalità Avanzate
+- **Value Betting**: Identifica quote sottovalutate
+- **Analisi Equilibrio**: Quote bilanciate tra casa e trasferta  
+- **Opportunità Handicap**: Migliori linee per ogni match
+- **Rating Automatico**: Valutazione intelligente delle opportunità
+- **Filtri Personalizzabili**: Per tipo di analisi e rating minimo
+
+### Tipi di Analisi
+1. **🎯 Value Betting**: Quote con valore atteso positivo
+2. **⚖️ Analisi Handicap**: Focus su linee handicap vantaggiose
+3. **💰 Arbitraggio**: Opportunità di scommessa sicura
+
 ## 🏗️ Architettura Sistema
 
 ### Core Components
@@ -94,6 +114,7 @@ lib/
 components/
 ├── GlobalDailyMonitor.tsx     # Dashboard sistema giornaliero
 ├── BettingStrategies.tsx      # Strategie di scommessa
+├── AdvancedOddsAnalyzer.tsx   # Analisi avanzata con handicap
 ├── ArbitrageAnalyzer.tsx      # Analizzatore arbitraggio
 └── Navigation.tsx             # Navigazione principale
 ```
@@ -189,15 +210,19 @@ node scripts/test-complete-system.js
 - ✅ **6/6 sport** aggiornati con successo
 - ✅ **26 partite** generate con quote realistiche
 - ✅ **16 bookmaker** verificati
+- ✅ **368 handicap** generati automaticamente
 - ✅ **Arbitraggio** rilevato automaticamente
+- ✅ **Analisi avanzata** con rating intelligente
 - ✅ **Strategie** funzionanti
 
 ## 📊 Statistiche Sistema
 
 - **Sport supportati**: 6
 - **Bookmaker verificati**: 16
+- **Handicap supportati**: 9 linee principali
 - **Aggiornamenti**: 1/giorno alle 12:00
 - **Efficienza API**: 100% (6 richieste/giorno)
+- **Analisi automatica**: Rating 1-10 per ogni match
 - **Uptime**: 24/7
 - **Latenza**: < 100ms
 

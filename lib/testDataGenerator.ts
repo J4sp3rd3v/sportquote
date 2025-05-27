@@ -1,7 +1,7 @@
 // Generatore di Dati di Test per il Sistema Giornaliero
 // Simula quote realistiche per testare il sistema
 
-import { Match, Odds } from '@/types';
+import { Match, Odds, HandicapOdds } from '@/types';
 
 interface TestMatch {
   id: string;
@@ -84,7 +84,7 @@ export class TestDataGenerator {
     return TestDataGenerator.instance;
   }
 
-  // Genera quote realistiche
+  // Genera quote realistiche con handicap
   private generateRealisticOdds(homeAdvantage: number = 0): Odds[] {
     const numBookmakers = Math.floor(Math.random() * 8) + 5; // 5-12 bookmaker
     const selectedBookmakers = this.shuffleArray([...this.BOOKMAKERS]).slice(0, numBookmakers);
@@ -98,13 +98,60 @@ export class TestDataGenerator {
     const homeOdds = Math.max(1.1, baseHomeOdds - homeAdvantage);
     const awayOdds = baseAwayOdds + homeAdvantage * 0.5;
     
-    return selectedBookmakers.map(bookmaker => ({
-      home: this.addVariation(homeOdds, 0.15),
-      away: this.addVariation(awayOdds, 0.15),
-      draw: this.addVariation(baseDrawOdds, 0.2),
-      bookmaker,
-      lastUpdated: new Date()
-    }));
+    return selectedBookmakers.map(bookmaker => {
+      const odds: Odds = {
+        home: this.addVariation(homeOdds, 0.15),
+        away: this.addVariation(awayOdds, 0.15),
+        draw: this.addVariation(baseDrawOdds, 0.2),
+        bookmaker,
+        lastUpdated: new Date()
+      };
+
+      // Aggiungi handicap realistici (70% probabilità)
+      if (Math.random() > 0.3) {
+        odds.handicap = this.generateHandicapOdds(homeAdvantage, bookmaker);
+      }
+
+      return odds;
+    });
+  }
+
+  // Genera quote handicap realistiche
+  private generateHandicapOdds(homeAdvantage: number, bookmaker: string): HandicapOdds[] {
+    const handicaps: HandicapOdds[] = [];
+    
+    // Handicap comuni per sport
+    const commonHandicaps = [-2.5, -1.5, -1, -0.5, 0, +0.5, +1, +1.5, +2.5];
+    const numHandicaps = Math.floor(Math.random() * 3) + 1; // 1-3 handicap
+    
+    const selectedHandicaps = this.shuffleArray(commonHandicaps).slice(0, numHandicaps);
+    
+    selectedHandicaps.forEach(handicap => {
+      // Quote handicap basate sul vantaggio
+      let homeHandicapOdds = 1.8 + Math.random() * 0.4; // 1.8 - 2.2
+      let awayHandicapOdds = 1.8 + Math.random() * 0.4; // 1.8 - 2.2
+      
+      // Aggiusta quote in base all'handicap
+      if (handicap < 0) {
+        // Casa sfavorita
+        homeHandicapOdds += Math.abs(handicap) * 0.1;
+        awayHandicapOdds -= Math.abs(handicap) * 0.1;
+      } else if (handicap > 0) {
+        // Casa favorita
+        homeHandicapOdds -= handicap * 0.1;
+        awayHandicapOdds += handicap * 0.1;
+      }
+      
+      handicaps.push({
+        home: Math.max(1.1, this.addVariation(homeHandicapOdds, 0.1)),
+        away: Math.max(1.1, this.addVariation(awayHandicapOdds, 0.1)),
+        handicap,
+        bookmaker,
+        lastUpdated: new Date()
+      });
+    });
+    
+    return handicaps;
   }
 
   // Aggiunge variazione realistica alle quote
