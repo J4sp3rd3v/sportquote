@@ -1,5 +1,6 @@
 // Servizio Quote Reali - SOLO DATI VERIFICATI
 // Nessun fallback su dati falsi - Solo partite e quote reali
+// AGGIORNAMENTO GIORNALIERO AUTOMATICO
 
 import { Match, Odds } from '@/types';
 import { activeSeasonsManager } from './activeSeasonsManager';
@@ -28,20 +29,23 @@ interface RealApiResponse {
 export class RealOddsService {
   private static instance: RealOddsService;
   
-  // API Key reale per The Odds API
-  private readonly API_KEY = process.env.NEXT_PUBLIC_ODDS_API_KEY || '4815fd45ad14363aea162bef71a91b06';
+  // API Key reale per The Odds API - AGGIORNATA
+  private readonly API_KEY = '795ce1cc44a461d5918138561b1134bc';
   private readonly BASE_URL = 'https://api.the-odds-api.com/v4';
   
   // Limite richieste: 500/mese per piano gratuito
   private readonly MONTHLY_LIMIT = 500;
-  private readonly CACHE_DURATION = 60 * 60 * 1000; // 1 ora
+  private readonly CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 ore per aggiornamento giornaliero
+  private readonly DAILY_UPDATE_HOUR = 12; // Aggiornamento alle 12:00
   
   private cache = new Map<string, { data: any; timestamp: number; lastRealUpdate: number }>();
   private requestCount = 0;
   private lastRealUpdate: number = 0;
+  private lastDailyUpdate: string = '';
   
   constructor() {
     this.loadRequestCount();
+    this.loadLastDailyUpdate();
   }
 
   static getInstance(): RealOddsService {
@@ -79,18 +83,55 @@ export class RealOddsService {
     }
   }
 
+  private loadLastDailyUpdate(): void {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lastDailyUpdate');
+      if (saved) {
+        this.lastDailyUpdate = saved;
+      }
+    }
+  }
+
+  private saveLastDailyUpdate(): void {
+    if (typeof window !== 'undefined') {
+      const today = new Date().toDateString();
+      this.lastDailyUpdate = today;
+      localStorage.setItem('lastDailyUpdate', today);
+    }
+  }
+
+  private shouldUpdateToday(): boolean {
+    const today = new Date().toDateString();
+    const now = new Date();
+    const currentHour = now.getHours();
+    
+    // Se non è ancora l'ora dell'aggiornamento (12:00), non aggiornare
+    if (currentHour < this.DAILY_UPDATE_HOUR) {
+      return false;
+    }
+    
+    // Se già aggiornato oggi, non aggiornare di nuovo
+    if (this.lastDailyUpdate === today) {
+      return false;
+    }
+    
+    return true;
+  }
+
   private canMakeRequest(): boolean {
     return this.requestCount < this.MONTHLY_LIMIT;
   }
 
-  private async makeApiRequest(endpoint: string): Promise<any> {
+  private async makeApiRequest(endpoint: string, forceUpdate: boolean = false): Promise<any> {
     const cacheKey = endpoint;
     
-    // Controlla cache
-    const cached = this.cache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
-      console.log(`📦 Cache hit per ${endpoint}`);
-      return cached.data;
+    // Controlla cache solo se non è un aggiornamento forzato
+    if (!forceUpdate) {
+      const cached = this.cache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
+        console.log(`📦 Cache hit per ${endpoint} (valida per ${Math.round((this.CACHE_DURATION - (Date.now() - cached.timestamp)) / (1000 * 60 * 60))} ore)`);
+        return cached.data;
+      }
     }
 
     // Verifica limite richieste
@@ -166,71 +207,17 @@ export class RealOddsService {
   }
 
   // Ottieni partite reali per uno sport
-  async getRealMatchesForSport(sportKey: string): Promise<Match[]> {
+  async getRealMatchesForSport(sportKey: string, forceUpdate: boolean = false): Promise<Match[]> {
     try {
       const endpoint = `/sports/${sportKey}/odds?apiKey=${this.API_KEY}&regions=eu&markets=h2h&oddsFormat=decimal`;
-      const apiData: RealApiResponse[] = await this.makeApiRequest(endpoint);
+      const apiData: RealApiResponse[] = await this.makeApiRequest(endpoint, forceUpdate);
       
       if (!Array.isArray(apiData) || apiData.length === 0) {
         console.warn(`⚠️ Nessuna partita reale trovata per ${sportKey}`);
         return [];
       }
 
-      // Filtra solo partite future (non iniziate)
-      const now = new Date();
-      const upcomingMatches = apiData.filter(match => {
-        const matchDate = new Date(match.commence_time);
-        return matchDate > now;
-      });
-
-      if (upcomingMatches.length === 0) {
-        console.warn(`⚠️ Nessuna partita futura trovata per ${sportKey}`);
-        return [];
-      }
-
-      // Converte in formato Match
-      const matches: Match[] = upcomingMatches.map(apiMatch => {
-        const odds: Odds[] = [];
-        
-        // Processa bookmaker
-        apiMatch.bookmakers.forEach(bookmaker => {
-          const h2hMarket = bookmaker.markets.find(m => m.key === 'h2h');
-          if (!h2hMarket || h2hMarket.outcomes.length < 2) return;
-          
-          const homeOutcome = h2hMarket.outcomes.find(o => o.name === apiMatch.home_team);
-          const awayOutcome = h2hMarket.outcomes.find(o => o.name === apiMatch.away_team);
-          const drawOutcome = h2hMarket.outcomes.find(o => o.name === 'Draw');
-          
-          if (homeOutcome && awayOutcome) {
-            odds.push({
-              home: homeOutcome.price,
-              away: awayOutcome.price,
-              draw: drawOutcome?.price,
-              bookmaker: bookmaker.title,
-              lastUpdated: new Date(bookmaker.last_update)
-            });
-          }
-        });
-
-        // Solo partite con almeno 2 bookmaker
-        if (odds.length < 2) {
-          return null;
-        }
-
-        const leagueInfo = activeSeasonsManager.getActiveLeagues()
-          .find(league => league.key === sportKey);
-
-        return {
-          id: apiMatch.id,
-          homeTeam: apiMatch.home_team,
-          awayTeam: apiMatch.away_team,
-          league: leagueInfo?.name || apiMatch.sport_title,
-          sport: leagueInfo?.sport || 'sport',
-          date: new Date(apiMatch.commence_time),
-          status: 'upcoming' as const,
-          odds
-        };
-      }).filter(Boolean) as Match[];
+      const matches = this.convertApiDataToMatches(apiData, sportKey);
 
       console.log(`✅ ${matches.length} partite reali caricate per ${sportKey}`);
       
@@ -243,9 +230,25 @@ export class RealOddsService {
   }
 
   // Ottieni tutte le partite reali per tutti i campionati attivi
-  async getAllRealMatches(): Promise<Match[]> {
+  async getAllRealMatches(forceUpdate: boolean = false): Promise<Match[]> {
     try {
-      console.log('🔄 Caricamento di TUTTE le partite reali...');
+      console.log('🔄 Controllo aggiornamento giornaliero...');
+      
+      // Controlla se è necessario aggiornare oggi
+      const needsUpdate = forceUpdate || this.shouldUpdateToday();
+      
+      if (!needsUpdate) {
+        console.log('📅 Aggiornamento giornaliero già effettuato o non ancora necessario');
+        
+        // Prova a restituire dati dalla cache
+        const cachedData = this.getCachedMatches();
+        if (cachedData.length > 0) {
+          console.log(`📦 Restituisco ${cachedData.length} partite dalla cache`);
+          return cachedData;
+        }
+      }
+      
+      console.log('🔄 Avvio aggiornamento giornaliero delle partite reali...');
       
       const availableSports = await this.getAvailableSports();
       
@@ -258,7 +261,7 @@ export class RealOddsService {
       // Carica partite per ogni sport disponibile
       for (const sportKey of availableSports) {
         try {
-          const matches = await this.getRealMatchesForSport(sportKey);
+          const matches = await this.getRealMatchesForSport(sportKey, needsUpdate);
           allMatches.push(...matches);
           
           // Pausa tra richieste per evitare rate limiting
@@ -274,6 +277,12 @@ export class RealOddsService {
         throw new Error('NESSUNA_PARTITA_REALE_TROVATA');
       }
 
+      // Salva timestamp aggiornamento giornaliero
+      if (needsUpdate) {
+        this.saveLastDailyUpdate();
+        console.log('✅ Aggiornamento giornaliero completato e salvato');
+      }
+
       console.log(`🎉 TOTALE PARTITE REALI CARICATE: ${allMatches.length}`);
       console.log(`📊 Sport con partite: ${availableSports.length}`);
       console.log(`🔢 Richieste API utilizzate: ${this.requestCount}/${this.MONTHLY_LIMIT}`);
@@ -286,14 +295,99 @@ export class RealOddsService {
     }
   }
 
+  // Ottieni partite dalla cache senza fare richieste API
+  private getCachedMatches(): Match[] {
+    const allMatches: Match[] = [];
+    
+    Array.from(this.cache.entries()).forEach(([key, cached]) => {
+      if (key.includes('/odds?') && Array.isArray(cached.data)) {
+        // Riconverti i dati dalla cache
+        const sportKey = key.split('/')[2];
+        const matches = this.convertApiDataToMatches(cached.data, sportKey);
+        allMatches.push(...matches);
+      }
+    });
+    
+    return allMatches;
+  }
+
+  // Converte dati API in formato Match (estratto per riuso)
+  private convertApiDataToMatches(apiData: RealApiResponse[], sportKey: string): Match[] {
+    const now = new Date();
+    const upcomingMatches = apiData.filter(match => {
+      const matchDate = new Date(match.commence_time);
+      return matchDate > now;
+    });
+
+    return upcomingMatches.map(apiMatch => {
+      const odds: Odds[] = [];
+      
+      // Processa bookmaker
+      apiMatch.bookmakers.forEach(bookmaker => {
+        const h2hMarket = bookmaker.markets.find(m => m.key === 'h2h');
+        if (!h2hMarket || h2hMarket.outcomes.length < 2) return;
+        
+        const homeOutcome = h2hMarket.outcomes.find(o => o.name === apiMatch.home_team);
+        const awayOutcome = h2hMarket.outcomes.find(o => o.name === apiMatch.away_team);
+        const drawOutcome = h2hMarket.outcomes.find(o => o.name === 'Draw');
+        
+        if (homeOutcome && awayOutcome) {
+          odds.push({
+            home: homeOutcome.price,
+            away: awayOutcome.price,
+            draw: drawOutcome?.price,
+            bookmaker: bookmaker.title,
+            lastUpdated: new Date(bookmaker.last_update)
+          });
+        }
+      });
+
+      // Solo partite con almeno 2 bookmaker
+      if (odds.length < 2) {
+        return null;
+      }
+
+      const leagueInfo = activeSeasonsManager.getActiveLeagues()
+        .find(league => league.key === sportKey);
+
+      return {
+        id: apiMatch.id,
+        homeTeam: apiMatch.home_team,
+        awayTeam: apiMatch.away_team,
+        league: leagueInfo?.name || apiMatch.sport_title,
+        sport: leagueInfo?.sport || 'sport',
+        date: new Date(apiMatch.commence_time),
+        status: 'upcoming' as const,
+        odds
+      };
+    }).filter(Boolean) as Match[];
+  }
+
   // Ottieni statistiche del servizio
   getServiceStats() {
+    const now = new Date();
+    const today = now.toDateString();
+    const currentHour = now.getHours();
+    
+    // Calcola prossimo aggiornamento
+    let nextUpdate = new Date();
+    if (currentHour >= this.DAILY_UPDATE_HOUR) {
+      // Se è già passata l'ora di oggi, prossimo aggiornamento domani
+      nextUpdate.setDate(nextUpdate.getDate() + 1);
+    }
+    nextUpdate.setHours(this.DAILY_UPDATE_HOUR, 0, 0, 0);
+    
     return {
       requestsUsed: this.requestCount,
       requestsRemaining: this.MONTHLY_LIMIT - this.requestCount,
       monthlyLimit: this.MONTHLY_LIMIT,
       cacheSize: this.cache.size,
-      canMakeRequests: this.canMakeRequest()
+      canMakeRequests: this.canMakeRequest(),
+      lastDailyUpdate: this.lastDailyUpdate || 'Mai',
+      updatedToday: this.lastDailyUpdate === today,
+      nextUpdateTime: nextUpdate,
+      shouldUpdateNow: this.shouldUpdateToday(),
+      dailyUpdateHour: this.DAILY_UPDATE_HOUR
     };
   }
 
@@ -311,6 +405,12 @@ export class RealOddsService {
       this.saveRequestCount();
       console.log('🔄 Servizio quote reali resettato per test');
     }
+  }
+
+  // Aggiornamento forzato (per pulsante manuale)
+  async forceUpdate(): Promise<Match[]> {
+    console.log('🔄 Aggiornamento forzato richiesto...');
+    return this.getAllRealMatches(true);
   }
 }
 

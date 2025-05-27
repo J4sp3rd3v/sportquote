@@ -187,6 +187,9 @@ export default function HomePage() {
               minutesUntilNext={stats.minutesUntilNext}
               errors={stats.errors}
               onForceUpdate={forceUpdate}
+              requestsUsed={stats.requestsUsed}
+              requestsRemaining={stats.requestsRemaining}
+              updatedToday={stats.updatedToday}
             />
           </div>
 
