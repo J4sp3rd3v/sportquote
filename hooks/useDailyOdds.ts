@@ -138,41 +138,39 @@ export function useDailyOdds(): UseDailyOddsReturn {
     
     console.log('🚀 Inizializzazione hook useDailyOdds...');
     
-    // PRIMA: Verifica se abbiamo cache valida
-    if (realOddsService.hasValidCache()) {
-      console.log('✅ Cache valida trovata, caricamento immediato...');
+    // SEMPRE: Carica dalla cache se disponibile (anche se non valida)
+    const cachedMatches = realOddsService.getCachedMatchesOnly();
+    if (cachedMatches.length > 0) {
+      console.log('✅ Cache trovata, caricamento immediato...');
       
-      const cachedMatches = realOddsService.getCachedMatchesOnly();
-      if (cachedMatches.length > 0) {
-        setMatches(cachedMatches);
-        setIsDataFresh(true);
-        const lastRealUpdate = realOddsService.getLastRealUpdate();
-        setLastUpdate(lastRealUpdate);
-        
-        // Aggiorna anche le statistiche
-        const serviceStats = realOddsService.getServiceStats();
-        setNextUpdate(serviceStats.nextUpdateTime);
-        
-        const now = new Date();
-        const timeDiff = serviceStats.nextUpdateTime.getTime() - now.getTime();
-        const hoursUntilNext = Math.max(0, Math.floor(timeDiff / (1000 * 60 * 60)));
-        const minutesUntilNext = Math.max(0, Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60)));
-        
-        setStats({
-          matchesCount: cachedMatches.length,
-          updateCount: serviceStats.requestsUsed,
-          hoursUntilNext,
-          minutesUntilNext,
-          errors: [],
-          requestsUsed: serviceStats.requestsUsed,
-          requestsRemaining: serviceStats.requestsRemaining,
-          updatedToday: serviceStats.updatedToday
-        });
-        
-        console.log(`✅ ${cachedMatches.length} partite caricate dalla cache all'avvio`);
-      }
+      setMatches(cachedMatches);
+      setIsDataFresh(true);
+      const lastRealUpdate = realOddsService.getLastRealUpdate();
+      setLastUpdate(lastRealUpdate);
+      
+      // Aggiorna anche le statistiche
+      const serviceStats = realOddsService.getServiceStats();
+      setNextUpdate(serviceStats.nextUpdateTime);
+      
+      const now = new Date();
+      const timeDiff = serviceStats.nextUpdateTime.getTime() - now.getTime();
+      const hoursUntilNext = Math.max(0, Math.floor(timeDiff / (1000 * 60 * 60)));
+      const minutesUntilNext = Math.max(0, Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60)));
+      
+      setStats({
+        matchesCount: cachedMatches.length,
+        updateCount: serviceStats.requestsUsed,
+        hoursUntilNext,
+        minutesUntilNext,
+        errors: [],
+        requestsUsed: serviceStats.requestsUsed,
+        requestsRemaining: serviceStats.requestsRemaining,
+        updatedToday: serviceStats.updatedToday
+      });
+      
+      console.log(`✅ ${cachedMatches.length} partite caricate dalla cache all'avvio`);
     } else {
-      console.log('⚠️ Nessuna cache valida trovata, sarà necessario aggiornamento');
+      console.log('⚠️ Nessuna cache trovata, sarà necessario aggiornamento');
     }
     
     // DOPO: Controlla se serve aggiornamento (solo se necessario)

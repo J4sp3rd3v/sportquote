@@ -331,20 +331,16 @@ export class RealOddsService {
 
   // Funzione pubblica per ottenere sempre i dati dalla cache (per caricamento iniziale)
   getCachedMatchesOnly(): Match[] {
-    // Assicurati che la cache sia caricata
-    if (this.cache.size === 0 && typeof window !== 'undefined') {
+    console.log(`🔍 getCachedMatchesOnly: cache.size=${this.cache.size}, window=${typeof window !== 'undefined'}`);
+    
+    // Assicurati che la cache sia caricata dal localStorage
+    if (typeof window !== 'undefined') {
+      // Forza ricaricamento dal localStorage ogni volta
       this.loadCacheFromStorage();
     }
     
     const cachedMatches = this.getCachedMatches();
     console.log(`📦 Caricamento dalla cache: ${cachedMatches.length} partite disponibili`);
-    
-    // Se non ci sono dati in cache, prova a caricare dal localStorage
-    if (cachedMatches.length === 0 && typeof window !== 'undefined') {
-      console.log('🔄 Cache vuota, tentativo di ricaricamento dal localStorage...');
-      this.loadCacheFromStorage();
-      return this.getCachedMatches();
-    }
     
     return cachedMatches;
   }
@@ -455,23 +451,35 @@ export class RealOddsService {
   private loadCacheFromStorage(): void {
     if (typeof window !== 'undefined') {
       try {
+        console.log('🔄 Tentativo caricamento cache dal localStorage...');
+        
         const savedCache = localStorage.getItem('realOddsCache');
         const savedLastUpdate = localStorage.getItem('realOddsLastUpdate');
+        
+        console.log(`📦 localStorage check: cache=${!!savedCache}, lastUpdate=${!!savedLastUpdate}`);
         
         if (savedCache && savedLastUpdate) {
           const cacheData = JSON.parse(savedCache);
           this.lastRealUpdate = parseInt(savedLastUpdate);
+          
+          // Pulisci cache esistente
+          this.cache.clear();
           
           // Ricostruisci la cache Map
           Object.entries(cacheData).forEach(([key, value]: [string, any]) => {
             this.cache.set(key, value);
           });
           
-          console.log(`📦 Cache caricata dal localStorage: ${this.cache.size} elementi`);
+          console.log(`✅ Cache caricata dal localStorage: ${this.cache.size} elementi`);
+          console.log(`📅 Ultimo aggiornamento: ${new Date(this.lastRealUpdate).toLocaleString('it-IT')}`);
+        } else {
+          console.log('⚠️ Nessuna cache trovata nel localStorage');
         }
       } catch (error) {
-        console.warn('⚠️ Errore caricamento cache dal localStorage:', error);
+        console.warn('❌ Errore caricamento cache dal localStorage:', error);
       }
+    } else {
+      console.log('⚠️ Window non disponibile per localStorage');
     }
   }
 
