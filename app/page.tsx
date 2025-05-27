@@ -20,10 +20,10 @@ import BettingGuide from '@/components/BettingGuide';
 import GlobalDailyMonitor from '@/components/GlobalDailyMonitor';
 import AdvancedOddsAnalyzer from '@/components/AdvancedOddsAnalyzer';
 import ActiveSeasonsMonitor from '@/components/ActiveSeasonsMonitor';
-import RealDataStatus from '@/components/RealDataStatus';
+import DailyUpdateStatus from '@/components/DailyUpdateStatus';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 import { useApiManager } from '@/lib/apiManager';
-import { useOnlyRealOdds } from '@/hooks/useOnlyRealOdds';
+import { useDailyOdds } from '@/hooks/useDailyOdds';
 import { globalDailyUpdater } from '@/lib/globalDailyUpdater';
 import { activeSeasonsManager } from '@/lib/activeSeasonsManager';
 import { FilterOptions, BestOdds, Match } from '@/types';
@@ -43,16 +43,19 @@ export default function HomePage() {
   // Hook per gestire API e abbonamenti
   const { isSubscribed, subscriptionPlan, usage } = useApiManager();
   
-  // Hook per gestire SOLO le quote reali
+  // Hook per gestire le quote giornaliere
   const {
     matches: realMatches,
     isLoading,
     error,
     lastUpdate,
+    nextUpdate,
+    isDataFresh,
+    isUpdating,
     stats,
-    refreshOdds,
+    forceUpdate,
     hasRealData
-  } = useOnlyRealOdds();
+  } = useDailyOdds();
 
   // Avvia il sistema giornaliero globale al mount
   React.useEffect(() => {
@@ -332,15 +335,19 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Status Dati Reali */}
+          {/* Status Sistema Giornaliero */}
           <div className="mb-6">
-            <RealDataStatus
-              hasRealData={hasRealData}
-              isLoading={isLoading}
-              error={error}
+            <DailyUpdateStatus
               lastUpdate={lastUpdate}
-              stats={stats}
-              onRefresh={refreshOdds}
+              nextUpdate={nextUpdate}
+              isDataFresh={isDataFresh}
+              isUpdating={isUpdating}
+              matchesCount={stats.matchesCount}
+              updateCount={stats.updateCount}
+              hoursUntilNext={stats.hoursUntilNext}
+              minutesUntilNext={stats.minutesUntilNext}
+              errors={stats.errors}
+              onForceUpdate={forceUpdate}
             />
           </div>
 
@@ -419,11 +426,11 @@ export default function HomePage() {
               </ul>
             </div>
             <button
-              onClick={refreshOdds}
-              disabled={isLoading || !stats.canMakeRequests}
+              onClick={forceUpdate}
+              disabled={isLoading || isUpdating}
               className="mt-4 px-6 py-2 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
             >
-              {isLoading ? 'Caricamento...' : 'Riprova Caricamento'}
+              {isLoading || isUpdating ? 'Aggiornamento...' : 'Forza Aggiornamento'}
             </button>
           </div>
         )}
@@ -552,7 +559,7 @@ export default function HomePage() {
             <button
               onClick={() => {
                 if (matches.length === 0) {
-                  refreshOdds();
+                  forceUpdate();
                 } else {
                   setSearchQuery('');
                   setFilters({});

@@ -1,16 +1,17 @@
-# 🎯 Sistema Quote Reali - SITOSPORT
+# 🎯 Sistema Aggiornamento Giornaliero - SITOSPORT
 
 ## 📋 Panoramica
 
-Il sistema è stato completamente aggiornato per utilizzare **ESCLUSIVAMENTE dati reali** da API verificate. Non vengono più utilizzati dati falsi o generati algoritmicamente.
+Il sistema è stato aggiornato con un **sistema di aggiornamento automatico giornaliero** che carica le partite **1 volta al giorno alle 12:00** e le mantiene in cache per 24 ore. Tutti gli utenti condividono gli stessi dati aggiornati.
 
 ## ✅ Caratteristiche Principali
 
-### 🔄 **Solo Dati Reali**
-- ❌ **ELIMINATI** tutti i dati falsi e generati
-- ✅ **SOLO** partite reali da API The Odds API
-- ✅ **SOLO** quote reali da bookmaker verificati
-- ✅ **SOLO** campionati con partite effettivamente disponibili
+### ⏰ **Aggiornamento Giornaliero Automatico**
+- 🕐 **1 aggiornamento al giorno** alle 12:00
+- 📅 **Quote valide 24 ore** - Nessun aggiornamento continuo
+- 🌐 **Condivisione globale** - Tutti gli utenti vedono gli stessi dati
+- 💾 **Cache persistente** - Dati salvati localmente per 24 ore
+- 🔄 **Reset automatico** - Nuovo aggiornamento ogni giorno
 
 ### 🏆 **Campionati Supportati (Solo con Partite Reali)**
 Il sistema carica automaticamente partite SOLO da sport verificati:
@@ -22,11 +23,12 @@ Il sistema carica automaticamente partite SOLO da sport verificati:
 
 ⚠️ **NOTA**: Altri campionati (Premier League, La Liga, Bundesliga, Serie A, Tennis) non sono attualmente disponibili nell'API o non hanno partite future.
 
-### 📊 **Gestione API**
+### 📊 **Gestione API Ottimizzata**
 - **Limite**: 500 richieste/mese (piano gratuito)
-- **Cache**: 1 ora per ridurre richieste
-- **Monitoraggio**: Contatore richieste in tempo reale
-- **Sicurezza**: Gestione errori e limiti automatica
+- **Utilizzo**: Massimo 6 richieste/giorno (1 per sport)
+- **Cache**: 24 ore per massima efficienza
+- **Condivisione**: Stessi dati per tutti gli utenti
+- **Monitoraggio**: Dashboard tempo reale
 
 ## 🛠️ Componenti Principali
 
