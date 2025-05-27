@@ -3,6 +3,8 @@
 
 import { unifiedApiManager } from './unifiedApiManager';
 import { optimizedBookmakerManager } from './optimizedBookmakerManager';
+import { testDataGenerator } from './testDataGenerator';
+import { Match } from '@/types';
 
 export interface OptimizedMatch {
   id: string;
@@ -75,8 +77,8 @@ export class OptimizedOddsService {
       const apiData = await unifiedApiManager.getSportOdds(sportKey);
       
       if (!apiData || !Array.isArray(apiData)) {
-        console.warn(`Nessun dato ricevuto per ${sportKey}`);
-        return [];
+        console.warn(`Nessun dato ricevuto per ${sportKey}, utilizzo dati di test`);
+        return this.getTestDataForSport(sportKey);
       }
 
       const optimizedMatches = this.convertApiDataToMatches(apiData, sportKey);
@@ -87,9 +89,10 @@ export class OptimizedOddsService {
       
     } catch (error) {
       console.error(`❌ Errore caricamento quote ${sportKey}:`, error);
+      console.log(`🎲 Utilizzo dati di test per ${sportKey}`);
       
-      // Ritorna array vuoto invece di lanciare errore
-      return [];
+      // Utilizza dati di test come fallback
+      return this.getTestDataForSport(sportKey);
     }
   }
 
@@ -396,6 +399,55 @@ export class OptimizedOddsService {
     // Per ora ritorna array vuoto - implementazione cache futura
     console.log('Cache richiesta per tutti gli sport');
     return [];
+  }
+
+  // Genera dati di test per uno sport specifico
+  private getTestDataForSport(sportKey: string): OptimizedMatch[] {
+    try {
+      const testMatches = testDataGenerator.generateMatchesForSport(sportKey, 8);
+      const matches = testDataGenerator.convertToMatches(testMatches);
+      
+      // Converte Match[] in OptimizedMatch[]
+      return matches.map(match => this.convertMatchToOptimized(match, sportKey));
+    } catch (error) {
+      console.error(`Errore generazione dati test per ${sportKey}:`, error);
+      return [];
+    }
+  }
+
+  // Converte Match in OptimizedMatch
+  private convertMatchToOptimized(match: Match, sportKey: string): OptimizedMatch {
+    const optimizedBookmakers: OptimizedBookmaker[] = match.odds.map(odd => {
+      const config = optimizedBookmakerManager.getBookmakerConfig(odd.bookmaker);
+      return {
+        id: config?.id || odd.bookmaker.toLowerCase().replace(/\s+/g, '-'),
+        name: config?.name || odd.bookmaker,
+        displayName: config?.displayName || odd.bookmaker,
+        verified: config?.verified || false,
+        category: config?.category || 'standard',
+        odds: {
+          home: odd.home,
+          away: odd.away,
+          draw: odd.draw
+        },
+        lastUpdate: odd.lastUpdated.toISOString()
+      };
+    });
+
+    const bestOdds = this.calculateBestOdds(optimizedBookmakers);
+    const arbitrageOpportunity = this.calculateArbitrage(optimizedBookmakers);
+
+    return {
+      id: match.id,
+      sport: this.getSportCategory(sportKey),
+      league: this.getLeagueName(sportKey),
+      homeTeam: match.homeTeam,
+      awayTeam: match.awayTeam,
+      commenceTime: match.date.toISOString(),
+      bookmakers: optimizedBookmakers,
+      bestOdds,
+      arbitrageOpportunity
+    };
   }
 }
 

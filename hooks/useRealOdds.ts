@@ -75,8 +75,8 @@ export function useRealOdds(sport?: string): UseRealOddsReturn {
   };
 
   useEffect(() => {
-    // Carica i dati dalla cache al mount
-    const loadCachedData = () => {
+    // Carica i dati dalla cache al mount o genera dati di test
+    const loadCachedData = async () => {
       try {
         if (sport) {
           const cachedMatches = optimizedOddsService.getCachedMatches(sport);
@@ -84,6 +84,9 @@ export function useRealOdds(sport?: string): UseRealOddsReturn {
             const convertedMatches = cachedMatches.map(convertOptimizedMatchToMatch);
             setMatches(convertedMatches);
             setLastUpdate(new Date());
+          } else {
+            // Se non ci sono dati in cache, carica dati freschi
+            await refreshOdds();
           }
         } else {
           const allCachedMatches = optimizedOddsService.getAllCachedMatches();
@@ -91,10 +94,14 @@ export function useRealOdds(sport?: string): UseRealOddsReturn {
             const convertedMatches = allCachedMatches.map(convertOptimizedMatchToMatch);
             setMatches(convertedMatches);
             setLastUpdate(new Date());
+          } else {
+            // Se non ci sono dati in cache, carica dati freschi
+            await refreshOdds();
           }
         }
       } catch (err) {
-        console.error('Errore caricamento cache:', err);
+        console.error('Errore caricamento dati:', err);
+        setError('Errore caricamento dati');
       }
     };
 
