@@ -132,7 +132,13 @@ export default function RealDataStatus({
 
       {hasRealData && (
         <div className="mt-3 p-2 bg-green-900/30 border border-green-500/50 rounded text-green-300 text-sm">
-          ✅ Sistema attivo con dati reali da API verificate. Nessun dato falso utilizzato.
+          ✅ Sistema attivo con dati reali: Ligue 1, Champions League, NBA, NFL, NHL, UFC/MMA
+        </div>
+      )}
+
+      {!hasRealData && !error && (
+        <div className="mt-3 p-2 bg-yellow-900/30 border border-yellow-500/50 rounded text-yellow-300 text-sm">
+          ⚠️ Nessun dato reale disponibile. Solo sport con partite verificate: Ligue 1, Champions League, NBA, NFL, NHL, UFC/MMA
         </div>
       )}
     </div>

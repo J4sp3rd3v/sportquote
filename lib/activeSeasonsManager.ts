@@ -21,89 +21,29 @@ interface LeagueConfig {
 export class ActiveSeasonsManager {
   private static instance: ActiveSeasonsManager;
   
-  // Configurazione campionati con date reali 2024/25
+  // Configurazione SOLO campionati con partite reali disponibili
   private readonly LEAGUES_CONFIG: LeagueConfig[] = [
-    // CALCIO - Stagioni 2024/25 (Agosto 2024 - Maggio 2025)
-    {
-      key: 'soccer_epl',
-      name: 'Premier League',
-      sport: 'calcio',
-      country: 'Inghilterra',
-      priority: 1,
-      seasonInfo: {
-        startDate: new Date('2024-01-01'), // Esteso per essere sempre attivo
-        endDate: new Date('2025-12-31'),
-        isActive: true,
-        nextSeasonStart: new Date('2026-08-16')
-      },
-      enabled: true
-    },
-    {
-      key: 'soccer_spain_la_liga',
-      name: 'La Liga',
-      sport: 'calcio',
-      country: 'Spagna',
-      priority: 2,
-      seasonInfo: {
-        startDate: new Date('2024-01-01'), // Esteso per essere sempre attivo
-        endDate: new Date('2025-12-31'),
-        isActive: true,
-        nextSeasonStart: new Date('2026-08-17')
-      },
-      enabled: true
-    },
-    {
-      key: 'soccer_germany_bundesliga',
-      name: 'Bundesliga',
-      sport: 'calcio',
-      country: 'Germania',
-      priority: 3,
-      seasonInfo: {
-        startDate: new Date('2024-01-01'), // Esteso per essere sempre attivo
-        endDate: new Date('2025-12-31'),
-        isActive: true,
-        nextSeasonStart: new Date('2026-08-22')
-      },
-      enabled: true
-    },
+    // CALCIO - Solo campionati con partite reali verificate
     {
       key: 'soccer_france_ligue_one',
       name: 'Ligue 1',
       sport: 'calcio',
       country: 'Francia',
-      priority: 4,
+      priority: 1,
       seasonInfo: {
-        startDate: new Date('2024-01-01'), // Esteso per essere sempre attivo
-        endDate: new Date('2025-12-31'),
+        startDate: new Date('2024-08-16'),
+        endDate: new Date('2025-05-24'),
         isActive: true,
-        nextSeasonStart: new Date('2026-08-15')
+        nextSeasonStart: new Date('2025-08-15')
       },
       enabled: true
     },
-    
-    // SERIE A - Riabilitata per test
-    {
-      key: 'soccer_italy_serie_a',
-      name: 'Serie A',
-      sport: 'calcio',
-      country: 'Italia',
-      priority: 5,
-      seasonInfo: {
-        startDate: new Date('2024-01-01'), // Esteso per essere sempre attivo
-        endDate: new Date('2025-12-31'),
-        isActive: true,
-        nextSeasonStart: new Date('2026-08-16')
-      },
-      enabled: true // RIABILITATA
-    },
-    
-    // CHAMPIONS LEAGUE 2024/25 (Settembre 2024 - Giugno 2025)
     {
       key: 'soccer_uefa_champs_league',
       name: 'Champions League',
       sport: 'calcio',
       country: 'Europa',
-      priority: 6,
+      priority: 2,
       seasonInfo: {
         startDate: new Date('2024-09-17'),
         endDate: new Date('2025-06-01'),
@@ -113,13 +53,13 @@ export class ActiveSeasonsManager {
       enabled: true
     },
     
-    // BASKET - NBA 2024/25 (Ottobre 2024 - Giugno 2025)
+    // BASKET - NBA con partite reali
     {
       key: 'basketball_nba',
       name: 'NBA',
       sport: 'basket',
       country: 'USA',
-      priority: 7,
+      priority: 3,
       seasonInfo: {
         startDate: new Date('2024-10-15'),
         endDate: new Date('2025-06-15'),
@@ -129,57 +69,57 @@ export class ActiveSeasonsManager {
       enabled: true
     },
     
-    // TENNIS - Tornei ATP/WTA tutto l'anno
+    // TENNIS - Tornei con partite reali disponibili
     {
-      key: 'tennis_atp_tour',
-      name: 'ATP Tour',
+      key: 'tennis_atp_wimbledon',
+      name: 'ATP Wimbledon',
       sport: 'tennis',
-      country: 'Mondiale',
+      country: 'Inghilterra',
       priority: 8,
       seasonInfo: {
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2025-12-31'), // Esteso per essere sempre attivo
-        isActive: true,
-        nextSeasonStart: new Date('2026-01-01')
+        startDate: new Date('2024-06-24'),
+        endDate: new Date('2024-07-14'),
+        isActive: false, // Finito
+        nextSeasonStart: new Date('2025-06-23')
       },
-      enabled: true
+      enabled: false
     },
     {
-      key: 'tennis_wta_tour',
-      name: 'WTA Tour',
+      key: 'tennis_wta_wimbledon',
+      name: 'WTA Wimbledon',
       sport: 'tennis',
-      country: 'Mondiale',
+      country: 'Inghilterra',
       priority: 9,
       seasonInfo: {
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2025-12-31'), // Esteso per essere sempre attivo
-        isActive: true,
-        nextSeasonStart: new Date('2026-01-01')
+        startDate: new Date('2024-06-24'),
+        endDate: new Date('2024-07-14'),
+        isActive: false, // Finito
+        nextSeasonStart: new Date('2025-06-23')
       },
-      enabled: true
+      enabled: false
     },
     {
-      key: 'tennis_grand_slam',
-      name: 'Grand Slam',
+      key: 'tennis_atp_us_open',
+      name: 'ATP US Open',
       sport: 'tennis',
-      country: 'Mondiale',
+      country: 'USA',
       priority: 10,
       seasonInfo: {
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2025-12-31'), // Esteso per essere sempre attivo
-        isActive: true,
-        nextSeasonStart: new Date('2026-01-01')
+        startDate: new Date('2024-08-26'),
+        endDate: new Date('2024-09-08'),
+        isActive: false, // Finito
+        nextSeasonStart: new Date('2025-08-25')
       },
-      enabled: true
+      enabled: false
     },
     
-    // NFL 2024/25 (Settembre 2024 - Febbraio 2025)
+    // NFL - Con partite reali verificate
     {
       key: 'americanfootball_nfl',
       name: 'NFL',
       sport: 'football-americano',
       country: 'USA',
-      priority: 11,
+      priority: 4,
       seasonInfo: {
         startDate: new Date('2024-09-05'),
         endDate: new Date('2025-02-09'),
@@ -189,13 +129,13 @@ export class ActiveSeasonsManager {
       enabled: true
     },
     
-    // HOCKEY - NHL 2024/25 (Ottobre 2024 - Giugno 2025)
+    // HOCKEY - NHL con partite reali verificate
     {
       key: 'icehockey_nhl',
       name: 'NHL',
       sport: 'hockey',
       country: 'USA/Canada',
-      priority: 12,
+      priority: 5,
       seasonInfo: {
         startDate: new Date('2024-10-04'),
         endDate: new Date('2025-06-30'),
@@ -205,48 +145,16 @@ export class ActiveSeasonsManager {
       enabled: true
     },
     
-    // FORMULA 1 2024 (Marzo - Dicembre 2024)
+    // MMA/UFC - Con partite reali verificate
     {
-      key: 'motorsport_f1',
-      name: 'Formula 1',
-      sport: 'motorsport',
-      country: 'Mondiale',
-      priority: 13,
-      seasonInfo: {
-        startDate: new Date('2024-03-02'),
-        endDate: new Date('2025-12-08'), // Esteso per essere attivo
-        isActive: true,
-        nextSeasonStart: new Date('2026-03-01')
-      },
-      enabled: true
-    },
-    
-    // EUROLEAGUE BASKET 2024/25 (Ottobre 2024 - Maggio 2025)
-    {
-      key: 'basketball_euroleague',
-      name: 'EuroLega',
-      sport: 'basket',
-      country: 'Europa',
-      priority: 14,
-      seasonInfo: {
-        startDate: new Date('2024-10-03'),
-        endDate: new Date('2025-05-30'),
-        isActive: true,
-        nextSeasonStart: new Date('2025-10-02')
-      },
-      enabled: true
-    },
-    
-    // MMA/UFC - Eventi tutto l'anno
-    {
-      key: 'mma_ufc',
-      name: 'UFC',
+      key: 'mma_mixed_martial_arts',
+      name: 'UFC/MMA',
       sport: 'mma',
       country: 'Mondiale',
-      priority: 15,
+      priority: 6,
       seasonInfo: {
         startDate: new Date('2024-01-01'),
-        endDate: new Date('2025-12-31'), // Esteso per essere sempre attivo
+        endDate: new Date('2025-12-31'),
         isActive: true,
         nextSeasonStart: new Date('2026-01-01')
       },

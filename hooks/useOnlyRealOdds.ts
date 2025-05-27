@@ -42,10 +42,16 @@ export function useOnlyRealOdds(): UseOnlyRealOddsReturn {
       }
 
       setMatches(realMatches);
-      setLastUpdate(new Date());
+      
+      // Usa il timestamp dell'ultimo aggiornamento reale, non quello attuale
+      const realUpdateTime = realOddsService.getLastRealUpdate();
+      setLastUpdate(realUpdateTime || new Date());
       setHasRealData(true);
       
       console.log(`✅ ${realMatches.length} partite reali caricate con successo`);
+      if (realUpdateTime) {
+        console.log(`📅 Ultimo aggiornamento reale: ${realUpdateTime.toLocaleString('it-IT')}`);
+      }
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Errore sconosciuto';

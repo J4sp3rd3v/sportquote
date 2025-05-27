@@ -36,8 +36,9 @@ export class RealOddsService {
   private readonly MONTHLY_LIMIT = 500;
   private readonly CACHE_DURATION = 60 * 60 * 1000; // 1 ora
   
-  private cache = new Map<string, { data: any; timestamp: number }>();
+  private cache = new Map<string, { data: any; timestamp: number; lastRealUpdate: number }>();
   private requestCount = 0;
+  private lastRealUpdate: number = 0;
   
   constructor() {
     this.loadRequestCount();
@@ -120,10 +121,14 @@ export class RealOddsService {
       this.requestCount++;
       this.saveRequestCount();
       
-      // Salva in cache
+      // Salva in cache con timestamp reale aggiornamento
+      const realUpdateTime = Date.now();
+      this.lastRealUpdate = realUpdateTime;
+      
       this.cache.set(cacheKey, {
         data,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        lastRealUpdate: realUpdateTime
       });
       
       console.log(`✅ Dati reali ricevuti: ${Array.isArray(data) ? data.length : 1} elementi`);
@@ -290,6 +295,12 @@ export class RealOddsService {
       cacheSize: this.cache.size,
       canMakeRequests: this.canMakeRequest()
     };
+  }
+
+  // Ottieni timestamp dell'ultimo aggiornamento reale
+  getLastRealUpdate(): Date | null {
+    if (this.lastRealUpdate === 0) return null;
+    return new Date(this.lastRealUpdate);
   }
 
   // Reset per test (solo in sviluppo)

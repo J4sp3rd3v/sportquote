@@ -12,12 +12,15 @@ Il sistema è stato completamente aggiornato per utilizzare **ESCLUSIVAMENTE dat
 - ✅ **SOLO** quote reali da bookmaker verificati
 - ✅ **SOLO** campionati con partite effettivamente disponibili
 
-### 🏆 **Campionati Supportati**
-Il sistema carica automaticamente partite da:
-- **Calcio**: Premier League, La Liga, Bundesliga, Ligue 1, Serie A, Champions League
-- **Basket**: NBA
-- **Tennis**: ATP French Open (quando attivo)
-- **Football Americano**: NFL (quando in stagione)
+### 🏆 **Campionati Supportati (Solo con Partite Reali)**
+Il sistema carica automaticamente partite SOLO da sport verificati:
+- **Calcio**: Ligue 1, Champions League
+- **Basket**: NBA  
+- **Football Americano**: NFL
+- **Hockey**: NHL
+- **MMA**: UFC/Mixed Martial Arts
+
+⚠️ **NOTA**: Altri campionati (Premier League, La Liga, Bundesliga, Serie A, Tennis) non sono attualmente disponibili nell'API o non hanno partite future.
 
 ### 📊 **Gestione API**
 - **Limite**: 500 richieste/mese (piano gratuito)
