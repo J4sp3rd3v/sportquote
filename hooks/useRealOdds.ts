@@ -98,10 +98,10 @@ export function useRealOdds(sport?: string): UseRealOddsReturn {
       }
     };
 
-    // Ascolta eventi di aggiornamento globale
-    const handleGlobalUpdate = (event: CustomEvent) => {
-      console.log('Aggiornamento globale ricevuto:', event.detail);
-      // Ricarica i dati dopo un aggiornamento globale
+    // Ascolta eventi di aggiornamento giornaliero globale
+    const handleGlobalDailyUpdate = (event: CustomEvent) => {
+      console.log('Aggiornamento giornaliero globale ricevuto:', event.detail);
+      // Ricarica i dati dopo l'aggiornamento giornaliero
       setTimeout(() => {
         refreshOdds();
       }, 1000);
@@ -109,11 +109,11 @@ export function useRealOdds(sport?: string): UseRealOddsReturn {
 
     loadCachedData();
 
-    // Aggiungi listener per aggiornamenti globali
+    // Aggiungi listener per aggiornamenti giornalieri globali
     if (typeof window !== 'undefined') {
-      window.addEventListener('globalUpdate:completed', handleGlobalUpdate as EventListener);
+      window.addEventListener('globalDailyUpdate:completed', handleGlobalDailyUpdate as EventListener);
       return () => {
-        window.removeEventListener('globalUpdate:completed', handleGlobalUpdate as EventListener);
+        window.removeEventListener('globalDailyUpdate:completed', handleGlobalDailyUpdate as EventListener);
       };
     }
   }, [sport]);

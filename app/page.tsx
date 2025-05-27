@@ -17,11 +17,11 @@ import CountdownTimer from '@/components/CountdownTimer';
 import SubscriptionManager from '@/components/SubscriptionManager';
 import BettingStrategies from '@/components/BettingStrategies';
 import BettingGuide from '@/components/BettingGuide';
-import GlobalSystemMonitor from '@/components/GlobalSystemMonitor';
+import GlobalDailyMonitor from '@/components/GlobalDailyMonitor';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 import { useApiManager } from '@/lib/apiManager';
 import { useRealOdds } from '@/hooks/useRealOdds';
-import { serverSideScheduler } from '@/lib/serverSideScheduler';
+import { globalDailyUpdater } from '@/lib/globalDailyUpdater';
 import { FilterOptions, BestOdds, Match } from '@/types';
 import { TrendingUp, Users, Award, Clock, Filter, BarChart3, Star, Zap, Target, Calendar, Trophy, Sparkles } from 'lucide-react';
 
@@ -48,14 +48,14 @@ export default function HomePage() {
     refreshOdds
   } = useRealOdds();
 
-  // Avvia il sistema globale di aggiornamento al mount
+  // Avvia il sistema giornaliero globale al mount
   React.useEffect(() => {
-    // Avvia il sistema globale (una sola volta per tutto il sito)
-    serverSideScheduler.startGlobalSystem();
+    // Avvia il sistema giornaliero globale (1 aggiornamento al giorno per tutto il sito)
+    globalDailyUpdater.startGlobalSystem();
     
     return () => {
-      // Il sistema globale rimane attivo anche quando l'utente esce
-      // Non fermiamo il sistema globale per preservare gli aggiornamenti
+      // Il sistema rimane attivo anche quando l'utente esce
+      // Non fermiamo il sistema per preservare l'aggiornamento giornaliero
     };
   }, []);
 
@@ -220,16 +220,16 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Main Hero Content */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center bg-accent-500/20 border border-accent-500/30 text-accent-400 px-4 py-2 rounded-full text-sm font-medium mb-4">
-              <Sparkles className="w-4 h-4 mr-2" />
-              Sistema Globale Server-Side Attivo
+            <div className="inline-flex items-center bg-green-500/20 border border-green-500/30 text-green-400 px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <Calendar className="w-4 h-4 mr-2" />
+              Sistema Giornaliero Globale Attivo
             </div>
             
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white via-primary-200 to-accent-300 bg-clip-text text-transparent leading-tight">
-              Quote del Giorno - Sistema Globale
+              Quote del Giorno - 1 Aggiornamento Globale
             </h1>
             <p className="text-lg sm:text-xl mb-6 text-dark-200 px-2">
-              🌐 Aggiornamenti centralizzati server-side per tutto il sito
+              📅 1 aggiornamento alle 12:00 per tutto il sito - Quote stabili 24h
             </p>
           </div>
 
@@ -397,9 +397,9 @@ export default function HomePage() {
           <BettingStrategies matches={filteredMatches} />
         </div>
 
-        {/* Sistema Globale di Aggiornamento */}
+        {/* Sistema Giornaliero Globale */}
         <div className="mb-8">
-          <GlobalSystemMonitor />
+          <GlobalDailyMonitor />
         </div>
 
         {/* Sistema di Arbitraggio Intelligente */}
@@ -569,26 +569,26 @@ export default function HomePage() {
                 </h3>
               </div>
               <p className="text-dark-300 mb-6">
-                Sistema API giornaliero ottimizzato. 1 aggiornamento per sport al giorno, 
-                54+ bookmaker verificati, analisi arbitraggio automatica.
+                Sistema giornaliero globale. 1 aggiornamento alle 12:00 per tutto il sito, 
+                quote stabili 24h, 54+ bookmaker verificati, analisi arbitraggio automatica.
               </p>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-sm text-dark-400">
-                  <div className="w-2 h-2 bg-success-400 rounded-full animate-pulse"></div>
-                  <span>Sistema giornaliero attivo</span>
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span>Sistema giornaliero globale attivo</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-dark-400">
                   <div className="w-2 h-2 bg-primary-400 rounded-full"></div>
-                  <span>Quote verificate</span>
+                  <span>Quote condivise da tutti</span>
                 </div>
               </div>
             </div>
             <div>
-              <h4 className="text-lg font-semibold mb-4 text-white">Sistema API</h4>
+              <h4 className="text-lg font-semibold mb-4 text-white">Sistema Giornaliero</h4>
               <ul className="space-y-2 text-dark-300">
-                <li>• 1 aggiornamento/sport/giorno</li>
-                <li>• 500 richieste/mese preservate</li>
-                <li>• Cache 24 ore intelligente</li>
+                <li>• 1 aggiornamento/giorno alle 12:00</li>
+                <li>• Quote stabili per 24 ore</li>
+                <li>• Condivise da tutti gli utenti</li>
                 <li>• 6 sport prioritari</li>
               </ul>
             </div>
@@ -605,14 +605,14 @@ export default function HomePage() {
           <div className="border-t border-dark-800 mt-8 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-dark-400 text-sm">
-                &copy; 2025 MonitorQuote. Sistema API Giornaliero Ottimizzato | Gioco responsabile +18
+                &copy; 2025 MonitorQuote. Sistema Giornaliero Globale | Gioco responsabile +18
               </p>
               <div className="flex items-center space-x-4 mt-4 md:mt-0">
-                <span className="text-xs text-dark-500">API Key: 4815fd45...</span>
+                <span className="text-xs text-dark-500">Aggiornamento: 12:00 giornaliero</span>
                 <div className="flex items-center space-x-2 text-xs text-dark-400">
-                  <span>6 richieste/giorno</span>
+                  <span>1 aggiornamento/giorno</span>
                   <span>•</span>
-                  <span>500/mese</span>
+                  <span>Quote stabili 24h</span>
                 </div>
               </div>
             </div>
