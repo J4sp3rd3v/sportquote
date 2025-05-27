@@ -237,9 +237,9 @@ export default function BettingStrategies({ matches }: BettingStrategiesProps) {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-white flex items-center">
-            <Target className="h-5 w-5 text-accent-400 mr-2" />
+          <Target className="h-5 w-5 text-accent-400 mr-2" />
             Partite Consigliate per {currentStrategy?.name}
-          </h3>
+        </h3>
           <span className="text-sm text-dark-400">
             {filteredMatches.length} partite trovate
           </span>
@@ -267,9 +267,9 @@ export default function BettingStrategies({ matches }: BettingStrategiesProps) {
                       <p className="text-dark-400 text-sm">{match.league} • {match.sport}</p>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs text-dark-400">
-                        {new Date(match.date).toLocaleDateString('it-IT')}
-                      </span>
+                    <span className="text-xs text-dark-400">
+                      {new Date(match.date).toLocaleDateString('it-IT')}
+                    </span>
                       <div className="text-xs text-primary-400 mt-1">
                         Clicca per simulare
                       </div>
@@ -349,7 +349,7 @@ export default function BettingStrategies({ matches }: BettingStrategiesProps) {
                         odds = bestOdds.away.odds;
                         break;
                     }
-
+                    
                     return (
                       <button
                         key={outcome}
@@ -374,7 +374,7 @@ export default function BettingStrategies({ matches }: BettingStrategiesProps) {
                   })}
                 </div>
               </div>
-
+              
               {/* Stake Input */}
               <div className="mb-3">
                 <label className="block text-sm font-medium text-dark-300 mb-2">Importo (€)</label>
@@ -387,7 +387,7 @@ export default function BettingStrategies({ matches }: BettingStrategiesProps) {
                   className="w-full px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white focus:border-primary-500 focus:outline-none"
                 />
               </div>
-
+              
               <button
                 onClick={simulateBet}
                 className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
@@ -395,14 +395,14 @@ export default function BettingStrategies({ matches }: BettingStrategiesProps) {
                 Simula Scommessa
               </button>
             </div>
-
+            
             <div>
               {/* Simulation Results */}
               {(() => {
                 const bestOdds = calculateBestOdds(selectedMatch);
                 let odds = 0;
                 let bookmaker = '';
-
+                
                 switch (selectedOutcome) {
                   case '1':
                     odds = bestOdds.home.odds;
@@ -419,34 +419,34 @@ export default function BettingStrategies({ matches }: BettingStrategiesProps) {
                     bookmaker = bestOdds.away.bookmaker;
                     break;
                 }
-
+                
                 const potentialWin = stake * odds;
                 const profit = potentialWin - stake;
-
+                
                 return (
                   <div className="bg-dark-700/50 rounded-lg p-4">
                     <h4 className="font-medium text-white mb-3">Calcolo Vincita</h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-dark-300">Quota:</span>
-                        <span className="text-white font-medium">{odds.toFixed(2)}</span>
-                      </div>
+                      <span className="text-white font-medium">{odds.toFixed(2)}</span>
+                    </div>
                       <div className="flex justify-between">
                         <span className="text-dark-300">Bookmaker:</span>
                         <span className="text-primary-400 text-xs">{bookmaker}</span>
-                      </div>
+                    </div>
                       <div className="flex justify-between">
                         <span className="text-dark-300">Puntata:</span>
                         <span className="text-white">€{stake.toFixed(2)}</span>
-                      </div>
+                    </div>
                       <div className="border-t border-dark-600 pt-2">
                         <div className="flex justify-between">
                           <span className="text-dark-300">Vincita Totale:</span>
-                          <span className="text-success-400 font-bold">€{potentialWin.toFixed(2)}</span>
-                        </div>
+                      <span className="text-success-400 font-bold">€{potentialWin.toFixed(2)}</span>
+                    </div>
                         <div className="flex justify-between">
                           <span className="text-dark-300">Profitto:</span>
-                          <span className="text-accent-400 font-bold">€{profit.toFixed(2)}</span>
+                      <span className="text-accent-400 font-bold">€{profit.toFixed(2)}</span>
                         </div>
                       </div>
                     </div>

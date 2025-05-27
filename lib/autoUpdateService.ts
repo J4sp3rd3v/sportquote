@@ -38,8 +38,8 @@ class AutoUpdateService {
     this.performUpdate();
 
     // Programma aggiornamenti periodici
-    this.intervalId = setInterval(() => {
-      this.performUpdate();
+        this.intervalId = setInterval(() => {
+          this.performUpdate();
     }, this.UPDATE_INTERVAL);
 
     this.calculateNextUpdate();
@@ -63,7 +63,7 @@ class AutoUpdateService {
   private async performUpdate() {
     try {
       console.log('🔄 Inizio aggiornamento automatico...');
-      
+
       // Ottieni il prossimo sport da aggiornare
       const nextSport = unifiedApiManager.getNextSportToUpdate();
       
@@ -73,12 +73,12 @@ class AutoUpdateService {
       }
 
       this.currentSport = nextSport.name;
-      
+
       // Aggiorna lo sport
       const result = await optimizedOddsService.updateNextSport();
       
       if (result.success) {
-        this.lastUpdate = new Date();
+      this.lastUpdate = new Date();
         console.log(`✅ Sport ${result.sport} aggiornato con successo: ${result.matches} partite`);
       } else {
         console.error(`❌ Errore aggiornamento ${result.sport}:`, result.error);
@@ -86,11 +86,11 @@ class AutoUpdateService {
       
       this.currentSport = null;
       this.calculateNextUpdate();
-      
+
     } catch (error) {
       console.error('❌ Errore durante l\'aggiornamento automatico:', error);
       this.currentSport = null;
-    }
+      }
   }
 
   private calculateNextUpdate() {
@@ -101,7 +101,7 @@ class AutoUpdateService {
 
   getStats(): AutoUpdateStats {
     const apiStats = unifiedApiManager.getDetailedStats();
-    
+
     return {
       isRunning: this.isRunning,
       lastUpdate: this.lastUpdate,

@@ -17,11 +17,11 @@ import CountdownTimer from '@/components/CountdownTimer';
 import SubscriptionManager from '@/components/SubscriptionManager';
 import BettingStrategies from '@/components/BettingStrategies';
 import BettingGuide from '@/components/BettingGuide';
-import DailyUpdateMonitor from '@/components/DailyUpdateMonitor';
+import GlobalSystemMonitor from '@/components/GlobalSystemMonitor';
 import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 import { useApiManager } from '@/lib/apiManager';
 import { useRealOdds } from '@/hooks/useRealOdds';
-import { dailyUpdateScheduler } from '@/lib/dailyUpdateScheduler';
+import { serverSideScheduler } from '@/lib/serverSideScheduler';
 import { FilterOptions, BestOdds, Match } from '@/types';
 import { TrendingUp, Users, Award, Clock, Filter, BarChart3, Star, Zap, Target, Calendar, Trophy, Sparkles } from 'lucide-react';
 
@@ -48,14 +48,14 @@ export default function HomePage() {
     refreshOdds
   } = useRealOdds();
 
-  // Avvia il sistema di aggiornamento automatico al mount
+  // Avvia il sistema globale di aggiornamento al mount
   React.useEffect(() => {
-    // Avvia il scheduler automatico
-    dailyUpdateScheduler.start();
+    // Avvia il sistema globale (una sola volta per tutto il sito)
+    serverSideScheduler.startGlobalSystem();
     
     return () => {
-      // Cleanup se necessario (opzionale, il scheduler può rimanere attivo)
-      // dailyUpdateScheduler.stop();
+      // Il sistema globale rimane attivo anche quando l'utente esce
+      // Non fermiamo il sistema globale per preservare gli aggiornamenti
     };
   }, []);
 
@@ -222,14 +222,14 @@ export default function HomePage() {
           <div className="text-center mb-8">
             <div className="inline-flex items-center bg-accent-500/20 border border-accent-500/30 text-accent-400 px-4 py-2 rounded-full text-sm font-medium mb-4">
               <Sparkles className="w-4 h-4 mr-2" />
-              Sistema API Giornaliero Attivo
+              Sistema Globale Server-Side Attivo
             </div>
             
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white via-primary-200 to-accent-300 bg-clip-text text-transparent leading-tight">
-              Quote del Giorno - Aggiornate Oggi
+              Quote del Giorno - Sistema Globale
             </h1>
             <p className="text-lg sm:text-xl mb-6 text-dark-200 px-2">
-              🎯 Le migliori opportunità di oggi con 1 aggiornamento giornaliero per sport
+              🌐 Aggiornamenti centralizzati server-side per tutto il sito
             </p>
           </div>
 
@@ -397,9 +397,9 @@ export default function HomePage() {
           <BettingStrategies matches={filteredMatches} />
         </div>
 
-        {/* Sistema di Aggiornamento Giornaliero */}
+        {/* Sistema Globale di Aggiornamento */}
         <div className="mb-8">
-          <DailyUpdateMonitor />
+          <GlobalSystemMonitor />
         </div>
 
         {/* Sistema di Arbitraggio Intelligente */}

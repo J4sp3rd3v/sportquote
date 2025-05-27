@@ -50,7 +50,7 @@ const stats = unifiedApiManager.getDetailedStats();
 ```
 lib/
 ├── unifiedApiManager.ts      # Gestione API centralizzata
-├── dailyUpdateScheduler.ts   # Scheduler aggiornamenti automatici
+├── serverSideScheduler.ts    # Sistema globale server-side
 ├── optimizedBookmakerManager.ts  # Bookmaker verificati
 ├── optimizedOddsService.ts   # Servizio quote ottimizzato
 └── optimizedOddsApi.ts       # API wrapper ottimizzato
@@ -59,7 +59,7 @@ lib/
 ### Componenti Principali
 ```
 components/
-├── DailyUpdateMonitor.tsx    # Monitoraggio aggiornamenti automatici
+├── GlobalSystemMonitor.tsx   # Monitoraggio sistema globale server-side
 ├── UnifiedApiMonitor.tsx     # Monitoraggio sistema unificato
 ├── ArbitrageOpportunities.tsx # Calcolo arbitraggi
 ├── BestOddsHighlight.tsx     # Migliori quote del giorno
@@ -68,13 +68,13 @@ components/
 
 ## 🎮 FUNZIONALITÀ AVANZATE
 
-### ⏰ Sistema di Aggiornamento Automatico
-- **Scheduler Intelligente**: Aggiornamenti programmati automaticamente ogni giorno
-- **Orari Ottimizzati**: Distribuzione dalle 8:00 alle 13:00 per evitare sovraccarichi
-- **Controllo Real-time**: Dashboard con status live di ogni sport
-- **Gestione Errori**: Retry automatico e fallback in caso di problemi
-- **Reset Giornaliero**: Automatico a mezzanotte per il giorno successivo
-- **Controlli Manuali**: Possibilità di forzare aggiornamenti o fermare il sistema
+### 🌐 Sistema Globale di Aggiornamento Server-Side
+- **Aggiornamenti Centralizzati**: Una sola istanza aggiorna per tutto il sito
+- **Indipendente dagli Utenti**: Funziona anche senza utenti connessi
+- **Orari Distribuiti**: Aggiornamenti dalle 8:00 alle 13:00 per ottimizzare il carico
+- **Retry Automatico**: Fino a 3 tentativi con pausa di 5 minuti
+- **Broadcast Globale**: Notifica tutti i client connessi simultaneamente
+- **Persistenza Centralizzata**: Stato salvato e recuperato automaticamente
 
 #### Programma Giornaliero
 ```
@@ -96,13 +96,14 @@ components/
 - **Partite Equilibrate**: Identifica match con quote simili
 - **Opportunità di Valore**: Quote mediamente alte (>2.50)
 
-### 🔄 Aggiornamenti Intelligenti
-- **Scheduler Automatico**: Aggiornamenti programmati ogni giorno
+### 🌐 Sistema Globale Server-Side
+- **Aggiornamenti Centralizzati**: Una sola istanza per tutto il sito
+- **Indipendente dagli Utenti**: Funziona anche senza utenti connessi
 - **Orari Fissi**: Serie A (8:00), Premier (9:00), Champions (10:00), NBA (11:00), Tennis (12:00), NFL (13:00)
 - **Controllo Ogni Minuto**: Verifica automatica degli aggiornamenti programmati
-- **Cache 24h**: Evita richieste ridondanti
-- **Fallback Automatico**: Gestione errori robusta
-- **Dashboard Controllo**: Monitoraggio real-time con possibilità di controllo manuale
+- **Retry con Backoff**: Fino a 3 tentativi con pausa di 5 minuti
+- **Broadcast Globale**: Eventi inviati a tutti i client connessi
+- **API REST**: Controllo remoto tramite `/api/global-scheduler`
 
 ## 🛠️ INSTALLAZIONE E SETUP
 
@@ -144,12 +145,12 @@ npm run dev
 
 ## 📊 MONITORAGGIO SISTEMA
 
-### Dashboard Aggiornamenti Automatici
-- **Sistema Scheduler**: Attivo/Inattivo con controllo manuale
+### Dashboard Sistema Globale
+- **Sistema Server-Side**: Attivo/Inattivo con controllo centralizzato
 - **Sport Programmati**: 6 sport con orari fissi (8:00-13:00)
-- **Status Real-time**: Completati, In Attesa, Falliti
-- **Controlli Manuali**: Avvio/Stop, Aggiornamento Forzato, Reset
-- **Tempo Rimanente**: Countdown per prossimo aggiornamento
+- **Status Globale**: Completati, In Attesa, Falliti con retry automatico
+- **Controlli Globali**: Avvio/Stop, Aggiornamento Forzato, Reset Sistema
+- **Statistiche Globali**: Tasso successo, tentativi, broadcast eventi
 
 ### Dashboard API
 - **Utilizzo Giornaliero**: 6/6 richieste (1 per sport)
@@ -166,8 +167,8 @@ npm run dev
 
 ### Test Sistema API
 ```bash
-# Test scheduler aggiornamenti automatici
-node scripts/test-daily-scheduler.js
+# Test sistema globale server-side
+node scripts/test-global-system.js
 
 # Test sistema giornaliero
 node scripts/test-daily-api-system.js

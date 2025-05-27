@@ -28,7 +28,7 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
     try {
       setLoading(true);
       setError(null);
-
+      
       console.log('🔄 Caricamento quote ottimizzate...');
       
       const categories = await optimizedOddsService.getAllSportsOdds();

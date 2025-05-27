@@ -94,9 +94,9 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
             <div className="flex items-center text-xs text-gray-500">
               <Clock className="w-3 h-3 mr-1" />
               {format(match.date, 'HH:mm', { locale: it })}
-            </div>
-          </div>
-          
+        </div>
+      </div>
+
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
             {match.homeTeam} vs {match.awayTeam}
           </h3>
@@ -141,7 +141,7 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
                   <span className="text-green-500 mr-1" title="Verificato">✓</span>
                 )}
                 {bestOdds.away.bookmaker}
-              </div>
+          </div>
             </div>
           </div>
         </div>
@@ -168,8 +168,8 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
           <div className="flex items-center">
             <TrendingUp className="w-4 h-4 mr-1" />
             <span>Quote aggiornate</span>
-          </div>
         </div>
+      </div>
 
         {/* Actions */}
         <div className="flex space-x-2">
@@ -179,7 +179,7 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
           >
             Vedi Dettagli
           </button>
-          <SmartBookmakerHandler 
+          <SmartBookmakerHandler
             bookmakerName={bestOdds.home.bookmaker}
             matchInfo={{
               homeTeam: match.homeTeam,

@@ -49,8 +49,8 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
 
   // Forza aggiornamento
   const forceUpdate = useCallback(async () => {
-    await autoUpdateService.forceUpdate();
-    refreshStats();
+      await autoUpdateService.forceUpdate();
+      refreshStats();
   }, [refreshStats]);
 
   // Calcola se possiamo fare aggiornamenti manuali
@@ -68,7 +68,7 @@ export function useAutoUpdate(): UseAutoUpdateReturn {
 
   useEffect(() => {
     // Carica statistiche iniziali
-    refreshStats();
+      refreshStats();
 
     // Aggiorna statistiche ogni 30 secondi
     const interval = setInterval(refreshStats, 30000);
