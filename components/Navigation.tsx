@@ -12,11 +12,14 @@ import {
   Users, 
   Crown,
   BarChart3,
-  Settings
+  Settings,
+  Target,
+  Zap
 } from 'lucide-react';
 
 const navigationItems = [
-  { href: '/', label: 'Home', icon: Home },
+  { href: '/', label: 'Dashboard', icon: Home },
+  { href: '/strategies', label: 'Strategie', icon: Target },
   { href: '/sports', label: 'Sport', icon: Trophy },
   { href: '/bookmakers', label: 'Bookmaker', icon: Users },
   { href: '/premium', label: 'Premium', icon: Crown },
