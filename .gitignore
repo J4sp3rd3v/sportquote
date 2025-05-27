@@ -41,4 +41,16 @@ next-env.d.ts
 .idea/
 
 # OS
-Thumbs.db 
+Thumbs.db
+
+# logs
+/logs
+*.log
+
+# temporary directories
+/models
+/audio_input
+/audio_output
+
+# cache
+.cache/ 

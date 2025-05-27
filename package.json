@@ -7,7 +7,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "update-odds": "npx tsx scripts/force-update-now.ts",
+    "daily-update": "node scripts/daily-update.js",
+    "setup-scheduler": "scripts/setup-daily-task.bat"
   },
   "dependencies": {
     "@types/node": "^20.0.0",
@@ -28,6 +31,7 @@
   },
   "devDependencies": {
     "eslint": "^8.0.0",
-    "eslint-config-next": "^14.0.0"
+    "eslint-config-next": "^14.0.0",
+    "tsx": "^4.19.4"
   }
 }
