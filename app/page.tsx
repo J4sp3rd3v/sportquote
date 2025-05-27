@@ -24,6 +24,7 @@ import { useNavigationOverlay } from '@/hooks/useNavigationOverlay';
 import { useApiManager } from '@/lib/apiManager';
 import { useRealOdds } from '@/hooks/useRealOdds';
 import { globalDailyUpdater } from '@/lib/globalDailyUpdater';
+import { activeSeasonsManager } from '@/lib/activeSeasonsManager';
 import { FilterOptions, BestOdds, Match } from '@/types';
 import { TrendingUp, Users, Award, Clock, Filter, BarChart3, Star, Zap, Target, Calendar, Trophy, Sparkles } from 'lucide-react';
 
@@ -63,6 +64,17 @@ export default function HomePage() {
 
   // Usa solo i dati reali
   const matches = realMatches;
+
+  // Statistiche dinamiche basate sui campionati attivi
+  const activeSeasonsStats = useMemo(() => {
+    return activeSeasonsManager.getSeasonsStats();
+  }, []);
+
+  // Calcola sport unici dai campionati attivi
+  const activeSportsCount = useMemo(() => {
+    const uniqueSports = new Set(activeSeasonsStats.activeLeagues.map(league => league.sport));
+    return uniqueSports.size;
+  }, [activeSeasonsStats]);
 
   // Funzione per calcolare le migliori quote
   const calculateBestOdds = (match: Match): BestOdds => {
@@ -350,12 +362,12 @@ export default function HomePage() {
                   <div className="text-xs text-dark-400">Partite Disponibili</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary-400">54</div>
-                  <div className="text-xs text-dark-400">Bookmaker</div>
+                  <div className="text-2xl font-bold text-primary-400">{activeSeasonsStats.active}</div>
+                  <div className="text-xs text-dark-400">Campionati Attivi</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-accent-400">6</div>
-                  <div className="text-xs text-dark-400">Sport</div>
+                  <div className="text-2xl font-bold text-accent-400">{activeSportsCount}</div>
+                  <div className="text-xs text-dark-400">Sport Attivi</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-success-400">
@@ -582,7 +594,7 @@ export default function HomePage() {
               </div>
               <p className="text-dark-300 mb-6">
                 Sistema giornaliero globale. 1 aggiornamento alle 12:00 per tutto il sito, 
-                quote stabili 24h, 54+ bookmaker verificati, analisi arbitraggio automatica.
+                quote stabili 24h, {activeSeasonsStats.active} campionati attivi, {activeSportsCount} sport in corso.
               </p>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-sm text-dark-400">

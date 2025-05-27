@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { 
   Search, 
@@ -16,6 +16,7 @@ import {
   Target,
   Zap
 } from 'lucide-react';
+import { activeSeasonsManager } from '@/lib/activeSeasonsManager';
 
 interface Sport {
   id: string;
@@ -185,8 +186,58 @@ export default function SportsPage() {
   const [sortBy, setSortBy] = useState('Popolarità');
   const [selectedSport, setSelectedSport] = useState<Sport | null>(null);
 
-  // Filtra e ordina gli sport
-  const filteredSports = sports
+  // Statistiche dinamiche basate sui campionati attivi
+  const activeSeasonsStats = useMemo(() => {
+    return activeSeasonsManager.getSeasonsStats();
+  }, []);
+
+  // Filtra sport per mostrare solo quelli con campionati attivi
+  const sportsWithActiveLeagues = useMemo(() => {
+    const activeLeagues = activeSeasonsStats.activeLeagues;
+    
+    return sports.map(sport => {
+      // Trova i campionati attivi per questo sport
+      const activeSportLeagues = activeLeagues.filter(league => {
+        // Mappa i nomi dei campionati attivi ai nomi nei dati sport
+        const leagueMapping: { [key: string]: string } = {
+          'Champions League': 'champions-league',
+          'NBA': 'nba',
+          'Premier League': 'premier-league',
+          'La Liga': 'la-liga',
+          'Bundesliga': 'bundesliga',
+          'Ligue 1': 'ligue-1',
+          'Wimbledon ATP': 'atp-tour'
+        };
+        
+        const mappedName = leagueMapping[league.name];
+        return sport.leagues.some(l => l.id === mappedName || l.name === league.name);
+      });
+
+      // Aggiorna lo sport con solo i campionati attivi
+      const activeLeaguesForSport = sport.leagues.filter(league => {
+        return activeSportLeagues.some(activeLeague => 
+          league.name === activeLeague.name || 
+          (activeLeague.name === 'Champions League' && league.id === 'champions-league') ||
+          (activeLeague.name === 'NBA' && league.id === 'nba') ||
+          (activeLeague.name === 'Premier League' && league.id === 'premier-league') ||
+          (activeLeague.name === 'La Liga' && league.id === 'la-liga') ||
+          (activeLeague.name === 'Bundesliga' && league.id === 'bundesliga') ||
+          (activeLeague.name === 'Ligue 1' && league.id === 'ligue-1') ||
+          (activeLeague.name === 'Wimbledon ATP' && league.id === 'atp-tour')
+        );
+      });
+
+      return {
+        ...sport,
+        leagues: activeLeaguesForSport,
+        supported: activeLeaguesForSport.length > 0, // Solo supportato se ha campionati attivi
+        totalMatches: activeLeaguesForSport.reduce((sum, league) => sum + league.matches, 0)
+      };
+    }).filter(sport => sport.leagues.length > 0); // Mostra solo sport con campionati attivi
+  }, [activeSeasonsStats]);
+
+  // Filtra e ordina gli sport (solo quelli con campionati attivi)
+  const filteredSports = sportsWithActiveLeagues
     .filter(sport => {
       const matchesSearch = sport.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            sport.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -235,31 +286,34 @@ export default function SportsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-12">
+          <div className="inline-flex items-center bg-green-500/20 border border-green-500/30 text-green-400 px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <Calendar className="w-4 h-4 mr-2" />
+            Solo Campionati Attivi - Stagione 2024/25
+          </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-primary-200 to-accent-300 bg-clip-text text-transparent">
             Sport e Campionati
           </h1>
           <p className="text-xl text-dark-300 mb-8 max-w-3xl mx-auto">
-            Esplora tutti gli sport disponibili su MonitorQuote con campionati, 
-            statistiche dettagliate e i migliori bookmaker per ogni disciplina.
+            Esplora solo gli sport con campionati attualmente in corso. Quote aggiornate giornalmente per {activeSeasonsStats.active} campionati attivi.
           </p>
           
-          {/* Stats */}
+          {/* Statistiche Campionati Attivi */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
             <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
-              <div className="text-2xl font-bold text-primary-400">{sports.length}</div>
-              <div className="text-sm text-dark-400">Sport Totali</div>
+              <div className="text-2xl font-bold text-green-400">{activeSeasonsStats.active}</div>
+              <div className="text-sm text-dark-400">Campionati Attivi</div>
             </div>
             <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
-              <div className="text-2xl font-bold text-success-400">{sports.filter(s => s.supported).length}</div>
-              <div className="text-sm text-dark-400">Supportati</div>
+              <div className="text-2xl font-bold text-primary-400">{sportsWithActiveLeagues.length}</div>
+              <div className="text-sm text-dark-400">Sport Disponibili</div>
             </div>
             <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
-              <div className="text-2xl font-bold text-warning-400">{sports.reduce((sum, s) => sum + s.totalMatches, 0).toLocaleString()}</div>
-              <div className="text-sm text-dark-400">Partite Totali</div>
+              <div className="text-2xl font-bold text-accent-400">{sportsWithActiveLeagues.reduce((sum, sport) => sum + sport.totalMatches, 0).toLocaleString()}</div>
+              <div className="text-sm text-dark-400">Partite Attive</div>
             </div>
             <div className="bg-dark-800/50 border border-dark-700 rounded-lg p-4">
-              <div className="text-2xl font-bold text-accent-400">{sports.reduce((sum, s) => sum + s.leagues.length, 0)}</div>
-              <div className="text-sm text-dark-400">Campionati</div>
+              <div className="text-2xl font-bold text-yellow-400">{activeSeasonsStats.upcoming}</div>
+              <div className="text-sm text-dark-400">Prossime Stagioni</div>
             </div>
           </div>
         </div>
@@ -303,7 +357,7 @@ export default function SportsPage() {
           </div>
           
           <div className="text-sm text-dark-400">
-            Mostrando {filteredSports.length} di {sports.length} sport
+            Mostrando {filteredSports.length} di {sportsWithActiveLeagues.length} sport con campionati attivi
           </div>
         </div>
 

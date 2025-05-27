@@ -7,6 +7,7 @@ import { useAutoUpdate } from '@/hooks/useAutoUpdate';
 import BookmakerDebugPanel from './BookmakerDebugPanel';
 import ApiTestPanel from './ApiTestPanel';
 import AutoUpdatePanel from './AutoUpdatePanel';
+import ActiveSeasonsStats from './ActiveSeasonsStats';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -84,6 +85,9 @@ export default function Header({ onSearch, onSearchChange, searchQuery = '', onF
 
             {/* API Counter & Navigation */}
             <div className="flex items-center space-x-4">
+              {/* Statistiche Campionati Attivi */}
+              <ActiveSeasonsStats />
+              
               {/* API Counter & Auto Update */}
               <div className={`hidden lg:flex items-center space-x-2 px-3 py-1 rounded-lg ${getApiStatusBg()}`}>
                 <Database className={`h-4 w-4 ${getApiStatusColor()}`} />
