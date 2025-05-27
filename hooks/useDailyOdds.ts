@@ -34,7 +34,6 @@ export function useDailyOdds(): UseDailyOddsReturn {
   const [nextUpdate, setNextUpdate] = useState<Date | null>(null);
   const [isDataFresh, setIsDataFresh] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [hasInitialized, setHasInitialized] = useState(false);
   const [stats, setStats] = useState({
     matchesCount: 0,
     updateCount: 0,
@@ -46,175 +45,130 @@ export function useDailyOdds(): UseDailyOddsReturn {
     updatedToday: false
   });
 
-  // Carica partite dal servizio
-  const loadMatches = useCallback(async (forceUpdate: boolean = false) => {
-    if (isUpdating && !forceUpdate) return;
+  // Aggiorna statistiche
+  const updateStats = useCallback(() => {
+    const serviceStats = realOddsService.getServiceStats();
+    const now = new Date();
+    const timeDiff = serviceStats.nextUpdateTime.getTime() - now.getTime();
+    const hoursUntilNext = Math.max(0, Math.floor(timeDiff / (1000 * 60 * 60)));
+    const minutesUntilNext = Math.max(0, Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60)));
+    
+    setStats({
+      matchesCount: matches.length,
+      updateCount: serviceStats.requestsUsed,
+      hoursUntilNext,
+      minutesUntilNext,
+      errors: error ? [error] : [],
+      requestsUsed: serviceStats.requestsUsed,
+      requestsRemaining: serviceStats.requestsRemaining,
+      updatedToday: serviceStats.updatedToday
+    });
+    
+    setNextUpdate(serviceStats.nextUpdateTime);
+  }, [matches.length, error]);
+
+  // Carica partite dalla cache (sempre disponibile)
+  const loadFromCache = useCallback(() => {
+    console.log('📦 Caricamento partite dalla cache...');
+    
+    const cachedMatches = realOddsService.getCachedMatchesOnly();
+    const lastRealUpdate = realOddsService.getLastRealUpdate();
+    
+    setMatches(cachedMatches);
+    setLastUpdate(lastRealUpdate);
+    setIsDataFresh(cachedMatches.length > 0);
+    
+    console.log(`✅ ${cachedMatches.length} partite caricate dalla cache`);
+    
+    return cachedMatches.length > 0;
+  }, []);
+
+  // Aggiornamento completo (con richieste API)
+  const performUpdate = useCallback(async (force: boolean = false) => {
+    if (isUpdating && !force) return false;
     
     setIsUpdating(true);
     setError(null);
     
     try {
-      console.log(`🔄 ${forceUpdate ? 'Aggiornamento forzato' : 'Caricamento partite dal servizio'}...`);
+      console.log(`🔄 ${force ? 'Aggiornamento forzato' : 'Aggiornamento automatico'}...`);
       
-      const loadedMatches = await realOddsService.getAllRealMatches(forceUpdate);
-      const serviceStats = realOddsService.getServiceStats();
+      const updatedMatches = await realOddsService.getAllRealMatches(force);
       const lastRealUpdate = realOddsService.getLastRealUpdate();
       
-      setMatches(loadedMatches);
+      setMatches(updatedMatches);
       setLastUpdate(lastRealUpdate);
-      setNextUpdate(serviceStats.nextUpdateTime);
-      setIsDataFresh(loadedMatches.length > 0);
+      setIsDataFresh(updatedMatches.length > 0);
       
-      // Calcola ore e minuti fino al prossimo aggiornamento
-      const now = new Date();
-      const timeDiff = serviceStats.nextUpdateTime.getTime() - now.getTime();
-      const hoursUntilNext = Math.max(0, Math.floor(timeDiff / (1000 * 60 * 60)));
-      const minutesUntilNext = Math.max(0, Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60)));
+      console.log(`✅ ${updatedMatches.length} partite aggiornate`);
       
-      setStats({
-        matchesCount: loadedMatches.length,
-        updateCount: serviceStats.requestsUsed,
-        hoursUntilNext,
-        minutesUntilNext,
-        errors: [],
-        requestsUsed: serviceStats.requestsUsed,
-        requestsRemaining: serviceStats.requestsRemaining,
-        updatedToday: serviceStats.updatedToday
-      });
-      
-      if (loadedMatches.length > 0) {
-        console.log(`✅ ${loadedMatches.length} partite caricate con successo`);
-      } else {
-        console.log('📅 Nessuna partita disponibile (aggiornamento non necessario)');
-      }
+      return true;
       
     } catch (err) {
-      console.error('❌ Errore caricamento partite:', err);
+      console.error('❌ Errore aggiornamento:', err);
       
       const errorMessage = err instanceof Error ? err.message : 'Errore sconosciuto';
       setError(errorMessage);
       
-      // Aggiorna comunque le statistiche del servizio
-      const serviceStats = realOddsService.getServiceStats();
-      setStats(prev => ({
-        ...prev,
-        errors: [errorMessage],
-        requestsUsed: serviceStats.requestsUsed,
-        requestsRemaining: serviceStats.requestsRemaining,
-        updatedToday: serviceStats.updatedToday
-      }));
+      // In caso di errore, mantieni i dati dalla cache
+      loadFromCache();
+      
+      return false;
       
     } finally {
       setIsUpdating(false);
     }
-  }, [isUpdating]);
+  }, [isUpdating, loadFromCache]);
 
   // Forza aggiornamento manuale
   const forceUpdate = useCallback(async (): Promise<boolean> => {
-    if (isUpdating) {
-      console.log('⚠️ Aggiornamento già in corso');
-      return false;
-    }
-    
     setIsLoading(true);
     
     try {
-      await loadMatches(true);
-      return true;
-      
-    } catch (err) {
-      console.error('❌ Errore aggiornamento forzato:', err);
-      return false;
-      
+      return await performUpdate(true);
     } finally {
       setIsLoading(false);
     }
-  }, [loadMatches, isUpdating]);
+  }, [performUpdate]);
 
-  // Inizializzazione e aggiornamenti periodici
+  // Inizializzazione: SEMPRE carica dalla cache prima
   useEffect(() => {
-    // Evita caricamenti multipli
-    if (hasInitialized) return;
+    console.log('🚀 Inizializzazione useDailyOdds...');
     
-    console.log('🚀 Inizializzazione hook useDailyOdds...');
+    // STEP 1: Carica immediatamente dalla cache (se disponibile)
+    const hasCachedData = loadFromCache();
     
-    // SEMPRE: Carica dalla cache se disponibile (anche se non valida)
-    const cachedMatches = realOddsService.getCachedMatchesOnly();
-    if (cachedMatches.length > 0) {
-      console.log('✅ Cache trovata, caricamento immediato...');
-      
-      setMatches(cachedMatches);
-      setIsDataFresh(true);
-      const lastRealUpdate = realOddsService.getLastRealUpdate();
-      setLastUpdate(lastRealUpdate);
-      
-      // Aggiorna anche le statistiche
-      const serviceStats = realOddsService.getServiceStats();
-      setNextUpdate(serviceStats.nextUpdateTime);
-      
-      const now = new Date();
-      const timeDiff = serviceStats.nextUpdateTime.getTime() - now.getTime();
-      const hoursUntilNext = Math.max(0, Math.floor(timeDiff / (1000 * 60 * 60)));
-      const minutesUntilNext = Math.max(0, Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60)));
-      
-      setStats({
-        matchesCount: cachedMatches.length,
-        updateCount: serviceStats.requestsUsed,
-        hoursUntilNext,
-        minutesUntilNext,
-        errors: [],
-        requestsUsed: serviceStats.requestsUsed,
-        requestsRemaining: serviceStats.requestsRemaining,
-        updatedToday: serviceStats.updatedToday
-      });
-      
-      console.log(`✅ ${cachedMatches.length} partite caricate dalla cache all'avvio`);
+    // STEP 2: Controlla se serve aggiornamento (in background)
+    const serviceStats = realOddsService.getServiceStats();
+    if (serviceStats.shouldUpdateNow) {
+      console.log('⏰ Aggiornamento automatico necessario');
+      performUpdate(false);
+    } else if (!hasCachedData) {
+      console.log('📦 Nessuna cache disponibile, forzo aggiornamento');
+      performUpdate(true);
     } else {
-      console.log('⚠️ Nessuna cache trovata, sarà necessario aggiornamento');
+      console.log('✅ Cache disponibile, aggiornamento non necessario');
     }
     
-    // DOPO: Controlla se serve aggiornamento (solo se necessario)
-    loadMatches(false).finally(() => {
-      setHasInitialized(true);
-    });
-    
-  }, [loadMatches, hasInitialized]);
+  }, []); // Solo all'inizializzazione
 
-  // Aggiornamenti periodici separati dall'inizializzazione
+  // Aggiornamento statistiche periodico
   useEffect(() => {
-    if (!hasInitialized) return;
+    updateStats();
     
-    // Aggiorna statistiche ogni minuto per countdown
     const interval = setInterval(() => {
+      updateStats();
+      
+      // Controlla se è ora di aggiornare automaticamente
       const serviceStats = realOddsService.getServiceStats();
-      const now = new Date();
-      const timeDiff = serviceStats.nextUpdateTime.getTime() - now.getTime();
-      const hoursUntilNext = Math.max(0, Math.floor(timeDiff / (1000 * 60 * 60)));
-      const minutesUntilNext = Math.max(0, Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60)));
-      
-      setStats(prev => ({
-        ...prev,
-        hoursUntilNext,
-        minutesUntilNext,
-        requestsUsed: serviceStats.requestsUsed,
-        requestsRemaining: serviceStats.requestsRemaining,
-        updatedToday: serviceStats.updatedToday
-      }));
-      
-      setNextUpdate(serviceStats.nextUpdateTime);
-      
-      // Se è ora di aggiornare e non è già in corso, avvia aggiornamento automatico
       if (serviceStats.shouldUpdateNow && !isUpdating) {
-        console.log('⏰ Ora di aggiornamento giornaliero automatico');
-        loadMatches(false);
+        console.log('⏰ Ora di aggiornamento automatico');
+        performUpdate(false);
       }
-    }, 60000);
+    }, 60000); // Ogni minuto
     
-    // Cleanup
-    return () => {
-      clearInterval(interval);
-    };
-  }, [hasInitialized, loadMatches, isUpdating]);
+    return () => clearInterval(interval);
+  }, [updateStats, performUpdate, isUpdating]);
 
   // Verifica se ci sono dati reali
   const hasRealData = matches.length > 0 && isDataFresh;
