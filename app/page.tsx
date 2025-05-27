@@ -332,7 +332,7 @@ export default function HomePage() {
                   {lastUpdate ? new Date(lastUpdate).toLocaleDateString('it-IT') : 'Nessun aggiornamento'}
                 </div>
                 <div className="mt-3 text-xs text-dark-400">
-                  Prossimo aggiornamento: Domani alle 00:00
+                  Prossimo aggiornamento: Domani alle 12:00
                 </div>
               </div>
             </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { optimizedOddsService, OptimizedMatch } from '@/lib/optimizedOddsService';
+import { globalDailyUpdater } from '@/lib/globalDailyUpdater';
 import { Match, Odds } from '@/types';
 
 interface UseRealOddsReturn {
@@ -52,7 +53,9 @@ export function useRealOdds(sport?: string): UseRealOddsReturn {
         if (result.success && result.matches) {
           const convertedMatches = result.matches.map(convertOptimizedMatchToMatch);
           setMatches(convertedMatches);
-          setLastUpdate(new Date());
+          // Usa il timestamp dell'ultimo aggiornamento giornaliero globale
+          const globalLastUpdate = globalDailyUpdater.getLastGlobalUpdateTime();
+          setLastUpdate(globalLastUpdate || new Date());
         } else {
           setError(result.error || 'Errore durante l\'aggiornamento');
         }
@@ -62,7 +65,9 @@ export function useRealOdds(sport?: string): UseRealOddsReturn {
         if (result.success && result.allMatches) {
           const convertedMatches = result.allMatches.map(convertOptimizedMatchToMatch);
           setMatches(convertedMatches);
-          setLastUpdate(new Date());
+          // Usa il timestamp dell'ultimo aggiornamento giornaliero globale
+          const globalLastUpdate = globalDailyUpdater.getLastGlobalUpdateTime();
+          setLastUpdate(globalLastUpdate || new Date());
         } else {
           setError(result.error || 'Errore durante l\'aggiornamento');
         }
@@ -83,7 +88,9 @@ export function useRealOdds(sport?: string): UseRealOddsReturn {
           if (cachedMatches.length > 0) {
             const convertedMatches = cachedMatches.map(convertOptimizedMatchToMatch);
             setMatches(convertedMatches);
-            setLastUpdate(new Date());
+            // Usa il timestamp dell'ultimo aggiornamento giornaliero globale
+            const globalLastUpdate = globalDailyUpdater.getLastGlobalUpdateTime();
+            setLastUpdate(globalLastUpdate || new Date());
           } else {
             // Se non ci sono dati in cache, carica dati freschi
             await refreshOdds();
@@ -93,7 +100,9 @@ export function useRealOdds(sport?: string): UseRealOddsReturn {
           if (allCachedMatches.length > 0) {
             const convertedMatches = allCachedMatches.map(convertOptimizedMatchToMatch);
             setMatches(convertedMatches);
-            setLastUpdate(new Date());
+            // Usa il timestamp dell'ultimo aggiornamento giornaliero globale
+            const globalLastUpdate = globalDailyUpdater.getLastGlobalUpdateTime();
+            setLastUpdate(globalLastUpdate || new Date());
           } else {
             // Se non ci sono dati in cache, carica dati freschi
             await refreshOdds();

@@ -226,9 +226,12 @@ export class GlobalDailyUpdater {
       }
     }
     
-    // Aggiorna statistiche globali
+    // Aggiorna statistiche globali con orario fisso 12:00
     this.state.lastGlobalUpdate = today;
-    this.state.lastUpdateTime = new Date().toISOString();
+    // Imposta l'orario fisso dell'aggiornamento giornaliero (12:00)
+    const fixedUpdateTime = new Date();
+    fixedUpdateTime.setHours(this.DAILY_UPDATE_HOUR, 0, 0, 0); // 12:00:00
+    this.state.lastUpdateTime = fixedUpdateTime.toISOString();
     this.state.nextScheduledUpdate = this.calculateNextDailyUpdate();
     this.state.systemStats.totalDaysActive++;
     
