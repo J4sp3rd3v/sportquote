@@ -46,6 +46,7 @@ export class RealOddsService {
   constructor() {
     this.loadRequestCount();
     this.loadLastDailyUpdate();
+    this.loadCacheFromStorage();
   }
 
   static getInstance(): RealOddsService {
@@ -178,8 +179,12 @@ export class RealOddsService {
         lastRealUpdate: realUpdateTime
       });
       
+      // Salva cache persistente
+      this.saveCacheToStorage();
+      
       console.log(`✅ Dati reali ricevuti: ${Array.isArray(data) ? data.length : 1} elementi`);
       console.log(`📊 Richieste utilizzate: ${this.requestCount}/${this.MONTHLY_LIMIT}`);
+      console.log(`💾 Cache salvata: ${this.cache.size} elementi totali`);
       
       return data;
       
@@ -326,8 +331,21 @@ export class RealOddsService {
 
   // Funzione pubblica per ottenere sempre i dati dalla cache (per caricamento iniziale)
   getCachedMatchesOnly(): Match[] {
+    // Assicurati che la cache sia caricata
+    if (this.cache.size === 0 && typeof window !== 'undefined') {
+      this.loadCacheFromStorage();
+    }
+    
     const cachedMatches = this.getCachedMatches();
     console.log(`📦 Caricamento dalla cache: ${cachedMatches.length} partite disponibili`);
+    
+    // Se non ci sono dati in cache, prova a caricare dal localStorage
+    if (cachedMatches.length === 0 && typeof window !== 'undefined') {
+      console.log('🔄 Cache vuota, tentativo di ricaricamento dal localStorage...');
+      this.loadCacheFromStorage();
+      return this.getCachedMatches();
+    }
+    
     return cachedMatches;
   }
 
@@ -431,6 +449,64 @@ export class RealOddsService {
   async forceUpdate(): Promise<Match[]> {
     console.log('🔄 Aggiornamento forzato richiesto...');
     return this.getAllRealMatches(true);
+  }
+
+  // Carica cache dal localStorage
+  private loadCacheFromStorage(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedCache = localStorage.getItem('realOddsCache');
+        const savedLastUpdate = localStorage.getItem('realOddsLastUpdate');
+        
+        if (savedCache && savedLastUpdate) {
+          const cacheData = JSON.parse(savedCache);
+          this.lastRealUpdate = parseInt(savedLastUpdate);
+          
+          // Ricostruisci la cache Map
+          Object.entries(cacheData).forEach(([key, value]: [string, any]) => {
+            this.cache.set(key, value);
+          });
+          
+          console.log(`📦 Cache caricata dal localStorage: ${this.cache.size} elementi`);
+        }
+      } catch (error) {
+        console.warn('⚠️ Errore caricamento cache dal localStorage:', error);
+      }
+    }
+  }
+
+  // Salva cache nel localStorage
+  private saveCacheToStorage(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        const cacheObject = Object.fromEntries(this.cache);
+        localStorage.setItem('realOddsCache', JSON.stringify(cacheObject));
+        localStorage.setItem('realOddsLastUpdate', this.lastRealUpdate.toString());
+        console.log(`💾 Cache salvata nel localStorage: ${this.cache.size} elementi`);
+      } catch (error) {
+        console.warn('⚠️ Errore salvataggio cache nel localStorage:', error);
+      }
+    }
+  }
+
+  // Verifica se abbiamo dati validi in cache
+  hasValidCache(): boolean {
+    if (this.cache.size === 0) {
+      // Prova a caricare dal localStorage
+      this.loadCacheFromStorage();
+    }
+    
+    // Controlla se ci sono dati di partite in cache
+    const hasMatchData = Array.from(this.cache.keys()).some(key => key.includes('/odds?'));
+    
+    // Controlla se i dati non sono troppo vecchi (più di 48 ore)
+    const now = Date.now();
+    const maxAge = 48 * 60 * 60 * 1000; // 48 ore
+    const isNotTooOld = this.lastRealUpdate > 0 && (now - this.lastRealUpdate) < maxAge;
+    
+    console.log(`🔍 Verifica cache: hasMatchData=${hasMatchData}, isNotTooOld=${isNotTooOld}, cacheSize=${this.cache.size}`);
+    
+    return hasMatchData && isNotTooOld;
   }
 }
 
