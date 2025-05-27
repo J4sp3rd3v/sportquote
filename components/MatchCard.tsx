@@ -87,7 +87,7 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
       <div className="mb-4">
         <h4 className="text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3 flex items-center">
           <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-primary-600" />
-          Migliori Quote
+          Migliori Quote 1X2
         </h4>
         <div className={`grid gap-2 sm:gap-3 ${bestOdds.draw ? 'grid-cols-3' : 'grid-cols-2'}`}>
           {/* Home Win */}
@@ -147,6 +147,57 @@ export default function MatchCard({ match, bestOdds, onViewDetails, onOpenBookma
           </SmartBookmakerHandler>
         </div>
       </div>
+
+      {/* Handicap Odds */}
+      {bestOdds.bestHandicap && (
+        <div className="mb-4">
+          <h4 className="text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3 flex items-center">
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-accent-600" />
+            Quote Handicap ({bestOdds.bestHandicap.handicap > 0 ? '+' : ''}{bestOdds.bestHandicap.handicap})
+          </h4>
+          <div className="grid gap-2 sm:gap-3 grid-cols-2">
+            {/* Home Handicap */}
+            <SmartBookmakerHandler
+              bookmakerName={bestOdds.bestHandicap.home.bookmaker}
+              matchInfo={{
+                homeTeam: match.homeTeam,
+                awayTeam: match.awayTeam,
+                sport: match.sport
+              }}
+              className="bg-accent-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-accent-100 hover:border-accent-200 border border-transparent transition-all duration-200 group"
+            >
+              <div className="text-xs text-gray-500 mb-1 group-hover:text-accent-600">
+                {match.homeTeam.substring(0, 8)}... {bestOdds.bestHandicap.handicap > 0 ? '+' : ''}{bestOdds.bestHandicap.handicap}
+              </div>
+              <div className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-accent-700">{bestOdds.bestHandicap.home.odds}</div>
+              <div className="text-xs text-accent-600 font-medium truncate flex items-center justify-center">
+                {bestOdds.bestHandicap.home.bookmaker}
+                <ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </SmartBookmakerHandler>
+
+            {/* Away Handicap */}
+            <SmartBookmakerHandler
+              bookmakerName={bestOdds.bestHandicap.away.bookmaker}
+              matchInfo={{
+                homeTeam: match.homeTeam,
+                awayTeam: match.awayTeam,
+                sport: match.sport
+              }}
+              className="bg-accent-50 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-accent-100 hover:border-accent-200 border border-transparent transition-all duration-200 group"
+            >
+              <div className="text-xs text-gray-500 mb-1 group-hover:text-accent-600">
+                {match.awayTeam.substring(0, 8)}... {-bestOdds.bestHandicap.handicap > 0 ? '+' : ''}{-bestOdds.bestHandicap.handicap}
+              </div>
+              <div className="font-bold text-base sm:text-lg text-gray-900 group-hover:text-accent-700">{bestOdds.bestHandicap.away.odds}</div>
+              <div className="text-xs text-accent-600 font-medium truncate flex items-center justify-center">
+                {bestOdds.bestHandicap.away.bookmaker}
+                <ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </SmartBookmakerHandler>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="flex justify-between items-center mb-3 sm:mb-4 text-xs sm:text-sm text-gray-600">

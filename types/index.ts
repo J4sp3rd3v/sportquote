@@ -13,12 +13,22 @@ export interface Bookmaker {
   category: string;
 }
 
+export interface HandicapOdds {
+  home: number;
+  away: number;
+  handicap: number; // Es: -1.5, +0.5, etc.
+  bookmaker: string;
+  lastUpdated: Date;
+}
+
 export interface Odds {
   home: number;
   draw?: number;
   away: number;
   bookmaker: string;
   lastUpdated: Date;
+  // Quote handicap opzionali
+  handicap?: HandicapOdds[];
 }
 
 export interface Match {
@@ -50,6 +60,18 @@ export interface Sport {
   isPopular?: boolean;
 }
 
+export interface BestHandicapOdds {
+  home: {
+    odds: number;
+    bookmaker: string;
+  };
+  away: {
+    odds: number;
+    bookmaker: string;
+  };
+  handicap: number;
+}
+
 export interface BestOdds {
   home: {
     odds: number;
@@ -63,6 +85,8 @@ export interface BestOdds {
     odds: number;
     bookmaker: string;
   };
+  // Migliori quote handicap
+  bestHandicap?: BestHandicapOdds;
 }
 
 export interface FilterOptions {

@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { optimizedOddsApi } from '@/lib/optimizedOddsApi';
-import { OddsApiService } from '@/lib/oddsApi';
-import { fallbackDataService } from '@/lib/fallbackDataService';
-import { emergencyApiManager } from '@/lib/emergencyApiManager';
+import { optimizedOddsService } from '@/lib/optimizedOddsService';
+import { unifiedApiManager } from '@/lib/unifiedApiManager';
 import { Match } from '@/types';
 
 interface UseOptimizedOddsReturn {
@@ -11,223 +9,149 @@ interface UseOptimizedOddsReturn {
   error: string | null;
   useRealData: boolean;
   apiStats: any;
-  lastUpdate: Date | null;
+  lastUpdate: number | null;
   categoryStats: any;
   toggleDataSource: () => void;
-  forceRefresh: () => void;
-  refreshSport: (sport: string) => void;
+  forceRefresh: () => Promise<void>;
+  refreshSport: (sportKey: string) => Promise<void>;
 }
 
 export function useOptimizedOdds(): UseOptimizedOddsReturn {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [useRealData, setUseRealData] = useState(false);
-  const [apiStats, setApiStats] = useState<any>(null);
-  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const [categoryStats, setCategoryStats] = useState<any>(null);
+  const [useRealData] = useState(true); // Sempre usa dati reali
+  const [lastUpdate, setLastUpdate] = useState<number | null>(null);
 
-  // Usa sempre API reale (non più supporto per dati mock)
-  useEffect(() => {
-    setUseRealData(true);
-  }, []);
-
-  // Carica dati di fallback statici
-  const loadFallbackData = useCallback(async () => {
+  // Carica le quote ottimizzate
+  const loadOptimizedOdds = useCallback(async () => {
     try {
-      console.log('🔄 Caricamento dati di fallback per modalità emergenza');
-      const fallbackMatches = fallbackDataService.getFallbackMatches();
-      console.log(`✅ Caricati ${fallbackMatches.length} match di fallback`);
-      return fallbackMatches;
-    } catch (error) {
-      console.error('Errore nel caricamento dati di fallback:', error);
-      return [];
-    }
-  }, []);
-
-  // Carica dati dall'API ottimizzata
-  const loadRealData = useCallback(async () => {
-    try {
+      setLoading(true);
       setError(null);
-      
-      // Controlla sistema di emergenza prima di fare richieste
-      const emergencyState = emergencyApiManager.getEmergencyStatus();
-      if (emergencyState.isEmergencyMode && !emergencyApiManager.canMakeApiRequest()) {
-        console.warn('🚨 Sistema in modalità emergenza - usando dati di fallback');
-        setError('Sistema in modalità emergenza - preservando richieste API');
-        return await loadFallbackData();
-      }
-      
-      // Ottieni statistiche API con controllo di sicurezza
-      let stats = null;
-      try {
-        stats = await optimizedOddsApi.getApiStatus();
-        setApiStats(stats);
-      } catch (statsError) {
-        console.warn('Errore nel recupero statistiche API:', statsError);
-        // Continua comunque con il caricamento dati
-      }
-      
-      if (stats && typeof stats === 'object' && 'isActive' in stats && !stats.isActive) {
-        throw new Error('API non disponibile');
-      }
 
-      // Ottieni eventi da API giornaliera
-      const apiEvents = await optimizedOddsApi.getDailySportsUpdate();
+      console.log('🔄 Caricamento quote ottimizzate...');
       
-      if (!apiEvents || apiEvents.length === 0) {
-        throw new Error('Nessun dato disponibile dall\'API');
+      const categories = await optimizedOddsService.getAllSportsOdds();
+      
+      // Converti le categorie in formato Match[]
+      const allMatches: Match[] = [];
+      
+      for (const category of categories) {
+        for (const optimizedMatch of category.matches) {
+                     const match: Match = {
+             id: optimizedMatch.id,
+             sport: optimizedMatch.sport,
+             league: optimizedMatch.league,
+             homeTeam: optimizedMatch.homeTeam,
+             awayTeam: optimizedMatch.awayTeam,
+             date: new Date(optimizedMatch.commenceTime),
+             status: 'upcoming' as const,
+             odds: optimizedMatch.bookmakers.map(bm => ({
+               bookmaker: bm.displayName,
+               home: bm.odds.home,
+               away: bm.odds.away,
+               draw: bm.odds.draw,
+               lastUpdated: new Date(bm.lastUpdate)
+             }))
+           };
+          
+          allMatches.push(match);
+        }
       }
-
-      // Converti nel formato dell'app con controllo di sicurezza
-      const oddsService = new OddsApiService();
-      const convertedMatches = oddsService.convertToAppFormat(apiEvents);
       
-      console.log(`✅ Caricati ${convertedMatches.length} match dall'API ottimizzata`);
-      return convertedMatches;
+      setMatches(allMatches);
+      setLastUpdate(Date.now());
       
-    } catch (error) {
-      console.error('Errore API ottimizzata:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto API';
+      console.log(`✅ ${allMatches.length} partite caricate da ${categories.length} categorie`);
       
-      // Se è un errore di emergenza, usa dati di fallback
-      if (errorMessage.includes('EMERGENCY_MODE')) {
-        console.warn('🚨 Modalità emergenza attivata - usando dati di fallback');
-        setError('Modalità emergenza: preservando richieste API rimanenti');
-        return await loadFallbackData();
-      }
+    } catch (err) {
+      console.error('❌ Errore caricamento quote:', err);
+      setError(err instanceof Error ? err.message : 'Errore sconosciuto');
       
-      setError(errorMessage);
-      
-      // Fallback automatico ai dati di fallback
-      console.log('🔄 Fallback automatico ai dati di fallback');
-      return await loadFallbackData();
-    }
-  }, [loadFallbackData]);
-
-  // Carica dati dall'API reale
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const data = await loadRealData();
-      setMatches(data);
-      setLastUpdate(new Date());
-      
-      // Calcola statistiche per categoria se ci sono dati
-      if (data.length > 0) {
-        const stats = {
-          calcio: { count: data.filter(m => m.sport === 'calcio').length, leagues: [] },
-          tennis: { count: data.filter(m => m.sport === 'tennis').length, leagues: [] },
-          basket: { count: data.filter(m => m.sport === 'basket').length, leagues: [] },
-          altro: { count: data.filter(m => !['calcio', 'tennis', 'basket'].includes(m.sport)).length, leagues: [] }
-        };
-        setCategoryStats(stats);
-      }
-    } catch (error) {
-      console.error('Errore nel caricamento dati:', error);
-      setError('Errore nel caricamento dei dati');
-      
-      // Fallback finale ai dati di fallback
-      try {
-        const fallbackData = await loadFallbackData();
-        setMatches(fallbackData);
-      } catch (fallbackError) {
-        console.error('Errore anche nel caricamento fallback:', fallbackError);
+      // In caso di errore, mantieni le partite esistenti se disponibili
+      if (matches.length === 0) {
         setMatches([]);
       }
     } finally {
       setLoading(false);
     }
-  }, [loadRealData, loadFallbackData]);
+  }, [matches.length]);
+
+  // Forza aggiornamento
+  const forceRefresh = useCallback(async () => {
+    console.log('🔄 Aggiornamento forzato...');
+    await loadOptimizedOdds();
+  }, [loadOptimizedOdds]);
+
+  // Aggiorna sport specifico
+  const refreshSport = useCallback(async (sportKey: string) => {
+    try {
+      console.log(`🔄 Aggiornamento ${sportKey}...`);
+      
+      const sportMatches = await optimizedOddsService.getSportOdds(sportKey);
+      
+      // Aggiorna solo le partite di questo sport
+      setMatches(prevMatches => {
+        const otherMatches = prevMatches.filter(m => {
+          // Rimuovi partite del sport che stiamo aggiornando
+          const sportMapping = {
+            'soccer_italy_serie_a': 'calcio',
+            'soccer_epl': 'calcio',
+            'soccer_uefa_champs_league': 'calcio',
+            'basketball_nba': 'basket',
+            'tennis_atp_french_open': 'tennis',
+            'americanfootball_nfl': 'football-americano'
+          };
+          
+          const targetSport = sportMapping[sportKey as keyof typeof sportMapping];
+          return m.sport !== targetSport;
+        });
+        
+                 // Aggiungi nuove partite
+         const newMatches: Match[] = sportMatches.map(optimizedMatch => ({
+           id: optimizedMatch.id,
+           sport: optimizedMatch.sport,
+           league: optimizedMatch.league,
+           homeTeam: optimizedMatch.homeTeam,
+           awayTeam: optimizedMatch.awayTeam,
+           date: new Date(optimizedMatch.commenceTime),
+           status: 'upcoming' as const,
+           odds: optimizedMatch.bookmakers.map(bm => ({
+             bookmaker: bm.displayName,
+             home: bm.odds.home,
+             away: bm.odds.away,
+             draw: bm.odds.draw,
+             lastUpdated: new Date(bm.lastUpdate)
+           }))
+         }));
+        
+        return [...otherMatches, ...newMatches];
+      });
+      
+      setLastUpdate(Date.now());
+      
+    } catch (err) {
+      console.error(`❌ Errore aggiornamento ${sportKey}:`, err);
+      setError(err instanceof Error ? err.message : 'Errore aggiornamento sport');
+    }
+  }, []);
 
   // Caricamento iniziale
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    loadOptimizedOdds();
+  }, [loadOptimizedOdds]);
 
-  // Aggiornamento periodico per API reale (ogni 4 ore - controllo se ci sono sport da aggiornare)
-  useEffect(() => {
-    if (!useRealData) return;
-
-    const interval = setInterval(() => {
-      console.log('🔄 Controllo periodico aggiornamenti giornalieri');
-      loadData();
-    }, 4 * 60 * 60 * 1000); // 4 ore
-
-    return () => clearInterval(interval);
-  }, [useRealData, loadData]);
-
-  // Aggiorna statistiche API periodicamente
-  useEffect(() => {
-    if (!useRealData) return;
-
-    const updateStats = async () => {
-      try {
-        const stats = await optimizedOddsApi.getApiStatus();
-        setApiStats(stats);
-      } catch (error) {
-        console.error('Errore aggiornamento statistiche:', error);
-      }
-    };
-
-    // Aggiorna statistiche ogni 30 minuti
-    const interval = setInterval(updateStats, 30 * 60 * 1000);
-    
-    return () => clearInterval(interval);
-  }, [useRealData]);
-
-  // Toggle disabilitato - ora usiamo sempre API reale
-  const toggleDataSource = useCallback(() => {
-    console.log('Toggle disabilitato - usiamo sempre API reale');
-  }, []);
-
-  // Forza aggiornamento completo
-  const forceRefresh = useCallback(async () => {
-    console.log('🔄 Aggiornamento forzato richiesto');
-    
-    if (useRealData) {
-      // Pulisci cache per forzare nuove richieste
-      optimizedOddsApi.cleanExpiredCache();
-    }
-    
-    await loadData();
-  }, [useRealData, loadData]);
-
-  // Aggiorna sport specifico (solo per API reale)
-  const refreshSport = useCallback(async (sport: string) => {
-    if (!useRealData) {
-      console.log('Aggiornamento sport disponibile solo con API reale');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      console.log(`🔄 Aggiornamento forzato per sport: ${sport}`);
-      
-      const events = await optimizedOddsApi.forceUpdateSport(sport);
-      
-      if (events.length > 0) {
-        // Converti e aggiorna solo le partite di questo sport
-        const oddsService = new OddsApiService();
-        const convertedMatches = oddsService.convertToAppFormat(events);
-        
-        setMatches(prevMatches => {
-          // Rimuovi le partite esistenti di questo sport e aggiungi quelle nuove
-          const filteredMatches = prevMatches.filter(match => match.sport !== sport);
-          return [...filteredMatches, ...convertedMatches];
-        });
-        
-        console.log(`✅ Aggiornate ${convertedMatches.length} partite per ${sport}`);
-      }
-    } catch (error) {
-      console.error(`Errore aggiornamento sport ${sport}:`, error);
-      setError(`Errore aggiornamento ${sport}: ${(error as Error).message}`);
-    } finally {
-      setLoading(false);
-    }
-  }, [useRealData]);
+  // Ottieni statistiche API
+  const apiStats = unifiedApiManager.getDetailedStats();
+  
+  // Calcola statistiche per categoria
+  const categoryStats = {
+    calcio: matches.filter(m => m.sport === 'calcio').length,
+    basket: matches.filter(m => m.sport === 'basket').length,
+    tennis: matches.filter(m => m.sport === 'tennis').length,
+    'football-americano': matches.filter(m => m.sport === 'football-americano').length,
+    totale: matches.length
+  };
 
   return {
     matches,
@@ -237,7 +161,7 @@ export function useOptimizedOdds(): UseOptimizedOddsReturn {
     apiStats,
     lastUpdate,
     categoryStats,
-    toggleDataSource,
+    toggleDataSource: () => {}, // Non più necessario, sempre dati reali
     forceRefresh,
     refreshSport
   };

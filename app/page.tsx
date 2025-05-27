@@ -14,7 +14,7 @@ import BestOddsHighlight from '@/components/BestOddsHighlight';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ArbitrageOpportunities from '@/components/ArbitrageOpportunities';
 import ArbitrageSystemInfo from '@/components/ArbitrageSystemInfo';
-import DailyApiMonitor from '@/components/DailyApiMonitor';
+import UnifiedApiMonitor from '@/components/UnifiedApiMonitor';
 import BookmakerTestPanel from '@/components/BookmakerTestPanel';
 import OptimizedApiStats from '@/components/OptimizedApiStats';
 import DebugPanel from '@/components/DebugPanel';
@@ -69,10 +69,38 @@ export default function HomePage() {
     const bestAway = awayOdds.reduce((best, current) => current.odds > best.odds ? current : best);
     const bestDraw = drawOdds.length > 0 ? drawOdds.reduce((best, current) => current.odds > best.odds ? current : best) : undefined;
 
+    // Calcola migliori quote handicap
+    let bestHandicap = undefined;
+    const allHandicapOdds = match.odds
+      .filter(odd => odd.handicap && odd.handicap.length > 0)
+      .flatMap(odd => odd.handicap!);
+
+    if (allHandicapOdds.length > 0) {
+      // Trova l'handicap con le quote più equilibrate (somma più alta)
+      const handicapByValue = allHandicapOdds.reduce((acc, handicap) => {
+        const key = handicap.handicap.toString();
+        if (!acc[key] || (handicap.home + handicap.away) > (acc[key].home + acc[key].away)) {
+          acc[key] = handicap;
+        }
+        return acc;
+      }, {} as Record<string, any>);
+
+      const bestHandicapOdd = Object.values(handicapByValue).reduce((best: any, current: any) => 
+        (current.home + current.away) > (best.home + best.away) ? current : best
+      );
+
+      bestHandicap = {
+        home: { odds: bestHandicapOdd.home, bookmaker: bestHandicapOdd.bookmaker },
+        away: { odds: bestHandicapOdd.away, bookmaker: bestHandicapOdd.bookmaker },
+        handicap: bestHandicapOdd.handicap
+      };
+    }
+
     return {
       home: bestHome,
       away: bestAway,
-      draw: bestDraw
+      draw: bestDraw,
+      bestHandicap
     };
   };
 
@@ -353,7 +381,7 @@ export default function HomePage() {
 
         {/* Daily API Monitor - Sistema giornaliero */}
         <div className="mb-8">
-          <DailyApiMonitor />
+                          <UnifiedApiMonitor />
         </div>
 
         {/* Sistema di Arbitraggio - Opportunità del giorno */}
