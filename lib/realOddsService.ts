@@ -105,16 +105,22 @@ export class RealOddsService {
     const now = new Date();
     const currentHour = now.getHours();
     
+    console.log(`🕐 Debug aggiornamento: Ora corrente: ${currentHour}:${now.getMinutes()}, Ora aggiornamento: ${this.DAILY_UPDATE_HOUR}:00`);
+    console.log(`📅 Debug aggiornamento: Oggi: ${today}, Ultimo aggiornamento: ${this.lastDailyUpdate}`);
+    
     // Se non è ancora l'ora dell'aggiornamento (12:00), non aggiornare
     if (currentHour < this.DAILY_UPDATE_HOUR) {
+      console.log(`⏰ Non è ancora ora di aggiornare (${currentHour} < ${this.DAILY_UPDATE_HOUR})`);
       return false;
     }
     
     // Se già aggiornato oggi, non aggiornare di nuovo
     if (this.lastDailyUpdate === today) {
+      console.log(`✅ Già aggiornato oggi (${this.lastDailyUpdate})`);
       return false;
     }
     
+    console.log(`🔄 È ora di aggiornare! (${currentHour} >= ${this.DAILY_UPDATE_HOUR} e non aggiornato oggi)`);
     return true;
   }
 
@@ -245,6 +251,9 @@ export class RealOddsService {
         if (cachedData.length > 0) {
           console.log(`📦 Restituisco ${cachedData.length} partite dalla cache`);
           return cachedData;
+        } else {
+          console.log('📦 Cache vuota, ma non è ancora ora di aggiornare. Restituisco array vuoto.');
+          return [];
         }
       }
       
@@ -277,20 +286,24 @@ export class RealOddsService {
         throw new Error('NESSUNA_PARTITA_REALE_TROVATA');
       }
 
-      // Salva timestamp aggiornamento giornaliero
-      if (needsUpdate) {
-        this.saveLastDailyUpdate();
-        console.log('✅ Aggiornamento giornaliero completato e salvato');
-      }
-
-      console.log(`🎉 TOTALE PARTITE REALI CARICATE: ${allMatches.length}`);
-      console.log(`📊 Sport con partite: ${availableSports.length}`);
-      console.log(`🔢 Richieste API utilizzate: ${this.requestCount}/${this.MONTHLY_LIMIT}`);
+      // Marca come aggiornato oggi solo se abbiamo ottenuto dati
+      this.saveLastDailyUpdate();
+      
+      console.log(`✅ Aggiornamento giornaliero completato: ${allMatches.length} partite reali caricate`);
+      console.log(`📊 Richieste utilizzate: ${this.requestCount}/${this.MONTHLY_LIMIT}`);
       
       return allMatches;
       
     } catch (error) {
-      console.error('❌ ERRORE CRITICO - Impossibile caricare partite reali:', error);
+      console.error('❌ Errore aggiornamento giornaliero:', error);
+      
+      // In caso di errore, prova a restituire dati dalla cache se disponibili
+      const cachedData = this.getCachedMatches();
+      if (cachedData.length > 0) {
+        console.log(`📦 Errore API, restituisco ${cachedData.length} partite dalla cache`);
+        return cachedData;
+      }
+      
       throw error;
     }
   }

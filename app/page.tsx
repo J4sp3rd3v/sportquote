@@ -11,6 +11,8 @@ import QuickStats from '@/components/dashboard/QuickStats';
 import DailyUpdateStatus from '@/components/DailyUpdateStatus';
 import LiveMatches from '@/components/dashboard/LiveMatches';
 import ArbitrageOpportunities from '@/components/ArbitrageOpportunities';
+import ArbitrageDebugInfo from '@/components/ArbitrageDebugInfo';
+import SystemDebugInfo from '@/components/SystemDebugInfo';
 import AdvancedAnalysis from '@/components/dashboard/AdvancedAnalysis';
 import TodayHighlights from '@/components/dashboard/TodayHighlights';
 import ActiveCampaigns from '@/components/dashboard/ActiveCampaigns';
@@ -293,6 +295,12 @@ export default function HomePage() {
                   </p>
                   <ArbitrageOpportunities matches={filteredMatches} />
                 </div>
+                
+                {/* Debug Info per sviluppatori */}
+                <ArbitrageDebugInfo matches={filteredMatches} />
+                
+                {/* Sistema Debug Info */}
+                <SystemDebugInfo />
               </div>
             )}
 

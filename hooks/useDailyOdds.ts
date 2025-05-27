@@ -34,6 +34,7 @@ export function useDailyOdds(): UseDailyOddsReturn {
   const [nextUpdate, setNextUpdate] = useState<Date | null>(null);
   const [isDataFresh, setIsDataFresh] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const [stats, setStats] = useState({
     matchesCount: 0,
     updateCount: 0,
@@ -53,7 +54,7 @@ export function useDailyOdds(): UseDailyOddsReturn {
     setError(null);
     
     try {
-      console.log('🔄 Caricamento partite dal servizio...');
+      console.log(`🔄 ${forceUpdate ? 'Aggiornamento forzato' : 'Caricamento partite dal servizio'}...`);
       
       const loadedMatches = await realOddsService.getAllRealMatches(forceUpdate);
       const serviceStats = realOddsService.getServiceStats();
@@ -81,7 +82,11 @@ export function useDailyOdds(): UseDailyOddsReturn {
         updatedToday: serviceStats.updatedToday
       });
       
-      console.log(`✅ ${loadedMatches.length} partite caricate con successo`);
+      if (loadedMatches.length > 0) {
+        console.log(`✅ ${loadedMatches.length} partite caricate con successo`);
+      } else {
+        console.log('📅 Nessuna partita disponibile (aggiornamento non necessario)');
+      }
       
     } catch (err) {
       console.error('❌ Errore caricamento partite:', err);
@@ -128,8 +133,19 @@ export function useDailyOdds(): UseDailyOddsReturn {
 
   // Inizializzazione e aggiornamenti periodici
   useEffect(() => {
+    // Evita caricamenti multipli
+    if (hasInitialized) return;
+    
     // Carica partite all'avvio (solo se necessario)
-    loadMatches(false);
+    loadMatches(false).finally(() => {
+      setHasInitialized(true);
+    });
+    
+  }, [loadMatches, hasInitialized]);
+
+  // Aggiornamenti periodici separati dall'inizializzazione
+  useEffect(() => {
+    if (!hasInitialized) return;
     
     // Aggiorna statistiche ogni minuto per countdown
     const interval = setInterval(() => {
@@ -161,7 +177,7 @@ export function useDailyOdds(): UseDailyOddsReturn {
     return () => {
       clearInterval(interval);
     };
-  }, [loadMatches, isUpdating]);
+  }, [hasInitialized, loadMatches, isUpdating]);
 
   // Verifica se ci sono dati reali
   const hasRealData = matches.length > 0 && isDataFresh;

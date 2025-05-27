@@ -27,32 +27,21 @@ export class ArbitrageCalculator {
     if (match.sport !== 'tennis' || match.odds.length < 2) return null;
 
     // Trova le migliori quote per ogni giocatore
-    const homeOdds = match.odds.map(odd => ({ 
-      bookmaker: odd.bookmaker, 
-      odds: odd.home,
-      percentage: 100 / odd.home
-    }));
+    const homeOdds = match.odds
+      .map(odd => ({ bookmaker: odd.bookmaker, odds: odd.home }))
+      .reduce((best, current) => current.odds > best.odds ? current : best);
     
-    const awayOdds = match.odds.map(odd => ({ 
-      bookmaker: odd.bookmaker, 
-      odds: odd.away,
-      percentage: 100 / odd.away
-    }));
-
-    // Trova le quote più alte (percentuali più basse)
-    const bestHome = homeOdds.reduce((best, current) => 
-      current.odds > best.odds ? current : best
-    );
-    
-    const bestAway = awayOdds.reduce((best, current) => 
-      current.odds > best.odds ? current : best
-    );
+    const awayOdds = match.odds
+      .map(odd => ({ bookmaker: odd.bookmaker, odds: odd.away }))
+      .reduce((best, current) => current.odds > best.odds ? current : best);
 
     // Calcola percentuale di arbitraggio
-    const arbitragePercentage = bestHome.percentage + bestAway.percentage;
+    const homePercentage = 100 / homeOdds.odds;
+    const awayPercentage = 100 / awayOdds.odds;
+    const arbitragePercentage = homePercentage + awayPercentage;
     
-    // Solo se è un'opportunità (sotto 100%)
-    if (arbitragePercentage >= 100) return null;
+    // Soglia più permissiva: sotto 99.5% invece di 100%
+    if (arbitragePercentage >= 99.5) return null;
 
     const profit = 100 - arbitragePercentage;
 
@@ -63,20 +52,12 @@ export class ArbitrageCalculator {
       percentage: arbitragePercentage,
       profit,
       bestOdds: {
-        outcome1: { 
-          bookmaker: bestHome.bookmaker, 
-          odds: bestHome.odds, 
-          label: match.homeTeam 
-        },
-        outcome2: { 
-          bookmaker: bestAway.bookmaker, 
-          odds: bestAway.odds, 
-          label: match.awayTeam 
-        }
+        outcome1: { bookmaker: homeOdds.bookmaker, odds: homeOdds.odds, label: match.homeTeam },
+        outcome2: { bookmaker: awayOdds.bookmaker, odds: awayOdds.odds, label: match.awayTeam }
       },
-      calculation: `(100/${bestHome.odds.toFixed(2)}) + (100/${bestAway.odds.toFixed(2)}) = ${arbitragePercentage.toFixed(2)}%`,
-      recommendation: `Scommetti ${(bestHome.percentage / arbitragePercentage * 100).toFixed(1)}% su ${match.homeTeam} e ${(bestAway.percentage / arbitragePercentage * 100).toFixed(1)}% su ${match.awayTeam}`,
-      riskLevel: profit > 5 ? 'low' : profit > 2 ? 'medium' : 'high'
+      calculation: `(100/${homeOdds.odds.toFixed(2)}) + (100/${awayOdds.odds.toFixed(2)}) = ${arbitragePercentage.toFixed(2)}%`,
+      recommendation: `Scommetti ${(homePercentage / arbitragePercentage * 100).toFixed(1)}% su ${match.homeTeam} e ${(awayPercentage / arbitragePercentage * 100).toFixed(1)}% su ${match.awayTeam}`,
+      riskLevel: profit > 4 ? 'low' : profit > 2 ? 'medium' : 'high'
     };
   }
 
@@ -109,8 +90,8 @@ export class ArbitrageCalculator {
     const awayPercentage = 100 / awayOdds.odds;
     const arbitragePercentage = homePercentage + drawPercentage + awayPercentage;
     
-    // Solo se è un'opportunità (sotto 100%)
-    if (arbitragePercentage >= 100) return null;
+    // Soglia più permissiva: sotto 99.5% invece di 100%
+    if (arbitragePercentage >= 99.5) return null;
 
     const profit = 100 - arbitragePercentage;
 
@@ -152,8 +133,8 @@ export class ArbitrageCalculator {
     const awayPercentage = 100 / awayOdds.odds;
     const arbitragePercentage = homePercentage + awayPercentage;
     
-    // Solo se è un'opportunità (sotto 100%)
-    if (arbitragePercentage >= 100) return null;
+    // Soglia più permissiva: sotto 99.5% invece di 100%
+    if (arbitragePercentage >= 99.5) return null;
 
     const profit = 100 - arbitragePercentage;
 
